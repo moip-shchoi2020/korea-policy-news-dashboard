@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="대한민국 정책브리핑 보도자료 중 AI·정보화 사업·시스템·AX 관련 자료를 달력과 목록으로 조회하는 대시보드" name="description"/>
+<title>정부 보도자료 AI·정보화 동향</title>
+<link href="assets/style.css" rel="stylesheet"/>
+</head>
+<body>
+<a class="skip-link" href="#main-content">본문 바로가기</a>
+<header class="site-header">
+<div class="header-inner">
+<div>
+<p class="eyebrow">대한민국 정책브리핑 보도자료 모니터링</p>
+<h1 id="site-title">정부 보도자료 AI·정보화 동향</h1>
+<p class="header-description">키워드를 바꾸면 현재 월의 제목·요약·본문을 브라우저에서 즉시 재집계합니다.</p>
+</div>
+<div aria-live="polite" class="header-status">
+<span class="status-label">데이터 최종 갱신</span>
+<strong id="last-updated">수집 전</strong>
+</div>
+</div>
+</header>
+<main class="page-shell" id="main-content"><section aria-labelledby="calendar-heading" class="panel calendar-panel">
+<div class="calendar-toolbar">
+<div>
+<p class="section-kicker">월별 현황</p>
+<h2 id="calendar-heading">달력</h2>
+</div>
+<div aria-label="달력 이동" class="calendar-navigation">
+<button aria-label="이전 달" class="icon-button" id="previous-month-button" type="button">‹</button>
+<button class="button button-small" id="today-button" type="button">오늘</button>
+<button aria-label="다음 달" class="icon-button" id="next-month-button" type="button">›</button>
+</div>
+</div><div aria-labelledby="keyword-heading" class="keyword-panel keyword-inset">
+<div class="section-heading">
+<div>
+<p class="section-kicker">집계 조건</p>
+<h2 id="keyword-heading">키워드 편집 및 재집계</h2>
+</div>
+<p class="dataset-summary" id="dataset-summary">저장된 데이터 0건</p>
+</div>
+<div class="keyword-controls">
+<div class="field-group">
+<label for="keyword-input">키워드</label>
+<textarea aria-describedby="keyword-help" id="keyword-input" rows="2" spellcheck="false"></textarea>
+<p class="help-text" id="keyword-help">쉼표 또는 줄바꿈으로 구분합니다. 하나라도 포함되면 집계합니다. 비워 두면 전체 자료를 표시합니다.</p>
+</div>
+<div class="button-group">
+<button class="button button-primary" id="reaggregate-button" type="button">재집계</button>
+<button class="button" id="reset-keywords-button" type="button">기본값 복원</button>
+</div>
+</div>
+<div aria-label="적용 중인 키워드" class="keyword-chips" id="keyword-chips"></div>
+</div>
+<div class="month-title-row">
+<h3 id="month-title"></h3>
+<p aria-live="polite" class="month-summary" id="month-summary"></p>
+</div>
+<div aria-labelledby="month-title" class="calendar" role="grid">
+<div class="calendar-weekdays" role="row">
+<span role="columnheader">일</span>
+<span role="columnheader">월</span>
+<span role="columnheader">화</span>
+<span role="columnheader">수</span>
+<span role="columnheader">목</span>
+<span role="columnheader">금</span>
+<span role="columnheader">토</span>
+</div>
+<div class="calendar-grid" id="calendar-grid" role="rowgroup"></div>
+</div>
+<p class="calendar-legend"><span class="legend-today"></span> 오늘 · 달력 표기 예: <strong>5건 (2건)</strong> = 키워드 일치 5건 중 수정본 2건</p>
+</section>
+
+
+<section aria-labelledby="selected-date-heading" class="panel list-panel">
+<div class="section-heading list-heading">
+<div>
+<p class="section-kicker">선택 날짜</p>
+<h2 id="selected-date-heading">보도자료 목록</h2>
+</div>
+<p class="dataset-summary" id="selected-date-summary"></p>
+</div>
+<div aria-live="polite" class="article-list" id="article-list"></div>
+</section>
+<section aria-labelledby="detail-title" class="panel detail-panel" hidden="" id="article-detail-panel">
+<button aria-label="상세 내용 닫기" class="detail-close" id="close-detail-button" type="button">닫기</button>
+<article>
+<header class="detail-header">
+<div class="detail-badges" id="detail-badges"></div>
+<h2 id="detail-title"></h2>
+<p class="detail-summary" id="detail-summary"></p>
+<div class="detail-meta" id="detail-meta"></div>
+<a class="source-link" id="detail-source-link" rel="noopener noreferrer" target="_blank">정책브리핑 원문 보기</a>
+</header>
+<div class="copyright-notice">
+<strong>출처 표시</strong>
+<span>대한민국 정책브리핑 및 해당 부처. 본 대시보드는 텍스트 중심으로 제공하며 이미지·영상·첨부파일은 재게시하지 않습니다.</span>
+</div>
+<div class="detail-body" id="detail-body"></div>
+</article>
+</section>
+</main>
+<footer class="site-footer">
+<p>
+      자료 출처:
+      <a href="https://www.korea.kr/briefing/pressReleaseList.do" id="source-list-link" rel="noopener noreferrer" target="_blank">대한민국 정책브리핑 보도자료</a>
+      ·
+      <a href="https://www.korea.kr/guide/copyRight.do" id="copyright-link" rel="noopener noreferrer" target="_blank">저작권 정책</a>
+</p>
+<p>요약은 정책브리핑 부제목을 우선 사용하고, 부제목이 없으면 본문 앞부분을 자동 발췌합니다.</p>
+</footer>
+<template id="article-card-template">
+<button class="article-card" type="button">
+<span class="article-card-topline"></span>
+<strong class="article-card-title"></strong>
+<span class="article-card-summary"></span>
+<span class="article-card-keywords"></span>
+</button>
+</template>
+<script defer="" src="assets/app.js"></script>
+</body>
+</html>

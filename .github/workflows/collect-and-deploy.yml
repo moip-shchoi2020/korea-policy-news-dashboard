@@ -1,0 +1,114 @@
+name: 보도자료 수집 및 대시보드 배포
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "collector/**"
+      - "tests/**"
+      - "requirements.txt"
+      - ".github/workflows/collect-and-deploy.yml"
+  schedule:
+    - cron: "23 0,6,12,18 * * *"
+      timezone: "Asia/Seoul"
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: "수집 시작일 YYYY-MM-DD (비우면 최근 기간 재확인)"
+        required: false
+        type: string
+      end_date:
+        description: "수집 종료일 YYYY-MM-DD (시작일과 함께 입력)"
+        required: false
+        type: string
+      lookback_days:
+        description: "날짜를 비운 경우 오늘 포함 재확인할 일수"
+        required: false
+        default: "14"
+        type: string
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: policy-dashboard-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 가져오기
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Python 패키지 설치
+        run: pip install -r requirements.txt
+
+      - name: Python 기본 테스트
+        run: python -m unittest discover -s tests -v
+
+      - name: JavaScript 문법 검사
+        run: node --check docs/assets/app.js
+
+      - name: 보도자료 수집
+        if: github.event_name != 'push'
+        env:
+          DATA_GO_KR_SERVICE_KEY: ${{ secrets.DATA_GO_KR_SERVICE_KEY }}
+          START_DATE: ${{ inputs.start_date }}
+          END_DATE: ${{ inputs.end_date }}
+          LOOKBACK_DAYS: ${{ inputs.lookback_days || '14' }}
+        shell: bash
+        run: |
+          args=(--lookback-days "$LOOKBACK_DAYS" --continue-on-error)
+          if [[ -n "$START_DATE" && -n "$END_DATE" ]]; then
+            args+=(--start-date "$START_DATE" --end-date "$END_DATE")
+          fi
+          python -m collector.collect "${args[@]}"
+
+      - name: 색인 재생성
+        run: python -m collector.build_indexes
+
+      - name: 변경 데이터 저장소에 반영
+        if: github.event_name != 'push'
+        shell: bash
+        run: |
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+          git add docs/data
+          if git diff --cached --quiet; then
+            echo "새 데이터 변경이 없습니다."
+          else
+            git commit -m "data: 정책브리핑 보도자료 자동 갱신"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+
+      - name: GitHub Pages 설정
+        uses: actions/configure-pages@v5
+
+      - name: Pages 배포 파일 업로드
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: GitHub Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v4

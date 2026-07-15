@@ -15,7 +15,7 @@ on:
       - "requirements.txt"
       - ".github/workflows/collect-and-deploy.yml"
   schedule:
-    - cron: "23 0,6,12,18 * * *"
+    - cron: "23 6,18 * * *"
       timezone: "Asia/Seoul"
   workflow_dispatch:
     inputs:
@@ -78,18 +78,21 @@ jobs:
       - name: 보도자료 수집
         if: github.event_name != 'push'
         env:
-          DATA_GO_KR_SERVICE_KEY: ${{ secrets.DATA_GO_KR_SERVICE_KEY }}
           START_DATE: ${{ inputs.start_date }}
           END_DATE: ${{ inputs.end_date }}
-          LOOKBACK_DAYS: ${{ inputs.lookback_days || '14' }}
+          INPUT_LOOKBACK_DAYS: ${{ inputs.lookback_days || '14' }}
         shell: bash
         run: |
           set -euo pipefail
+          LOOKBACK_DAYS="$INPUT_LOOKBACK_DAYS"
+          if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
+            # HTML 상세페이지를 반복 조회하므로 정기 실행은 최근 3일만 재확인한다.
+            LOOKBACK_DAYS="3"
+          fi
           args=(--lookback-days "$LOOKBACK_DAYS" --continue-on-error)
           if [[ -n "$START_DATE" && -n "$END_DATE" ]]; then
             args+=(--start-date "$START_DATE" --end-date "$END_DATE")
           else
-            # 기본 최근 14일 수집에서 0건이면 인증키/승인 문제를 즉시 드러낸다.
             args+=(--require-records)
           fi
           python -m collector.collect "${args[@]}"
@@ -102,7 +105,7 @@ jobs:
           echo '```text' >> "$GITHUB_STEP_SUMMARY"
           find docs/data -maxdepth 5 -type f -print | sort | tee -a "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
-          echo "manifest.json:" 
+          echo "manifest.json:"
           cat docs/data/manifest.json || true
 
       - name: 색인 재생성

@@ -1,5 +1,10 @@
 name: 보도자료 수집 및 대시보드 배포
 
+run-name: >-
+  ${{ github.event_name == 'workflow_dispatch' && '수동 수집 및 배포' ||
+      github.event_name == 'schedule' && '정기 수집 및 배포' ||
+      '코드 변경 배포(보도자료 수집 없음)' }}
+
 on:
   push:
     branches: [main]
@@ -46,6 +51,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: 실행 유형 확인
+        shell: bash
+        run: |
+          echo "GitHub event: $GITHUB_EVENT_NAME"
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            echo "코드 업로드로 시작된 실행이므로 보도자료 수집은 생략하고 기존 데이터만 배포합니다."
+            echo "새 데이터를 수집하려면 저장소 상단 Actions → 이 워크플로 → Run workflow를 사용하세요."
+          fi
+
       - name: Python 설치
         uses: actions/setup-python@v6
         with:
@@ -70,22 +84,41 @@ jobs:
           LOOKBACK_DAYS: ${{ inputs.lookback_days || '14' }}
         shell: bash
         run: |
+          set -euo pipefail
           args=(--lookback-days "$LOOKBACK_DAYS" --continue-on-error)
           if [[ -n "$START_DATE" && -n "$END_DATE" ]]; then
             args+=(--start-date "$START_DATE" --end-date "$END_DATE")
+          else
+            # 기본 최근 14일 수집에서 0건이면 인증키/승인 문제를 즉시 드러낸다.
+            args+=(--require-records)
           fi
           python -m collector.collect "${args[@]}"
 
+      - name: 수집 결과 진단
+        if: always() && github.event_name != 'push'
+        shell: bash
+        run: |
+          echo "### 보도자료 수집 결과" >> "$GITHUB_STEP_SUMMARY"
+          echo '```text' >> "$GITHUB_STEP_SUMMARY"
+          find docs/data -maxdepth 5 -type f -print | sort | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "manifest.json:" 
+          cat docs/data/manifest.json || true
+
       - name: 색인 재생성
+        if: success()
         run: python -m collector.build_indexes
 
       - name: 변경 데이터 저장소에 반영
-        if: github.event_name != 'push'
+        if: success() && github.event_name != 'push'
         shell: bash
         run: |
+          set -euo pipefail
           git config user.name "policy-dashboard-bot"
           git config user.email "policy-dashboard-bot@users.noreply.github.com"
           git add docs/data
+          echo "변경 파일:"
+          git status --short docs/data
           if git diff --cached --quiet; then
             echo "새 데이터 변경이 없습니다."
           else
@@ -95,15 +128,18 @@ jobs:
           fi
 
       - name: GitHub Pages 설정
-        uses: actions/configure-pages@v5
+        if: success()
+        uses: actions/configure-pages@v6
 
       - name: Pages 배포 파일 업로드
-        uses: actions/upload-pages-artifact@v4
+        if: success()
+        uses: actions/upload-pages-artifact@v5
         with:
           path: docs
 
   deploy:
     needs: build
+    if: success()
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -111,4 +147,4 @@ jobs:
     steps:
       - name: GitHub Pages 배포
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

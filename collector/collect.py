@@ -88,6 +88,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="일부 날짜 요청 실패 시 나머지 날짜를 계속 수집",
     )
+    parser.add_argument(
+        "--require-records",
+        action="store_true",
+        help="전체 수집 결과가 0건이면 오류로 종료",
+    )
     return parser.parse_args()
 
 
@@ -224,22 +229,47 @@ def parse_response(xml_text: str, query_day: date) -> list[dict]:
         preview = collapse_whitespace(xml_text)[:300]
         raise RuntimeError(f"API 응답을 XML로 해석하지 못했습니다: {preview}") from exc
 
-    result_code = ""
-    result_message = ""
+    # 공공데이터포털은 정상 응답과 인증/서비스 오류 응답의 XML 구조가 다르다.
+    # 오류 응답(returnAuthMsg 등)을 빈 검색 결과로 오인하지 않도록 모든 상태 필드를 먼저 확인한다.
+    response_fields: dict[str, str] = {}
     for node in root.iter():
         name = local_name(node.tag).lower()
-        if name == "resultcode" and not result_code:
-            result_code = collapse_whitespace(node.text)
-        elif name in {"resultmsg", "resultmessage"} and not result_message:
-            result_message = collapse_whitespace(node.text)
+        value = collapse_whitespace(node.text)
+        if value and name not in response_fields:
+            response_fields[name] = value
+
+    result_code = response_fields.get("resultcode", "")
+    result_message = (
+        response_fields.get("resultmsg")
+        or response_fields.get("resultmessage")
+        or ""
+    )
+    portal_error = (
+        response_fields.get("returnauthmsg")
+        or response_fields.get("errmsg")
+        or ""
+    )
+    portal_reason = response_fields.get("returnreasoncode", "")
+
+    if portal_error:
+        reason_suffix = f" (코드 {portal_reason})" if portal_reason else ""
+        raise RuntimeError(
+            f"공공데이터포털 인증/서비스 오류: {portal_error}{reason_suffix}. "
+            "Repository secret DATA_GO_KR_SERVICE_KEY와 API 활용승인 상태를 확인하세요."
+        )
 
     if result_code and result_code not in {"0", "00"}:
         raise RuntimeError(f"API 오류 {result_code}: {result_message or '메시지 없음'}")
 
+    records = find_records(root)
+    if not result_code and not records:
+        preview = collapse_whitespace(xml_text)[:300]
+        raise RuntimeError(f"예상하지 못한 API 응답입니다: {preview}")
+
     collected_at = now_iso()
     articles: list[dict] = []
 
-    for record in find_records(root):
+    for record in records:
         grouping_code = node_text(record, "GroupingCode")
         if grouping_code.lower() != "brief":
             continue
@@ -424,6 +454,16 @@ def main() -> int:
     if successful_dates == 0:
         print("오류: 모든 날짜의 수집에 실패했습니다.", file=sys.stderr)
         return 1
+
+    if stats["received"] == 0:
+        message = (
+            "API 요청은 완료됐지만 보도자료가 0건입니다. "
+            "수집 기간, API 활용승인 상태, 인증키를 확인하세요."
+        )
+        if args.require_records:
+            print(f"오류: {message}", file=sys.stderr)
+            return 3
+        print(f"::warning title=수집 결과 0건::{message}", file=sys.stderr)
 
     build_indexes(data_dir)
     print(

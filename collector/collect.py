@@ -6,8 +6,10 @@ import json
 import os
 import re
 import sys
+import threading
 import time
 import xml.etree.ElementTree as ET
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -35,6 +37,9 @@ from collector.common import (
 SEOUL = ZoneInfo("Asia/Seoul")
 BASE_URL = "https://www.korea.kr"
 DEFAULT_LIST_URL = f"{BASE_URL}/briefing/pressReleaseList.do"
+DEFAULT_CONNECT_TIMEOUT = float(os.getenv("CONNECT_TIMEOUT_SECONDS", "8"))
+DEFAULT_READ_TIMEOUT = float(os.getenv("READ_TIMEOUT_SECONDS", "20"))
+_DETAIL_THREAD = threading.local()
 
 
 @dataclass(frozen=True)
@@ -110,14 +115,20 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--request-delay",
         type=float,
-        default=float(os.getenv("REQUEST_DELAY_SECONDS", "0.30")),
-        help="정책브리핑 요청 사이의 대기 시간(초, 기본 0.30)",
+        default=float(os.getenv("REQUEST_DELAY_SECONDS", "0.15")),
+        help="정책브리핑 요청 사이의 대기 시간(초, 기본 0.15)",
     )
     parser.add_argument(
         "--max-pages-per-day",
         type=int,
-        default=int(os.getenv("MAX_PAGES_PER_DAY", "50")),
-        help="하루 목록에서 확인할 최대 페이지 수(기본 50)",
+        default=int(os.getenv("MAX_PAGES_PER_DAY", "10")),
+        help="하루 목록에서 확인할 최대 페이지 수(기본 10)",
+    )
+    parser.add_argument(
+        "--detail-workers",
+        type=int,
+        default=int(os.getenv("DETAIL_WORKERS", "3")),
+        help="상세 본문 동시 요청 수(기본 3, 최대 권장 4)",
     )
     parser.add_argument(
         "--continue-on-error",
@@ -165,15 +176,17 @@ def resolve_range(args: argparse.Namespace) -> CollectRange:
         raise ValueError("max-pages-per-day는 1 이상이어야 합니다.")
     if args.request_delay < 0:
         raise ValueError("request-delay는 0 이상이어야 합니다.")
+    if args.detail_workers < 1 or args.detail_workers > 4:
+        raise ValueError("detail-workers는 1 이상 4 이하여야 합니다.")
     return result
 
 
 def create_session() -> requests.Session:
     retry = Retry(
-        total=4,
-        connect=4,
-        read=4,
-        backoff_factor=1.0,
+        total=1,
+        connect=1,
+        read=1,
+        backoff_factor=0.5,
         status_forcelist=(429, 500, 502, 503, 504),
         allowed_methods=frozenset(["GET"]),
         raise_on_status=False,
@@ -199,6 +212,14 @@ def create_session() -> requests.Session:
     return session
 
 
+def detail_session() -> requests.Session:
+    session = getattr(_DETAIL_THREAD, "session", None)
+    if session is None:
+        session = create_session()
+        _DETAIL_THREAD.session = session
+    return session
+
+
 def response_preview(content: bytes | str, max_chars: int = 300) -> str:
     if isinstance(content, bytes):
         text = content.decode("utf-8", errors="replace")
@@ -212,7 +233,7 @@ def request_page(
     url: str,
     *,
     params: dict[str, str] | None = None,
-    timeout: tuple[int, int] = (15, 90),
+    timeout: tuple[float, float] = (DEFAULT_CONNECT_TIMEOUT, DEFAULT_READ_TIMEOUT),
 ) -> bytes:
     response = session.get(url, params=params, timeout=timeout, allow_redirects=True)
     if response.status_code >= 400:
@@ -546,6 +567,10 @@ def fetch_list_entries(
     last_page_had_entries = False
 
     for page_no in range(1, max_pages + 1):
+        print(
+            f"    목록 페이지 {page_no} 확인 중 ({query_day.isoformat()})",
+            flush=True,
+        )
         content = request_page(
             session,
             list_url,
@@ -609,6 +634,28 @@ def fetch_list_entries(
     return all_entries, pages_fetched
 
 
+def fetch_detail_article(
+    entry: ListEntry,
+    *,
+    request_delay: float,
+) -> tuple[dict[str, Any], bool]:
+    try:
+        detail_content = request_page(detail_session(), entry.original_url)
+        article = build_article_from_detail(entry, detail_content)
+        failed = False
+    except Exception as exc:  # noqa: BLE001 - 개별 상세 실패는 목록 데이터로 보완한다.
+        print(
+            f"::warning title=본문 수집 실패::{entry.article_id} - {exc}",
+            file=sys.stderr,
+            flush=True,
+        )
+        article = build_fallback_article(entry)
+        failed = True
+    if request_delay > 0:
+        time.sleep(request_delay)
+    return article, failed
+
+
 def fetch_day(
     session: requests.Session,
     list_url: str,
@@ -616,6 +663,7 @@ def fetch_day(
     *,
     max_pages: int,
     request_delay: float,
+    detail_workers: int,
 ) -> DayResult:
     entries, pages_fetched = fetch_list_entries(
         session,
@@ -625,23 +673,60 @@ def fetch_day(
         request_delay=request_delay,
     )
 
-    articles: list[dict[str, Any]] = []
-    detail_failures = 0
-    for entry in entries:
-        try:
-            detail_content = request_page(session, entry.original_url)
-            article = build_article_from_detail(entry, detail_content)
-        except Exception as exc:  # noqa: BLE001 - 개별 상세 실패는 목록 데이터로 보완한다.
-            detail_failures += 1
-            print(
-                f"::warning title=본문 수집 실패::{entry.article_id} - {exc}",
-                file=sys.stderr,
-            )
-            article = build_fallback_article(entry)
-        articles.append(article)
-        if request_delay > 0:
-            time.sleep(request_delay)
+    if not entries:
+        return DayResult(
+            articles=[],
+            list_count=0,
+            pages_fetched=pages_fetched,
+            detail_failures=0,
+        )
 
+    print(
+        f"    목록 {len(entries)}건 확인. 본문 수집 시작 "
+        f"(동시 요청 {min(detail_workers, len(entries))}개)",
+        flush=True,
+    )
+
+    articles_by_id: dict[str, dict[str, Any]] = {}
+    detail_failures = 0
+    workers = min(detail_workers, len(entries))
+    with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="korea-detail") as executor:
+        futures = {
+            executor.submit(
+                fetch_detail_article,
+                entry,
+                request_delay=request_delay,
+            ): entry
+            for entry in entries
+        }
+        completed = 0
+        for future in as_completed(futures):
+            entry = futures[future]
+            try:
+                article, failed = future.result()
+            except Exception as exc:  # 방어적 폴백
+                print(
+                    f"::warning title=본문 작업 실패::{entry.article_id} - {exc}",
+                    file=sys.stderr,
+                    flush=True,
+                )
+                article = build_fallback_article(entry)
+                failed = True
+            articles_by_id[entry.article_id] = article
+            detail_failures += int(failed)
+            completed += 1
+            if completed == 1 or completed % 5 == 0 or completed == len(entries):
+                print(
+                    f"    본문 진행 {completed}/{len(entries)} "
+                    f"(실패 {detail_failures})",
+                    flush=True,
+                )
+
+    articles = [
+        articles_by_id[entry.article_id]
+        for entry in entries
+        if entry.article_id in articles_by_id
+    ]
     return DayResult(
         articles=articles,
         list_count=len(entries),
@@ -836,11 +921,17 @@ def main() -> int:
     data_dir.mkdir(parents=True, exist_ok=True)
     save_history = os.getenv("SAVE_REVISION_HISTORY", "true").lower() not in {"0", "false", "no"}
 
-    print("수집 방식: 정책브리핑 보도자료 목록·상세페이지 HTML")
-    print(f"목록 주소: {args.list_url}")
+    print("수집 방식: 정책브리핑 보도자료 목록·상세페이지 HTML", flush=True)
+    print(f"목록 주소: {args.list_url}", flush=True)
     print(
         f"수집 기간: {collect_range.start.isoformat()} ~ {collect_range.end.isoformat()} "
-        f"({collect_range.days}일)"
+        f"({collect_range.days}일)",
+        flush=True,
+    )
+    print(
+        f"요청 제한: 연결 {DEFAULT_CONNECT_TIMEOUT:g}초 / 읽기 {DEFAULT_READ_TIMEOUT:g}초 / "
+        f"본문 동시 요청 {args.detail_workers}개",
+        flush=True,
     )
 
     session = create_session()
@@ -856,6 +947,10 @@ def main() -> int:
     successful_dates = 0
 
     for index, query_day in enumerate(collect_range.iter_days(), start=1):
+        print(
+            f"[{index}/{collect_range.days}] {query_day.isoformat()}: 수집 시작",
+            flush=True,
+        )
         try:
             result = fetch_day(
                 session,
@@ -863,6 +958,7 @@ def main() -> int:
                 query_day,
                 max_pages=args.max_pages_per_day,
                 request_delay=args.request_delay,
+                detail_workers=args.detail_workers,
             )
             successful_dates += 1
             stats["received"] += len(result.articles)
@@ -874,11 +970,16 @@ def main() -> int:
             print(
                 f"[{index}/{collect_range.days}] {query_day.isoformat()}: "
                 f"목록 {result.list_count}건 / 저장 대상 {len(result.articles)}건 / "
-                f"목록 페이지 {result.pages_fetched}개 / 본문 실패 {result.detail_failures}건"
+                f"목록 페이지 {result.pages_fetched}개 / 본문 실패 {result.detail_failures}건",
+                flush=True,
             )
         except Exception as exc:  # noqa: BLE001 - 날짜별 장애를 분리해 보고한다.
             failed_dates.append(query_day.isoformat())
-            print(f"::warning title=수집 실패::{query_day.isoformat()} - {exc}", file=sys.stderr)
+            print(
+                f"::warning title=수집 실패::{query_day.isoformat()} - {exc}",
+                file=sys.stderr,
+                flush=True,
+            )
             if not args.continue_on_error:
                 return 1
 
@@ -901,7 +1002,8 @@ def main() -> int:
         "완료: "
         f"목록 수신 {stats['received']}건, 신규 {stats['created']}건, "
         f"갱신 {stats['updated']}건, 변경 없음 {stats['unchanged']}건, "
-        f"본문 실패 {stats['detail_failures']}건"
+        f"본문 실패 {stats['detail_failures']}건",
+        flush=True,
     )
     if failed_dates:
         print(f"경고: 실패 날짜 {', '.join(failed_dates)}", file=sys.stderr)

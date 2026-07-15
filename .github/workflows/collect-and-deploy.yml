@@ -30,7 +30,7 @@ on:
       lookback_days:
         description: "날짜를 비운 경우 오늘 포함 재확인할 일수"
         required: false
-        default: "14"
+        default: "3"
         type: string
 
 permissions:
@@ -40,11 +40,12 @@ permissions:
 
 concurrency:
   group: policy-dashboard-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - name: 저장소 가져오기
         uses: actions/checkout@v6
@@ -77,25 +78,27 @@ jobs:
 
       - name: 보도자료 수집
         if: github.event_name != 'push'
+        timeout-minutes: 20
         env:
           START_DATE: ${{ inputs.start_date }}
           END_DATE: ${{ inputs.end_date }}
-          INPUT_LOOKBACK_DAYS: ${{ inputs.lookback_days || '14' }}
+          INPUT_LOOKBACK_DAYS: ${{ inputs.lookback_days || '3' }}
+          PYTHONUNBUFFERED: '1'
         shell: bash
         run: |
           set -euo pipefail
           LOOKBACK_DAYS="$INPUT_LOOKBACK_DAYS"
           if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
-            # HTML 상세페이지를 반복 조회하므로 정기 실행은 최근 3일만 재확인한다.
-            LOOKBACK_DAYS="3"
+            # HTML 상세페이지를 반복 조회하므로 정기 실행은 최근 2일만 재확인한다.
+            LOOKBACK_DAYS="2"
           fi
-          args=(--lookback-days "$LOOKBACK_DAYS" --continue-on-error)
+          args=(--lookback-days "$LOOKBACK_DAYS" --continue-on-error --detail-workers 3 --max-pages-per-day 10)
           if [[ -n "$START_DATE" && -n "$END_DATE" ]]; then
             args+=(--start-date "$START_DATE" --end-date "$END_DATE")
           else
             args+=(--require-records)
           fi
-          python -m collector.collect "${args[@]}"
+          python -u -m collector.collect "${args[@]}"
 
       - name: 수집 결과 진단
         if: always() && github.event_name != 'push'

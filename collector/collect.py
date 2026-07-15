@@ -30,7 +30,7 @@ from collector.common import (
 )
 
 SEOUL = ZoneInfo("Asia/Seoul")
-DEFAULT_API_URL = "https://apis.data.go.kr/1371000/pressReleaseService/pressReleaseList"
+DEFAULT_API_URL = "https://apis.data.go.kr/1371000/policyNewsService/policyNewsList"
 
 
 @dataclass(frozen=True)
@@ -47,6 +47,16 @@ class CollectRange:
         while current <= self.end:
             yield current
             current += timedelta(days=1)
+
+
+@dataclass(frozen=True)
+class ParsedResponse:
+    articles: list[dict]
+    raw_record_count: int
+    grouping_counts: dict[str, int]
+    result_code: str
+    result_message: str
+    response_preview: str
 
 
 def parse_args() -> argparse.Namespace:
@@ -74,8 +84,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--api-url",
-        default=os.getenv("PRESS_RELEASE_API_URL", DEFAULT_API_URL),
-        help="정책브리핑 보도자료 OpenAPI 요청 URL",
+        default=DEFAULT_API_URL,
+        help="정책브리핑 OpenAPI 요청 URL",
     )
     parser.add_argument(
         "--request-delay",
@@ -87,6 +97,11 @@ def parse_args() -> argparse.Namespace:
         "--continue-on-error",
         action="store_true",
         help="일부 날짜 요청 실패 시 나머지 날짜를 계속 수집",
+    )
+    parser.add_argument(
+        "--require-records",
+        action="store_true",
+        help="전체 수집 결과가 0건이면 오류로 종료",
     )
     return parser.parse_args()
 
@@ -217,18 +232,6 @@ def make_summary(subtitles: list[str], body_text: str) -> tuple[str, str]:
     return truncate(body_text, 240), "body_excerpt"
 
 
-def first_node_text(root: ET.Element, *field_names: str) -> str:
-    """XML 전체에서 지정한 이름의 첫 번째 비어 있지 않은 텍스트를 찾는다."""
-    wanted = {name.lower() for name in field_names}
-    for node in root.iter():
-        if local_name(node.tag).lower() not in wanted:
-            continue
-        value = collapse_whitespace(" ".join(node.itertext()))
-        if value:
-            return value
-    return ""
-
-
 def response_preview(xml_data: str | bytes, max_chars: int = 360) -> str:
     if isinstance(xml_data, bytes):
         text = xml_data.decode("utf-8", errors="replace")
@@ -237,58 +240,75 @@ def response_preview(xml_data: str | bytes, max_chars: int = 360) -> str:
     return collapse_whitespace(text)[:max_chars]
 
 
-def parse_response(xml_text: str | bytes, query_day: date) -> list[dict]:
+def normalize_grouping_code(value: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "", collapse_whitespace(value).casefold())
+
+
+def is_press_release_record(record: ET.Element) -> bool:
+    grouping_code = normalize_grouping_code(node_text(record, "GroupingCode"))
+    original_url = node_text(record, "OriginalUrl").casefold()
+
+    # 공식 명세의 보도자료 분류값은 brief다. 일부 응답에서 분류값이 비거나
+    # 표기가 달라지는 경우를 대비해 보도자료 상세 URL도 보조 판정에 사용한다.
+    if grouping_code in {"brief", "pressrelease", "pressreleasebrief"}:
+        return True
+    return "pressreleaseview.do" in original_url
+
+
+def parse_response_details(xml_text: str | bytes, query_day: date) -> ParsedResponse:
     try:
         root = ET.fromstring(xml_text)
     except ET.ParseError as exc:
-        raise RuntimeError(
-            f"API 응답을 XML로 해석하지 못했습니다: {response_preview(xml_text)}"
-        ) from exc
+        preview = response_preview(xml_text)
+        raise RuntimeError(f"API 응답을 XML로 해석하지 못했습니다: {preview}") from exc
 
-    # 공공데이터포털 공통 오류 응답은 resultCode 대신 아래 필드를 사용한다.
-    # 기존 수집기는 이 응답을 오류로 인식하지 못하고 정상적인 0건으로 처리했다.
-    common_error = first_node_text(root, "errMsg")
-    common_auth_message = first_node_text(root, "returnAuthMsg")
-    common_reason_code = first_node_text(root, "returnReasonCode")
-    if common_auth_message or common_reason_code:
-        details = " / ".join(
-            part
-            for part in (
-                f"코드 {common_reason_code}" if common_reason_code else "",
-                common_auth_message,
-                common_error,
-            )
-            if part
-        )
+    response_fields: dict[str, str] = {}
+    for node in root.iter():
+        name = local_name(node.tag).lower()
+        value = collapse_whitespace(" ".join(node.itertext()))
+        if value and name not in response_fields:
+            response_fields[name] = value
+
+    result_code = response_fields.get("resultcode", "")
+    result_message = (
+        response_fields.get("resultmsg")
+        or response_fields.get("resultmessage")
+        or ""
+    )
+    portal_error = (
+        response_fields.get("returnauthmsg")
+        or response_fields.get("errmsg")
+        or ""
+    )
+    portal_reason = response_fields.get("returnreasoncode", "")
+
+    if portal_error:
+        reason_suffix = f" (코드 {portal_reason})" if portal_reason else ""
         raise RuntimeError(
-            "공공데이터포털 인증 또는 서비스 오류: "
-            f"{details or response_preview(xml_text)}. "
-            "DATA_GO_KR_SERVICE_KEY와 해당 API 활용신청 상태를 확인하세요."
+            f"공공데이터포털 인증/서비스 오류: {portal_error}{reason_suffix}. "
+            "Repository secret DATA_GO_KR_SERVICE_KEY와 정책뉴스 API 활용승인을 확인하세요."
         )
 
-    result_code = first_node_text(root, "resultCode")
-    result_message = first_node_text(root, "resultMsg", "resultMessage")
     if result_code and result_code not in {"0", "00", "0000"}:
         raise RuntimeError(f"API 오류 {result_code}: {result_message or '메시지 없음'}")
 
     records = find_records(root)
     if not result_code and not records:
-        root_name = local_name(root.tag)
-        raise RuntimeError(
-            "API가 성공 코드와 기사 레코드 없이 응답했습니다. "
-            f"루트={root_name}, 응답={response_preview(xml_text)}"
-        )
+        preview = response_preview(xml_text)
+        raise RuntimeError(f"예상하지 못한 API 응답입니다: {preview}")
+
+    grouping_counts: dict[str, int] = {}
+    for record in records:
+        grouping = collapse_whitespace(node_text(record, "GroupingCode")) or "(없음)"
+        grouping_counts[grouping] = grouping_counts.get(grouping, 0) + 1
 
     collected_at = now_iso()
     articles: list[dict] = []
 
     for record in records:
-        grouping_code = node_text(record, "GroupingCode")
-        # 보도자료 전용 pressReleaseService 응답은 GroupingCode가 없을 수 있다.
-        # 값이 명시된 경우에만 brief 여부를 검사한다.
-        if grouping_code and grouping_code.lower() != "brief":
+        grouping_code = collapse_whitespace(node_text(record, "GroupingCode"))
+        if not is_press_release_record(record):
             continue
-        grouping_code = grouping_code or "brief"
 
         article_id = node_text(record, "NewsItemId")
         title = node_text(record, "Title")
@@ -340,7 +360,7 @@ def parse_response(xml_text: str | bytes, query_day: date) -> list[dict]:
                 "contents_status": status,
                 "modify_id": modify_id,
                 "is_modified": is_modified,
-                "grouping_code": grouping_code,
+                "grouping_code": grouping_code or "brief-url-fallback",
                 "original_url": original_url,
                 "content_html": content_html,
                 "content_text": content_text,
@@ -350,7 +370,19 @@ def parse_response(xml_text: str | bytes, query_day: date) -> list[dict]:
             }
         )
 
-    return articles
+    return ParsedResponse(
+        articles=articles,
+        raw_record_count=len(records),
+        grouping_counts=grouping_counts,
+        result_code=result_code,
+        result_message=result_message,
+        response_preview=response_preview(xml_text),
+    )
+
+
+def parse_response(xml_text: str | bytes, query_day: date) -> list[dict]:
+    """기존 테스트 및 호출부와의 호환성을 위한 목록 반환 함수."""
+    return parse_response_details(xml_text, query_day).articles
 
 
 def fetch_day(
@@ -358,7 +390,7 @@ def fetch_day(
     api_url: str,
     service_key: str,
     query_day: date,
-) -> list[dict]:
+) -> ParsedResponse:
     compact_date = query_day.strftime("%Y%m%d")
     response = session.get(
         api_url,
@@ -370,8 +402,10 @@ def fetch_day(
         timeout=(15, 90),
     )
     if response.status_code >= 400:
-        raise RuntimeError(f"HTTP {response.status_code}: API 요청 실패")
-    return parse_response(response.content, query_day)
+        preview = response_preview(response.content)
+        suffix = f"; 응답={preview}" if preview else ""
+        raise RuntimeError(f"HTTP {response.status_code}: API 요청 실패{suffix}")
+    return parse_response_details(response.content, query_day)
 
 
 def safe_history_name(article: dict) -> str:
@@ -433,6 +467,14 @@ def main() -> int:
         print(f"오류: {exc}", file=sys.stderr)
         return 2
 
+    if "/pressReleaseService/" in args.api_url:
+        print(
+            "오류: pressReleaseService는 현재 승인받은 정책뉴스 API 주소가 아닙니다. "
+            "policyNewsService/policyNewsList를 사용하세요.",
+            file=sys.stderr,
+        )
+        return 2
+
     data_dir = Path(args.data_dir)
     data_dir.mkdir(parents=True, exist_ok=True)
     save_history = os.getenv("SAVE_REVISION_HISTORY", "true").lower() not in {"0", "false", "no"}
@@ -449,16 +491,29 @@ def main() -> int:
 
     for index, query_day in enumerate(collect_range.iter_days(), start=1):
         try:
-            articles = fetch_day(session, args.api_url, service_key, query_day)
+            parsed = fetch_day(session, args.api_url, service_key, query_day)
+            articles = parsed.articles
             successful_dates += 1
             stats["received"] += len(articles)
             for article in articles:
                 result = upsert_article(data_dir, article, save_history=save_history)
                 stats[result] += 1
+            grouping_summary = ", ".join(
+                f"{key}={value}" for key, value in sorted(parsed.grouping_counts.items())
+            ) or "없음"
             print(
                 f"[{index}/{collect_range.days}] {query_day.isoformat()}: "
-                f"보도자료 {len(articles)}건"
+                f"원본 기사 {parsed.raw_record_count}건 / 보도자료 {len(articles)}건 / "
+                f"GroupingCode: {grouping_summary}"
             )
+            if parsed.raw_record_count == 0:
+                print(
+                    f"::warning title=API 원본 기사 0건::{query_day.isoformat()} - "
+                    f"resultCode={parsed.result_code or '(없음)'}, "
+                    f"resultMsg={parsed.result_message or '(없음)'}, "
+                    f"응답={parsed.response_preview[:220]}",
+                    file=sys.stderr,
+                )
         except Exception as exc:  # noqa: BLE001 - 날짜별 장애를 분리해 보고한다.
             failed_dates.append(query_day.isoformat())
             print(f"::warning title=수집 실패::{query_day.isoformat()} - {exc}", file=sys.stderr)
@@ -472,6 +527,16 @@ def main() -> int:
         print("오류: 모든 날짜의 수집에 실패했습니다.", file=sys.stderr)
         return 1
 
+    if stats["received"] == 0:
+        message = (
+            "공식 정책뉴스 API 요청은 완료됐지만 보도자료가 0건입니다. "
+            "위 로그의 원본 기사 수와 GroupingCode 분포를 확인하세요."
+        )
+        if args.require_records:
+            print(f"오류: {message}", file=sys.stderr)
+            return 3
+        print(f"::warning title=수집 결과 0건::{message}", file=sys.stderr)
+
     build_indexes(data_dir)
     print(
         "완료: "
@@ -480,16 +545,6 @@ def main() -> int:
     )
     if failed_dates:
         print(f"경고: 실패 날짜 {', '.join(failed_dates)}", file=sys.stderr)
-
-    # 장기간 전체 0건을 성공으로 표시하면 인증/API 장애를 알아차리기 어렵다.
-    if stats["received"] == 0 and collect_range.days >= 7:
-        print(
-            "오류: 7일 이상을 조회했지만 보도자료를 한 건도 받지 못했습니다. "
-            "API 주소가 /1371000/pressReleaseService/pressReleaseList인지 확인하고, "
-            "해당 서비스의 활용승인 상태와 인증키를 확인하세요.",
-            file=sys.stderr,
-        )
-        return 1
     return 0
 
 

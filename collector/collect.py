@@ -27,6 +27,7 @@ from collector.common import (
     collapse_whitespace,
     content_hash,
     local_name,
+    normalize_plain_text,
     now_iso,
     read_json,
     sanitize_body_html,
@@ -246,7 +247,30 @@ def request_page(
 
 
 def clean_text(value: str | None) -> str:
-    return collapse_whitespace(html_lib.unescape(value or ""))
+    # JSON-LD와 목록 HTML에는 &amp;#039;처럼 중첩 인코딩된
+    # 엔터티가 포함될 수 있으므로 반복 디코딩 후 공백을 정리한다.
+    return normalize_plain_text(value)
+
+
+def article_semantic_hash(
+    article_id: str,
+    title: str,
+    summary: str,
+    ministry: str,
+    content_text: str,
+) -> str:
+    """표시 의미를 기준으로 변경 여부를 판정하는 해시를 만든다.
+
+    HTML 엔터티 표기 방식만 바뀐 경우에는 보도자료 수정으로 오인하지 않는다.
+    """
+
+    return content_hash(
+        clean_text(article_id),
+        clean_text(title),
+        clean_text(summary),
+        clean_text(ministry),
+        clean_text(content_text),
+    )
 
 
 def parse_site_date(value: str) -> date | None:
@@ -472,18 +496,28 @@ def build_article_from_detail(entry: ListEntry, html_content: bytes | str) -> di
     metadata = extract_article_jsonld(soup)
     body_node = find_body_node(soup)
 
-    title = jsonld_text(metadata.get("headline")) or entry.title
-    description = jsonld_text(metadata.get("description"))
-    raw_body = str(body_node) if body_node is not None else description
+    title = clean_text(jsonld_text(metadata.get("headline")) or entry.title)
+    description = clean_text(jsonld_text(metadata.get("description")))
+    ministry = clean_text(entry.ministry) or "기관 미상"
+
+    # JSON-LD description은 일반 텍스트이므로 먼저 escape해 '<', '>'도
+    # 제목·본문의 실제 문자로 보존한다.
+    raw_body = (
+        str(body_node)
+        if body_node is not None
+        else (f"<p>{html_lib.escape(description)}</p>" if description else "")
+    )
     content_html, content_text = sanitize_body_html(raw_body, entry.original_url)
+    content_text = clean_text(content_text)
 
     # 상세 본문이 비어 있을 때 목록 요약을 최소 본문으로 보존한다.
     if not content_text and entry.lead:
-        fallback_html = f"<p>{html_lib.escape(entry.lead)}</p>"
+        fallback_html = f"<p>{html_lib.escape(clean_text(entry.lead))}</p>"
         content_html, content_text = sanitize_body_html(fallback_html, entry.original_url)
+        content_text = clean_text(content_text)
 
     summary_source = "list_lead" if entry.lead else ("description" if description else "body_excerpt")
-    summary = truncate(entry.lead or description or content_text, 240)
+    summary = truncate(clean_text(entry.lead or description or content_text), 240)
 
     approved = parse_datetime(str(metadata.get("datePublished") or ""))
     if approved is None:
@@ -492,12 +526,12 @@ def build_article_from_detail(entry: ListEntry, html_content: bytes | str) -> di
     modified = parse_datetime(str(metadata.get("dateModified") or ""))
     explicit_modified = bool(modified and modified > approved)
 
-    hash_value = content_hash(
+    hash_value = article_semantic_hash(
         entry.article_id,
         title,
         summary,
-        entry.ministry,
-        content_html,
+        ministry,
+        content_text,
     )
     collected_at = now_iso()
 
@@ -506,7 +540,7 @@ def build_article_from_detail(entry: ListEntry, html_content: bytes | str) -> di
         "title": title,
         "summary": summary,
         "summary_source": summary_source,
-        "ministry": entry.ministry or "기관 미상",
+        "ministry": ministry,
         "approved_at": approved.isoformat(),
         "modified_at": modified.isoformat() if explicit_modified and modified else None,
         "publish_date": entry.publish_date.isoformat(),
@@ -525,16 +559,20 @@ def build_article_from_detail(entry: ListEntry, html_content: bytes | str) -> di
 
 
 def build_fallback_article(entry: ListEntry) -> dict[str, Any]:
-    fallback_html = f"<p>{html_lib.escape(entry.lead)}</p>" if entry.lead else ""
+    title = clean_text(entry.title)
+    lead = clean_text(entry.lead)
+    ministry = clean_text(entry.ministry) or "기관 미상"
+    fallback_html = f"<p>{html_lib.escape(lead)}</p>" if lead else ""
     content_html, content_text = sanitize_body_html(fallback_html, entry.original_url)
+    content_text = clean_text(content_text)
     approved = datetime.combine(entry.publish_date, datetime.min.time(), tzinfo=SEOUL)
-    summary = truncate(entry.lead, 240)
+    summary = truncate(lead, 240)
     return {
         "id": entry.article_id,
-        "title": entry.title,
+        "title": title,
         "summary": summary,
         "summary_source": "list_lead" if summary else "none",
-        "ministry": entry.ministry or "기관 미상",
+        "ministry": ministry,
         "approved_at": approved.isoformat(),
         "modified_at": None,
         "publish_date": entry.publish_date.isoformat(),
@@ -545,7 +583,9 @@ def build_fallback_article(entry: ListEntry) -> dict[str, Any]:
         "original_url": entry.original_url,
         "content_html": content_html,
         "content_text": content_text,
-        "content_hash": content_hash(entry.article_id, entry.title, summary, entry.ministry, content_html),
+        "content_hash": article_semantic_hash(
+            entry.article_id, title, summary, ministry, content_text
+        ),
         "collected_at": now_iso(),
         "source_name": "대한민국 정책브리핑",
         "source_method": "pressReleaseList.do HTML (detail fallback)",
@@ -766,10 +806,10 @@ def parse_int(value: str, default: int = 0) -> int:
 
 
 def make_summary(subtitles: list[str], body_text: str) -> tuple[str, str]:
-    subtitle = " · ".join(dict.fromkeys(filter(None, (collapse_whitespace(v) for v in subtitles))))
+    subtitle = " · ".join(dict.fromkeys(filter(None, (clean_text(v) for v in subtitles))))
     if subtitle:
         return truncate(subtitle, 240), "subtitle"
-    return truncate(body_text, 240), "body_excerpt"
+    return truncate(clean_text(body_text), 240), "body_excerpt"
 
 
 def parse_response(xml_text: str | bytes, query_day: date) -> list[dict[str, Any]]:
@@ -793,17 +833,18 @@ def parse_response(xml_text: str | bytes, query_day: date) -> list[dict[str, Any
     collected_at = now_iso()
     articles: list[dict[str, Any]] = []
     for record in find_records(root):
-        grouping_code = node_text(record, "GroupingCode")
+        grouping_code = clean_text(node_text(record, "GroupingCode"))
         if grouping_code.casefold() != "brief":
             continue
-        article_id = node_text(record, "NewsItemId")
-        title = node_text(record, "Title")
+        article_id = clean_text(node_text(record, "NewsItemId"))
+        title = clean_text(node_text(record, "Title"))
         if not article_id or not title:
             continue
-        original_url = node_text(record, "OriginalUrl") or canonical_detail_url("", article_id)
+        original_url = clean_text(node_text(record, "OriginalUrl")) or canonical_detail_url("", article_id)
         content_html, content_text = sanitize_body_html(
             node_text(record, "DataContents"), original_url
         )
+        content_text = clean_text(content_text)
         approved = parse_datetime(node_text(record, "ApproveDate"))
         modified = parse_datetime(node_text(record, "ModifyDate"))
         publish_date = approved.date() if approved else query_day
@@ -818,14 +859,15 @@ def parse_response(xml_text: str | bytes, query_day: date) -> list[dict[str, Any
             ],
             content_text,
         )
-        hash_value = content_hash(article_id, title, summary, node_text(record, "MinisterCode"), content_html)
+        ministry = clean_text(node_text(record, "MinisterCode")) or "기관 미상"
+        hash_value = article_semantic_hash(article_id, title, summary, ministry, content_text)
         articles.append(
             {
                 "id": article_id,
                 "title": title,
                 "summary": summary,
                 "summary_source": summary_source,
-                "ministry": node_text(record, "MinisterCode") or "기관 미상",
+                "ministry": ministry,
                 "approved_at": approved.isoformat() if approved else f"{publish_date.isoformat()}T00:00:00+09:00",
                 "modified_at": modified.isoformat() if modified else None,
                 "publish_date": publish_date.isoformat(),
@@ -852,7 +894,36 @@ def safe_history_name(article: dict[str, Any]) -> str:
     return f"modify-{modify_id}_{collected_at}_{digest}.json"
 
 
+def normalize_article_entities(article: dict[str, Any]) -> dict[str, Any]:
+    """저장된 기존 자료와 신규 자료를 동일한 엔터티 표현으로 정규화한다."""
+
+    normalized = dict(article)
+    normalized["id"] = clean_text(str(normalized.get("id", "")))
+    normalized["title"] = clean_text(str(normalized.get("title", "")))
+    normalized["summary"] = clean_text(str(normalized.get("summary", "")))
+    normalized["ministry"] = clean_text(str(normalized.get("ministry", ""))) or "기관 미상"
+    normalized["original_url"] = clean_text(str(normalized.get("original_url", "")))
+
+    raw_html = str(normalized.get("content_html", "") or "")
+    if raw_html:
+        safe_html, safe_text = sanitize_body_html(raw_html, normalized["original_url"])
+        normalized["content_html"] = safe_html
+        normalized["content_text"] = clean_text(safe_text)
+    else:
+        normalized["content_text"] = clean_text(str(normalized.get("content_text", "")))
+
+    normalized["content_hash"] = article_semantic_hash(
+        normalized["id"],
+        normalized["title"],
+        normalized["summary"],
+        normalized["ministry"],
+        normalized["content_text"],
+    )
+    return normalized
+
+
 def upsert_article(data_dir: Path, article: dict[str, Any], save_history: bool = True) -> str:
+    article = normalize_article_entities(article)
     publish_date = date.fromisoformat(str(article["publish_date"]))
     day_dir = data_dir / f"{publish_date.year:04d}" / f"{publish_date.month:02d}" / f"{publish_date.day:02d}"
     articles_path = day_dir / "articles.json"
@@ -868,46 +939,55 @@ def upsert_article(data_dir: Path, article: dict[str, Any], save_history: bool =
 
     existing_articles = payload.get("articles", [])
     by_id = {str(item.get("id")): item for item in existing_articles if item.get("id")}
-    existing = by_id.get(str(article["id"]))
+    raw_existing = by_id.get(str(article["id"]))
+    existing = normalize_article_entities(raw_existing) if raw_existing else None
+
+    def persist() -> None:
+        merged = sorted(
+            by_id.values(),
+            key=lambda item: (item.get("approved_at") or "", item.get("id") or ""),
+            reverse=True,
+        )
+        payload["schema_version"] = 2
+        payload["source"] = "대한민국 정책브리핑 보도자료 HTML"
+        payload["articles"] = merged
+        payload["generated_at"] = max(
+            (item.get("collected_at") for item in merged if item.get("collected_at")),
+            default=now_iso(),
+        )
+        payload["article_count"] = len(merged)
+        payload["modified_count"] = sum(bool(item.get("is_modified")) for item in merged)
+        write_json(articles_path, payload)
 
     if existing and existing.get("content_hash") == article.get("content_hash"):
+        # HTML 엔터티 표기만 달라진 경우에는 수정본으로 세지 않고 기존 저장값을
+        # 조용히 정규화한다. collected_at과 기존 수정 이력은 그대로 보존한다.
+        if existing != raw_existing:
+            by_id[str(article["id"])] = existing
+            persist()
+            return "normalized"
         return "unchanged"
 
-    if existing:
+    if raw_existing:
         if save_history:
-            history_path = day_dir / "revisions" / str(article["id"]) / safe_history_name(existing)
+            history_path = day_dir / "revisions" / str(article["id"]) / safe_history_name(raw_existing)
             if not history_path.exists():
-                write_json(history_path, existing)
+                write_json(history_path, raw_existing)
 
-        # HTML 수집에는 OpenAPI의 변경횟수가 없으므로 이전 저장본과 본문·제목·요약의
-        # 해시가 달라진 시점을 수정으로 판정한다.
-        previous_modify_id = int(existing.get("modify_id") or 1)
+        # HTML 수집에는 OpenAPI의 변경횟수가 없으므로 이전 저장본과 의미상
+        # 제목·요약·본문이 달라진 시점을 수정으로 판정한다.
+        previous_modify_id = int(raw_existing.get("modify_id") or 1)
         detected_modify_id = int(article.get("modify_id") or 1)
         article["contents_status"] = "U"
         article["is_modified"] = True
         article["modify_id"] = max(previous_modify_id + 1, detected_modify_id)
         article["modified_at"] = article.get("modified_at") or now_iso()
-        article["approved_at"] = existing.get("approved_at") or article.get("approved_at")
-        article["publish_date"] = existing.get("publish_date") or article.get("publish_date")
+        article["approved_at"] = raw_existing.get("approved_at") or article.get("approved_at")
+        article["publish_date"] = raw_existing.get("publish_date") or article.get("publish_date")
 
     by_id[str(article["id"])] = article
-    merged = sorted(
-        by_id.values(),
-        key=lambda item: (item.get("approved_at") or "", item.get("id") or ""),
-        reverse=True,
-    )
-    payload["schema_version"] = 2
-    payload["source"] = "대한민국 정책브리핑 보도자료 HTML"
-    payload["articles"] = merged
-    payload["generated_at"] = max(
-        (item.get("collected_at") for item in merged if item.get("collected_at")),
-        default=now_iso(),
-    )
-    payload["article_count"] = len(merged)
-    payload["modified_count"] = sum(bool(item.get("is_modified")) for item in merged)
-    write_json(articles_path, payload)
-    return "updated" if existing else "created"
-
+    persist()
+    return "updated" if raw_existing else "created"
 
 def main() -> int:
     args = parse_args()
@@ -938,6 +1018,7 @@ def main() -> int:
     stats = {
         "created": 0,
         "updated": 0,
+        "normalized": 0,
         "unchanged": 0,
         "received": 0,
         "detail_failures": 0,
@@ -1001,8 +1082,8 @@ def main() -> int:
     print(
         "완료: "
         f"목록 수신 {stats['received']}건, 신규 {stats['created']}건, "
-        f"갱신 {stats['updated']}건, 변경 없음 {stats['unchanged']}건, "
-        f"본문 실패 {stats['detail_failures']}건",
+        f"갱신 {stats['updated']}건, 문자 정규화 {stats['normalized']}건, "
+        f"변경 없음 {stats['unchanged']}건, 본문 실패 {stats['detail_failures']}건",
         flush=True,
     )
     if failed_dates:

@@ -14,6 +14,51 @@ const state = {
 };
 
 const elements = {};
+const entityDecoder = document.createElement("textarea");
+
+function decodeHtmlEntities(value, maxPasses = 5) {
+  let current = String(value ?? "");
+  for (let index = 0; index < maxPasses; index += 1) {
+    entityDecoder.innerHTML = current;
+    const decoded = entityDecoder.value;
+    if (decoded === current) break;
+    current = decoded;
+  }
+  return current;
+}
+
+function normalizeDisplayText(value) {
+  return decodeHtmlEntities(value)
+    .replace(/\u00a0/g, " ")
+    .replace(/[\u00ad\u200b\ufeff]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function safeExternalUrl(value) {
+  const decoded = normalizeDisplayText(value);
+  if (!decoded) return "";
+  try {
+    const parsed = new URL(decoded, window.location.href);
+    return ["http:", "https:"].includes(parsed.protocol) ? parsed.href : "";
+  } catch (error) {
+    console.warn("유효하지 않은 외부 링크입니다.", decoded, error);
+    return "";
+  }
+}
+
+function normalizeArticle(article) {
+  const normalized = { ...article };
+  normalized.title = normalizeDisplayText(article.title || "");
+  normalized.summary = normalizeDisplayText(article.summary || "");
+  normalized.ministry = normalizeDisplayText(article.ministry || "기관 미상") || "기관 미상";
+  normalized.original_url = safeExternalUrl(article.original_url || "");
+  normalized.search_text = normalizeDisplayText(
+    article.search_text
+      || [normalized.title, normalized.summary, normalized.ministry].join(" "),
+  );
+  return normalized;
+}
 
 function byId(id) {
   return document.getElementById(id);
@@ -54,7 +99,7 @@ function parseKeywords(value) {
   const seen = new Set();
   return value
     .split(/[\n,;]+/)
-    .map((keyword) => keyword.trim())
+    .map((keyword) => normalizeDisplayText(keyword))
     .filter(Boolean)
     .filter((keyword) => {
       const normalized = keyword.toLocaleLowerCase("ko-KR");
@@ -69,8 +114,8 @@ function escapeRegExp(value) {
 }
 
 function keywordMatches(text, keyword) {
-  const normalizedText = String(text || "").toLocaleLowerCase("ko-KR");
-  const normalizedKeyword = keyword.toLocaleLowerCase("ko-KR");
+  const normalizedText = normalizeDisplayText(text).toLocaleLowerCase("ko-KR");
+  const normalizedKeyword = normalizeDisplayText(keyword).toLocaleLowerCase("ko-KR");
 
   if (/^[a-z0-9+#._-]+$/i.test(keyword)) {
     const escaped = escapeRegExp(normalizedKeyword);
@@ -275,7 +320,7 @@ function renderSelectedDateList() {
     const keywords = fragment.querySelector(".article-card-keywords");
     const linkHint = fragment.querySelector(".article-card-link-hint");
 
-    const originalUrl = String(article.original_url || "").trim();
+    const originalUrl = safeExternalUrl(article.original_url || "");
     if (originalUrl) {
       card.href = originalUrl;
       card.setAttribute("aria-label", `${article.title} 원문을 새 탭에서 열기`);
@@ -307,7 +352,9 @@ async function loadMonth() {
 
   try {
     const payload = await fetchJson(`${DATA_ROOT}/${year}/${month}/index.json`, true);
-    state.monthArticles = payload?.articles || [];
+    state.monthArticles = Array.isArray(payload?.articles)
+      ? payload.articles.map(normalizeArticle)
+      : [];
     applyAggregation();
   } catch (error) {
     console.error(error);
@@ -385,10 +432,11 @@ async function initialize() {
       fetchJson(`${DATA_ROOT}/manifest.json`),
     ]);
 
-    document.title = state.config.site_title;
-    elements.siteTitle.textContent = state.config.site_title;
-    elements.sourceListLink.href = state.config.source_list_url;
-    elements.copyrightLink.href = state.config.copyright_policy_url;
+    const siteTitle = normalizeDisplayText(state.config.site_title || "정책브리핑 보도자료 대시보드");
+    document.title = siteTitle;
+    elements.siteTitle.textContent = siteTitle;
+    elements.sourceListLink.href = safeExternalUrl(state.config.source_list_url);
+    elements.copyrightLink.href = safeExternalUrl(state.config.copyright_policy_url);
     elements.lastUpdated.textContent = state.manifest.last_updated
       ? formatDateKorean(state.manifest.last_updated, true)
       : "수집 전";

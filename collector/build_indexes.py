@@ -5,32 +5,45 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from collector.common import collapse_whitespace, max_iso, read_json, write_json
+from collector.common import (
+    max_iso,
+    normalize_plain_text,
+    read_json,
+    write_json,
+)
+
+
+def _normalize_url(value: Any) -> str:
+    return normalize_plain_text(str(value or ""))
 
 
 def compact_article(article: dict[str, Any], include_search_text: bool = False) -> dict[str, Any]:
+    title = normalize_plain_text(str(article.get("title", "")))
+    summary = normalize_plain_text(str(article.get("summary", "")))
+    ministry = normalize_plain_text(str(article.get("ministry", "기관 미상"))) or "기관 미상"
+
     result: dict[str, Any] = {
         "id": str(article.get("id", "")),
-        "title": article.get("title", ""),
-        "summary": article.get("summary", ""),
+        "title": title,
+        "summary": summary,
         "summary_source": article.get("summary_source", ""),
-        "ministry": article.get("ministry", "기관 미상"),
+        "ministry": ministry,
         "approved_at": article.get("approved_at"),
         "modified_at": article.get("modified_at"),
         "publish_date": article.get("publish_date"),
         "contents_status": article.get("contents_status", "I"),
         "modify_id": int(article.get("modify_id") or 0),
         "is_modified": bool(article.get("is_modified")),
-        "original_url": article.get("original_url", ""),
+        "original_url": _normalize_url(article.get("original_url", "")),
     }
     if include_search_text:
-        result["search_text"] = collapse_whitespace(
+        result["search_text"] = normalize_plain_text(
             " ".join(
                 [
-                    str(article.get("title", "")),
-                    str(article.get("summary", "")),
-                    str(article.get("ministry", "")),
-                    str(article.get("content_text", "")),
+                    title,
+                    summary,
+                    ministry,
+                    normalize_plain_text(str(article.get("content_text", ""))),
                 ]
             )
         )

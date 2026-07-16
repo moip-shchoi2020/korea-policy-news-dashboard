@@ -1,9 +1,10 @@
-name: 보도자료 수집 및 대시보드 배포
+name: 보도자료 수집·AI 연관도 분석 및 대시보드 배포
 
 run-name: >-
-  ${{ github.event_name == 'workflow_dispatch' && '수동 수집 및 배포' ||
-      github.event_name == 'schedule' && '정기 수집 및 배포' ||
-      '코드 변경 배포(보도자료 수집 없음)' }}
+  ${{ github.event_name == 'workflow_dispatch' && inputs.skip_collection && '기존 데이터 AI 분석 및 배포' ||
+      github.event_name == 'workflow_dispatch' && '수동 수집·AI 분석 및 배포' ||
+      github.event_name == 'schedule' && '정기 수집·AI 분석 및 배포' ||
+      '코드 변경 배포(수집·AI 분석 없음)' }}
 
 on:
   push:
@@ -32,11 +33,22 @@ on:
         required: false
         default: "3"
         type: string
+      skip_collection:
+        description: "기존 데이터만 AI 분석하고 보도자료 수집은 생략"
+        required: false
+        default: false
+        type: boolean
+      force_ai_reclassify:
+        description: "기존 AI 판정을 모두 다시 수행(기준·모델 변경 시만 사용)"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
   pages: write
   id-token: write
+  models: read
 
 concurrency:
   group: policy-dashboard-${{ github.ref }}
@@ -45,7 +57,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
       - name: 저장소 가져오기
         uses: actions/checkout@v6
@@ -57,8 +69,8 @@ jobs:
         run: |
           echo "GitHub event: $GITHUB_EVENT_NAME"
           if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
-            echo "코드 업로드로 시작된 실행이므로 보도자료 수집은 생략하고 기존 데이터만 배포합니다."
-            echo "새 데이터를 수집하려면 저장소 상단 Actions → 이 워크플로 → Run workflow를 사용하세요."
+            echo "코드 업로드로 시작된 실행이므로 보도자료 수집과 AI 분석은 생략하고 기존 데이터만 배포합니다."
+            echo "기존 자료를 AI 분석하려면 저장소 상단 Actions → 이 워크플로 → Run workflow에서 '기존 데이터만 AI 분석'을 선택하세요."
           fi
 
       - name: Python 설치
@@ -77,7 +89,7 @@ jobs:
         run: node --check docs/assets/app.js
 
       - name: 보도자료 수집
-        if: github.event_name != 'push'
+        if: github.event_name != 'push' && (github.event_name != 'workflow_dispatch' || !inputs.skip_collection)
         timeout-minutes: 20
         env:
           START_DATE: ${{ inputs.start_date }}
@@ -100,20 +112,37 @@ jobs:
           fi
           python -u -m collector.collect "${args[@]}"
 
-      - name: 수집 결과 진단
+      - name: 지식재산처 AI 연관도 분석
+        if: success() && github.event_name != 'push'
+        timeout-minutes: 15
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_MODELS_MODEL: ${{ vars.GITHUB_MODELS_MODEL || 'openai/gpt-4.1-mini' }}
+          FORCE_AI_RECLASSIFY: ${{ inputs.force_ai_reclassify || false }}
+          PYTHONUNBUFFERED: '1'
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=(--model "$GITHUB_MODELS_MODEL" --batch-size 3 --max-articles 300 --request-delay 4.1)
+          if [[ "$FORCE_AI_RECLASSIFY" == "true" ]]; then
+            args+=(--force)
+          fi
+          python -u -m collector.classify_relevance "${args[@]}"
+
+      - name: 색인 재생성
+        if: success()
+        run: python -m collector.build_indexes
+
+      - name: 수집·AI 분석 결과 진단
         if: always() && github.event_name != 'push'
         shell: bash
         run: |
-          echo "### 보도자료 수집 결과" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 보도자료 수집·지식재산처 연관도 분석 결과" >> "$GITHUB_STEP_SUMMARY"
           echo '```text' >> "$GITHUB_STEP_SUMMARY"
           find docs/data -maxdepth 5 -type f -print | sort | tee -a "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
           echo "manifest.json:"
           cat docs/data/manifest.json || true
-
-      - name: 색인 재생성
-        if: success()
-        run: python -m collector.build_indexes
 
       - name: 변경 데이터 저장소에 반영
         if: success() && github.event_name != 'push'
@@ -128,7 +157,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "새 데이터 변경이 없습니다."
           else
-            git commit -m "data: 정책브리핑 보도자료 자동 갱신"
+            git commit -m "data: 보도자료 및 지식재산처 AI 연관도 갱신"
             git pull --rebase origin main
             git push origin HEAD:main
           fi

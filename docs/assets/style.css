@@ -914,3 +914,98 @@ iframe:focus-visible {
     padding: 14px;
   }
 }
+
+/* --------------------------------------------------------------------------
+   목록 전용 레이아웃: 상세 프레임 제거, 우측 전체 높이를 보도자료 목록에 사용
+   -------------------------------------------------------------------------- */
+.dashboard-workspace {
+  height: clamp(760px, calc(100vh - 142px), 1080px);
+  min-height: 760px;
+  display: block;
+}
+
+.dashboard-workspace .list-panel {
+  width: 100%;
+  height: 100%;
+}
+
+.article-list {
+  flex: 1 1 auto;
+  grid-auto-rows: max-content;
+}
+
+.list-instruction {
+  margin: 5px 0 0;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+.article-card {
+  color: inherit;
+  text-decoration: none;
+}
+
+.article-card:focus-visible {
+  outline: 3px solid rgba(31, 86, 166, 0.28);
+  outline-offset: 2px;
+}
+
+.article-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.article-card-link-hint {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.article-card.is-unavailable {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.article-card.is-unavailable:hover {
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+@media (max-width: 1220px) {
+  .dashboard-workspace {
+    display: block;
+  }
+}
+
+@media (max-width: 960px) {
+  .dashboard-workspace {
+    height: min(72vh, 760px);
+    min-height: 520px;
+    display: block;
+  }
+}
+
+@media (max-width: 720px) {
+  .dashboard-workspace {
+    height: min(70vh, 700px);
+    min-height: 500px;
+    display: block;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-workspace {
+    height: 68vh;
+    min-height: 460px;
+  }
+
+  .article-card-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+}

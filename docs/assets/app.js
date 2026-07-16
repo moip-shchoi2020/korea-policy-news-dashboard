@@ -8,13 +8,9 @@ const state = {
   manifest: null,
   currentDate: new Date(),
   selectedDate: null,
-  selectedArticleId: null,
-  viewerMode: "original",
-  detailRequestToken: 0,
   keywords: [],
   monthArticles: [],
   matchedByDate: new Map(),
-  dailyDetailCache: new Map(),
 };
 
 const elements = {};
@@ -92,9 +88,7 @@ function articleMatches(article, keywords) {
 async function fetchJson(url, allowNotFound = false) {
   const response = await fetch(url, { cache: "no-cache" });
   if (allowNotFound && response.status === 404) return null;
-  if (!response.ok) {
-    throw new Error(`${url} 요청 실패 (${response.status})`);
-  }
+  if (!response.ok) throw new Error(`${url} 요청 실패 (${response.status})`);
   return response.json();
 }
 
@@ -154,6 +148,7 @@ function applyAggregation() {
     if (state.keywords.length > 0 && matchedKeywords.length === 0) return;
 
     const date = article.date || article.publish_date;
+    if (!date) return;
     if (!grouped.has(date)) grouped.set(date, []);
     grouped.get(date).push({ ...article, matchedKeywords });
   });
@@ -212,7 +207,6 @@ function calendarCell(dateNumber, currentMonthKey, todayKey) {
   button.append(inner);
   button.addEventListener("click", () => {
     state.selectedDate = dateKey;
-    resetViewer();
     renderCalendar();
     renderSelectedDateList();
   });
@@ -248,23 +242,21 @@ function renderCalendar() {
   elements.monthSummary.textContent = `${total}건${modified > 0 ? ` (${modified}건)` : ""}`;
 }
 
-function updateActiveArticleCard() {
-  elements.articleList.querySelectorAll(".article-card").forEach((card) => {
-    const isActive = Boolean(state.selectedArticleId) && card.dataset.articleId === state.selectedArticleId;
-    card.classList.toggle("is-active", isActive);
-    card.setAttribute("aria-pressed", String(isActive));
-  });
+function articleSortValue(article) {
+  return String(article.modified_at || article.approved_at || article.publish_date || article.date || "");
 }
 
 function renderSelectedDateList() {
   selectReasonableDate();
-  const articles = state.matchedByDate.get(state.selectedDate) || [];
+  const articles = [...(state.matchedByDate.get(state.selectedDate) || [])]
+    .sort((left, right) => articleSortValue(right).localeCompare(articleSortValue(left)));
   const modifiedCount = articles.filter((article) => article.is_modified).length;
   const parsedDate = parseDateKey(state.selectedDate);
 
   elements.selectedDateHeading.textContent = `${formatDateKorean(parsedDate)} 보도자료`;
   elements.selectedDateSummary.textContent = `${articles.length}건${modifiedCount > 0 ? ` (${modifiedCount}건)` : ""}`;
   elements.articleList.replaceChildren();
+  elements.articleList.scrollTop = 0;
 
   if (articles.length === 0) {
     const message = state.keywords.length === 0
@@ -281,28 +273,36 @@ function renderSelectedDateList() {
     const title = fragment.querySelector(".article-card-title");
     const summary = fragment.querySelector(".article-card-summary");
     const keywords = fragment.querySelector(".article-card-keywords");
+    const linkHint = fragment.querySelector(".article-card-link-hint");
 
-    card.dataset.articleId = String(article.id);
+    const originalUrl = String(article.original_url || "").trim();
+    if (originalUrl) {
+      card.href = originalUrl;
+      card.setAttribute("aria-label", `${article.title} 원문을 새 탭에서 열기`);
+    } else {
+      card.classList.add("is-unavailable");
+      card.setAttribute("aria-disabled", "true");
+      card.removeAttribute("target");
+      card.addEventListener("click", (event) => event.preventDefault());
+      linkHint.textContent = "원문 링크 없음";
+    }
+
     const statusText = article.is_modified ? ` · 수정본(변경번호 ${article.modify_id})` : "";
     const dateValue = article.approved_at || article.publish_date || article.date;
     topLine.textContent = `${article.ministry || "기관 미상"} · ${formatDateKorean(dateValue, true)}${statusText}`;
-    title.textContent = article.title;
+    title.textContent = article.title || "제목 없음";
     summary.textContent = article.summary || "요약 없음";
     keywords.textContent = article.matchedKeywords?.length
       ? `일치 키워드: ${article.matchedKeywords.join(", ")}`
       : "전체 보기";
 
-    card.addEventListener("click", () => showArticleDetail(article));
     elements.articleList.append(fragment);
   });
-
-  updateActiveArticleCard();
 }
 
 async function loadMonth() {
   const key = monthKey(state.currentDate);
   const [year, month] = key.split("-");
-  resetViewer();
   elements.articleList.replaceChildren(createEmptyState("월별 데이터를 불러오는 중입니다.", "loading-state"));
 
   try {
@@ -318,162 +318,10 @@ async function loadMonth() {
   }
 }
 
-async function loadDailyArticles(dateKey) {
-  if (state.dailyDetailCache.has(dateKey)) return state.dailyDetailCache.get(dateKey);
-  const [year, month, day] = dateKey.split("-");
-  const payload = await fetchJson(`${DATA_ROOT}/${year}/${month}/${day}/articles.json`);
-  const articles = payload.articles || [];
-  state.dailyDetailCache.set(dateKey, articles);
-  return articles;
-}
-
-function appendBadge(container, text, modified = false) {
-  const badge = document.createElement("span");
-  badge.className = modified ? "badge badge-modified" : "badge";
-  badge.textContent = text;
-  container.append(badge);
-}
-
-function setViewerMode(mode) {
-  const hasOriginal = Boolean(elements.detailSourceLink.getAttribute("href"));
-  const nextMode = mode === "original" && !hasOriginal ? "stored" : mode;
-  state.viewerMode = nextMode;
-
-  const originalActive = nextMode === "original";
-  elements.originalView.hidden = !originalActive;
-  elements.storedView.hidden = originalActive;
-  elements.originalViewButton.classList.toggle("is-active", originalActive);
-  elements.storedViewButton.classList.toggle("is-active", !originalActive);
-  elements.originalViewButton.setAttribute("aria-selected", String(originalActive));
-  elements.storedViewButton.setAttribute("aria-selected", String(!originalActive));
-
-  elements.viewerNotice.textContent = originalActive
-    ? "정책브리핑 원문을 연결했습니다. 화면이 비어 있으면 ‘저장된 본문’ 또는 ‘새 창에서 원문’을 이용하세요."
-    : "수집 시 저장한 텍스트 본문입니다. 최신 내용과 첨부파일은 ‘새 창에서 원문’에서 확인하세요.";
-}
-
-function resetViewer() {
-  state.detailRequestToken += 1;
-  state.selectedArticleId = null;
-  state.viewerMode = "original";
-
-  if (!elements.viewerPlaceholder) return;
-  elements.viewerPlaceholder.hidden = false;
-  elements.viewerContent.hidden = true;
-  elements.detailFrame.removeAttribute("src");
-  elements.detailFrame.removeAttribute("data-source-url");
-  elements.detailBody.replaceChildren();
-  elements.detailBadges.replaceChildren();
-  elements.detailMeta.replaceChildren();
-  elements.detailTitle.textContent = "";
-  elements.detailSummary.textContent = "";
-  elements.detailSourceLink.removeAttribute("href");
-  elements.detailSourceLink.hidden = false;
-  elements.originalViewButton.disabled = false;
-  updateActiveArticleCard();
-}
-
-function renderDetailMetadata(article) {
-  elements.detailBadges.replaceChildren();
-  appendBadge(elements.detailBadges, article.ministry || "기관 미상");
-  if (article.is_modified) appendBadge(elements.detailBadges, "수정본", true);
-  (article.matchedKeywords || []).forEach((keyword) => appendBadge(elements.detailBadges, keyword));
-
-  elements.detailMeta.replaceChildren();
-  const metaValues = [
-    article.approved_at ? `최초 게시: ${formatDateKorean(article.approved_at, true)}` : null,
-    article.modified_at ? `최종 변경: ${formatDateKorean(article.modified_at, true)}` : null,
-    article.is_modified ? `변경번호: ${article.modify_id}` : null,
-  ].filter(Boolean);
-
-  metaValues.forEach((value) => {
-    const span = document.createElement("span");
-    span.textContent = value;
-    elements.detailMeta.append(span);
-  });
-}
-
-function renderStoredArticle(article) {
-  elements.detailTitle.textContent = article.title;
-  elements.detailSummary.textContent = article.summary || "요약 없음";
-
-  if (article.content_html) {
-    elements.detailBody.innerHTML = article.content_html;
-  } else if (article.content_text) {
-    const paragraph = document.createElement("p");
-    paragraph.textContent = article.content_text;
-    elements.detailBody.replaceChildren(paragraph);
-  } else {
-    elements.detailBody.replaceChildren(createEmptyState("저장된 본문이 없습니다. 원문 링크를 이용해 확인하세요."));
-  }
-}
-
-async function showArticleDetail(indexArticle) {
-  const requestToken = ++state.detailRequestToken;
-  const dateKey = indexArticle.date || indexArticle.publish_date;
-  const articleId = String(indexArticle.id);
-  const originalUrl = indexArticle.original_url || "";
-
-  state.selectedArticleId = articleId;
-  updateActiveArticleCard();
-
-  elements.viewerPlaceholder.hidden = true;
-  elements.viewerContent.hidden = false;
-  elements.detailTitle.textContent = indexArticle.title;
-  elements.detailSummary.textContent = indexArticle.summary || "요약 없음";
-  elements.detailBody.replaceChildren(createEmptyState("저장된 본문을 불러오는 중입니다.", "loading-state"));
-  renderDetailMetadata(indexArticle);
-
-  if (originalUrl) {
-    elements.detailSourceLink.href = originalUrl;
-    elements.detailSourceLink.hidden = false;
-    elements.originalViewButton.disabled = false;
-    elements.detailFrame.title = `${indexArticle.title} 정책브리핑 원문`;
-    elements.detailFrame.dataset.sourceUrl = originalUrl;
-    elements.detailFrame.src = originalUrl;
-    setViewerMode("original");
-  } else {
-    elements.detailSourceLink.removeAttribute("href");
-    elements.detailSourceLink.hidden = true;
-    elements.originalViewButton.disabled = true;
-    elements.detailFrame.removeAttribute("src");
-    setViewerMode("stored");
-  }
-
-  try {
-    const dailyArticles = await loadDailyArticles(dateKey);
-    if (requestToken !== state.detailRequestToken) return;
-
-    const article = dailyArticles.find((item) => String(item.id) === articleId);
-    if (!article) throw new Error("상세 데이터에서 해당 자료를 찾지 못했습니다.");
-
-    const enriched = {
-      ...indexArticle,
-      ...article,
-      matchedKeywords: indexArticle.matchedKeywords || [],
-    };
-    renderDetailMetadata(enriched);
-    renderStoredArticle(enriched);
-
-    if (enriched.original_url && enriched.original_url !== originalUrl) {
-      elements.detailSourceLink.href = enriched.original_url;
-      elements.detailFrame.dataset.sourceUrl = enriched.original_url;
-      elements.detailFrame.src = enriched.original_url;
-    }
-  } catch (error) {
-    if (requestToken !== state.detailRequestToken) return;
-    console.error(error);
-    elements.detailBody.replaceChildren(
-      createEmptyState("저장된 본문을 불러오지 못했습니다. 원문 링크를 이용해 확인하세요.", "error-state"),
-    );
-  }
-}
-
 function reaggregateFromInput() {
   state.keywords = parseKeywords(elements.keywordInput.value);
   elements.keywordInput.value = state.keywords.join(", ");
   saveKeywords();
-  resetViewer();
   applyAggregation();
 }
 
@@ -489,7 +337,6 @@ function bindEvents() {
     state.keywords = [...(state.config.default_keywords || [])];
     elements.keywordInput.value = state.keywords.join(", ");
     saveKeywords();
-    resetViewer();
     applyAggregation();
   });
 
@@ -503,15 +350,6 @@ function bindEvents() {
     state.currentDate = new Date();
     state.selectedDate = toDateKey(new Date());
     await loadMonth();
-  });
-
-  elements.originalViewButton.addEventListener("click", () => setViewerMode("original"));
-  elements.storedViewButton.addEventListener("click", () => setViewerMode("stored"));
-  elements.closeDetailButton.addEventListener("click", resetViewer);
-
-  elements.detailFrame.addEventListener("load", () => {
-    if (state.viewerMode !== "original" || !elements.detailFrame.dataset.sourceUrl) return;
-    elements.viewerNotice.textContent = "정책브리핑 원문 연결을 완료했습니다. 화면이 비어 있으면 ‘저장된 본문’ 또는 ‘새 창에서 원문’을 이용하세요.";
   });
 }
 
@@ -534,22 +372,6 @@ function cacheElements() {
     selectedDateSummary: byId("selected-date-summary"),
     articleList: byId("article-list"),
     articleCardTemplate: byId("article-card-template"),
-    detailPanel: byId("article-detail-panel"),
-    viewerPlaceholder: byId("viewer-placeholder"),
-    viewerContent: byId("viewer-content"),
-    viewerNotice: byId("viewer-notice"),
-    originalViewButton: byId("original-view-button"),
-    storedViewButton: byId("stored-view-button"),
-    originalView: byId("original-view"),
-    storedView: byId("stored-view"),
-    detailFrame: byId("detail-frame"),
-    closeDetailButton: byId("close-detail-button"),
-    detailBadges: byId("detail-badges"),
-    detailTitle: byId("detail-title"),
-    detailSummary: byId("detail-summary"),
-    detailMeta: byId("detail-meta"),
-    detailSourceLink: byId("detail-source-link"),
-    detailBody: byId("detail-body"),
     sourceListLink: byId("source-list-link"),
     copyrightLink: byId("copyright-link"),
   });
@@ -578,7 +400,6 @@ async function initialize() {
 
     bindEvents();
     renderKeywordChips();
-    resetViewer();
     await loadMonth();
   } catch (error) {
     console.error(error);

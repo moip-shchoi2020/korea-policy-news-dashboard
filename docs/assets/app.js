@@ -3,6 +3,21 @@
 const DATA_ROOT = "data";
 const KEYWORD_STORAGE_KEY = "koreaPolicyDashboardKeywordsV1";
 
+const RELEVANCE_LEVELS = [
+  { key: "critical", label: "매우 중요", short: "매", score: 4, action: "즉시 검토" },
+  { key: "important", label: "중요", short: "중", score: 3, action: "동향 추적" },
+  { key: "normal", label: "보통", short: "보", score: 2, action: "참고" },
+  { key: "unrelated", label: "관계없음", short: "무", score: 1, action: "제외" },
+];
+const RELEVANCE_BY_KEY = Object.fromEntries(RELEVANCE_LEVELS.map((item) => [item.key, item]));
+const UNCLASSIFIED_RELEVANCE = {
+  key: "unclassified",
+  label: "미분류",
+  short: "미",
+  score: 0,
+  action: "검토 필요",
+};
+
 const state = {
   config: null,
   manifest: null,
@@ -47,6 +62,32 @@ function safeExternalUrl(value) {
   }
 }
 
+function clampConfidence(value) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return 0;
+  return Math.min(1, Math.max(0, numeric));
+}
+
+function normalizeRelevance(value) {
+  const raw = value && typeof value === "object" ? value : {};
+  const definition = RELEVANCE_BY_KEY[String(raw.level || "")] || UNCLASSIFIED_RELEVANCE;
+  return {
+    level: definition.key,
+    label: normalizeDisplayText(raw.label || definition.label) || definition.label,
+    score: Number.isFinite(Number(raw.score)) ? Number(raw.score) : definition.score,
+    confidence: clampConfidence(raw.confidence),
+    reason: normalizeDisplayText(raw.reason || ""),
+    signals: Array.isArray(raw.signals)
+      ? raw.signals.map(normalizeDisplayText).filter(Boolean).slice(0, 5)
+      : [],
+    recommended_action: normalizeDisplayText(raw.recommended_action || definition.action) || definition.action,
+    method: normalizeDisplayText(raw.method || "unclassified"),
+    model: normalizeDisplayText(raw.model || ""),
+    prompt_version: normalizeDisplayText(raw.prompt_version || ""),
+    classified_at: raw.classified_at || null,
+  };
+}
+
 function normalizeArticle(article) {
   const normalized = { ...article };
   normalized.title = normalizeDisplayText(article.title || "");
@@ -54,9 +95,9 @@ function normalizeArticle(article) {
   normalized.ministry = normalizeDisplayText(article.ministry || "기관 미상") || "기관 미상";
   normalized.original_url = safeExternalUrl(article.original_url || "");
   normalized.search_text = normalizeDisplayText(
-    article.search_text
-      || [normalized.title, normalized.summary, normalized.ministry].join(" "),
+    article.search_text || [normalized.title, normalized.summary, normalized.ministry].join(" "),
   );
+  normalized.ip_relevance = normalizeRelevance(article.ip_relevance);
   return normalized;
 }
 
@@ -83,7 +124,7 @@ function parseDateKey(value) {
 
 function formatDateKorean(value, includeTime = false) {
   if (!value) return "";
-  const date = new Date(value);
+  const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return String(value);
   const options = includeTime
     ? { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" }
@@ -144,6 +185,33 @@ function createEmptyState(message, className = "empty-state") {
   return node;
 }
 
+function emptyRelevanceCounts() {
+  return {
+    critical: 0,
+    important: 0,
+    normal: 0,
+    unrelated: 0,
+    unclassified: 0,
+  };
+}
+
+function countRelevance(articles) {
+  const counts = emptyRelevanceCounts();
+  articles.forEach((article) => {
+    const level = article.ip_relevance?.level || "unclassified";
+    if (!(level in counts)) counts.unclassified += 1;
+    else counts[level] += 1;
+  });
+  return counts;
+}
+
+function relevanceSummaryText(articles, includeTotal = true) {
+  const counts = countRelevance(articles);
+  const parts = RELEVANCE_LEVELS.map((item) => `${item.label} ${counts[item.key]}건`);
+  if (counts.unclassified > 0) parts.push(`미분류 ${counts.unclassified}건`);
+  return `${includeTotal ? `총 ${articles.length}건 · ` : ""}${parts.join(" · ")}`;
+}
+
 function renderKeywordChips() {
   elements.keywordChips.replaceChildren();
   if (state.keywords.length === 0) {
@@ -176,14 +244,8 @@ function saveKeywords() {
   localStorage.setItem(KEYWORD_STORAGE_KEY, JSON.stringify(state.keywords));
 }
 
-function countMatched() {
-  let total = 0;
-  let modified = 0;
-  state.matchedByDate.forEach((articles) => {
-    total += articles.length;
-    modified += articles.filter((article) => article.is_modified).length;
-  });
-  return { total, modified };
+function allMatchedArticles() {
+  return [...state.matchedByDate.values()].flat();
 }
 
 function applyAggregation() {
@@ -215,14 +277,32 @@ function selectReasonableDate() {
     return;
   }
 
-  const firstMatched = [...state.matchedByDate.keys()].sort()[0];
-  state.selectedDate = firstMatched || `${currentMonth}-01`;
+  const matchedDates = [...state.matchedByDate.keys()].sort();
+  state.selectedDate = matchedDates.at(-1) || `${currentMonth}-01`;
+}
+
+function createCalendarCountBadge(definition, count) {
+  const badge = document.createElement("span");
+  badge.className = `calendar-relevance-count relevance-${definition.key}`;
+  if (count === 0) badge.classList.add("is-zero");
+  badge.title = `${definition.label} ${count}건`;
+
+  const label = document.createElement("span");
+  label.className = "calendar-relevance-short";
+  label.textContent = definition.short;
+
+  const value = document.createElement("strong");
+  value.textContent = String(count);
+
+  badge.append(label, value);
+  return badge;
 }
 
 function calendarCell(dateNumber, currentMonthKey, todayKey) {
   const dateKey = `${currentMonthKey}-${pad2(dateNumber)}`;
   const articles = state.matchedByDate.get(dateKey) || [];
   const modifiedCount = articles.filter((article) => article.is_modified).length;
+  const counts = countRelevance(articles);
   const button = document.createElement("button");
   button.type = "button";
   button.className = "calendar-cell";
@@ -230,7 +310,11 @@ function calendarCell(dateNumber, currentMonthKey, todayKey) {
   button.dataset.date = dateKey;
   button.setAttribute(
     "aria-label",
-    `${formatDateKorean(`${dateKey}T00:00:00+09:00`)}: ${articles.length}건${modifiedCount ? `, 수정본 ${modifiedCount}건` : ""}`,
+    [
+      `${formatDateKorean(`${dateKey}T00:00:00+09:00`)} 총 ${articles.length}건`,
+      ...RELEVANCE_LEVELS.map((item) => `${item.label} ${counts[item.key]}건`),
+      modifiedCount ? `수정본 ${modifiedCount}건` : "",
+    ].filter(Boolean).join(", "),
   );
 
   if (dateKey === todayKey) button.classList.add("today");
@@ -239,16 +323,28 @@ function calendarCell(dateNumber, currentMonthKey, todayKey) {
   const inner = document.createElement("span");
   inner.className = "calendar-cell-inner";
 
+  const header = document.createElement("span");
+  header.className = "calendar-cell-header";
+
   const dayNumber = document.createElement("span");
   dayNumber.className = "calendar-day-number";
   dayNumber.textContent = String(dateNumber);
+  header.append(dayNumber);
 
-  const count = document.createElement("span");
-  count.className = "calendar-count";
-  if (modifiedCount > 0) count.classList.add("has-modified");
-  count.textContent = `${articles.length}건${modifiedCount > 0 ? ` (${modifiedCount}건)` : ""}`;
+  if (modifiedCount > 0) {
+    const modified = document.createElement("span");
+    modified.className = "calendar-modified-count";
+    modified.textContent = `수정 ${modifiedCount}`;
+    header.append(modified);
+  }
 
-  inner.append(dayNumber, count);
+  const countGrid = document.createElement("span");
+  countGrid.className = "calendar-relevance-grid";
+  RELEVANCE_LEVELS.forEach((definition) => {
+    countGrid.append(createCalendarCountBadge(definition, counts[definition.key]));
+  });
+
+  inner.append(header, countGrid);
   button.append(inner);
   button.addEventListener("click", () => {
     state.selectedDate = dateKey;
@@ -283,23 +379,37 @@ function renderCalendar() {
     }
   }
 
-  const { total, modified } = countMatched();
-  elements.monthSummary.textContent = `${total}건${modified > 0 ? ` (${modified}건)` : ""}`;
+  const matched = allMatchedArticles();
+  const modified = matched.filter((article) => article.is_modified).length;
+  elements.monthSummary.textContent = `${relevanceSummaryText(matched)}${modified ? ` · 수정 ${modified}건` : ""}`;
 }
 
 function articleSortValue(article) {
   return String(article.modified_at || article.approved_at || article.publish_date || article.date || "");
 }
 
+function compareArticles(left, right) {
+  const scoreDifference = (right.ip_relevance?.score || 0) - (left.ip_relevance?.score || 0);
+  if (scoreDifference !== 0) return scoreDifference;
+  return articleSortValue(right).localeCompare(articleSortValue(left));
+}
+
+function classificationMethodText(relevance) {
+  const percent = Math.round((relevance.confidence || 0) * 100);
+  if (relevance.method === "github-models") return `AI 판정 ${percent}%`;
+  if (relevance.method === "rules-fallback") return `AI 실패·규칙 판정 ${percent}%`;
+  if (relevance.method === "rules") return `규칙 판정 ${percent}%`;
+  return "미분류";
+}
+
 function renderSelectedDateList() {
   selectReasonableDate();
-  const articles = [...(state.matchedByDate.get(state.selectedDate) || [])]
-    .sort((left, right) => articleSortValue(right).localeCompare(articleSortValue(left)));
+  const articles = [...(state.matchedByDate.get(state.selectedDate) || [])].sort(compareArticles);
   const modifiedCount = articles.filter((article) => article.is_modified).length;
   const parsedDate = parseDateKey(state.selectedDate);
 
   elements.selectedDateHeading.textContent = `${formatDateKorean(parsedDate)} 보도자료`;
-  elements.selectedDateSummary.textContent = `${articles.length}건${modifiedCount > 0 ? ` (${modifiedCount}건)` : ""}`;
+  elements.selectedDateSummary.textContent = `${relevanceSummaryText(articles)}${modifiedCount ? ` · 수정 ${modifiedCount}건` : ""}`;
   elements.articleList.replaceChildren();
   elements.articleList.scrollTop = 0;
 
@@ -314,16 +424,32 @@ function renderSelectedDateList() {
   articles.forEach((article) => {
     const fragment = elements.articleCardTemplate.content.cloneNode(true);
     const card = fragment.querySelector(".article-card");
+    const relevanceRow = fragment.querySelector(".article-card-relevance-row");
+    const relevanceBadge = fragment.querySelector(".relevance-badge");
+    const relevanceAction = fragment.querySelector(".relevance-action");
+    const relevanceMethod = fragment.querySelector(".relevance-method");
     const topLine = fragment.querySelector(".article-card-topline");
     const title = fragment.querySelector(".article-card-title");
     const summary = fragment.querySelector(".article-card-summary");
+    const reason = fragment.querySelector(".article-card-reason");
+    const signals = fragment.querySelector(".article-card-signals");
     const keywords = fragment.querySelector(".article-card-keywords");
     const linkHint = fragment.querySelector(".article-card-link-hint");
+
+    const relevance = article.ip_relevance || normalizeRelevance(null);
+    card.classList.add(`relevance-${relevance.level}`);
+    relevanceRow.classList.add(`relevance-${relevance.level}`);
+    relevanceBadge.textContent = relevance.label;
+    relevanceAction.textContent = relevance.recommended_action;
+    relevanceMethod.textContent = classificationMethodText(relevance);
 
     const originalUrl = safeExternalUrl(article.original_url || "");
     if (originalUrl) {
       card.href = originalUrl;
-      card.setAttribute("aria-label", `${article.title} 원문을 새 탭에서 열기`);
+      card.setAttribute(
+        "aria-label",
+        `${article.title} 원문을 새 탭에서 열기. 지식재산처 연관도 ${relevance.label}. ${relevance.reason}`,
+      );
     } else {
       card.classList.add("is-unavailable");
       card.setAttribute("aria-disabled", "true");
@@ -337,6 +463,10 @@ function renderSelectedDateList() {
     topLine.textContent = `${article.ministry || "기관 미상"} · ${formatDateKorean(dateValue, true)}${statusText}`;
     title.textContent = article.title || "제목 없음";
     summary.textContent = article.summary || "요약 없음";
+    reason.textContent = relevance.reason || "AI 연관도 판정 근거가 아직 없습니다.";
+    signals.textContent = relevance.signals.length
+      ? `판정 신호: ${relevance.signals.join(", ")}`
+      : "판정 신호: 없음";
     keywords.textContent = article.matchedKeywords?.length
       ? `일치 키워드: ${article.matchedKeywords.join(", ")}`
       : "전체 보기";
@@ -440,7 +570,9 @@ async function initialize() {
     elements.lastUpdated.textContent = state.manifest.last_updated
       ? formatDateKorean(state.manifest.last_updated, true)
       : "수집 전";
-    elements.datasetSummary.textContent = `저장 ${state.manifest.article_count || 0}건 · ${state.manifest.available_months?.length || 0}개월`;
+    const classifiedCount = Number(state.manifest.classified_count || 0);
+    const totalCount = Number(state.manifest.article_count || 0);
+    elements.datasetSummary.textContent = `저장 ${totalCount}건 · AI/규칙 판정 ${classifiedCount}건`;
 
     state.keywords = loadSavedKeywords();
     elements.keywordInput.value = state.keywords.join(", ");

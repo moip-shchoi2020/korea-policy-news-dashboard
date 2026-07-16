@@ -1,0 +1,69 @@
+지식재산처 AI 연관도 기능 적용방법
+====================================
+
+변경 파일
+---------
+기존 파일 교체:
+- .github/workflows/collect-and-deploy.yml
+- collector/build_indexes.py
+- docs/index.html
+- docs/assets/app.js
+- docs/assets/style.css
+
+새 파일 추가:
+- collector/classify_relevance.py
+- collector/relevance_policy.json
+- tests/test_relevance.py
+
+가장 쉬운 업로드 방법
+--------------------
+1. 이 ZIP을 압축 해제합니다.
+2. GitHub 저장소 상단 Code → Add file → Upload files로 이동합니다.
+3. 압축을 푼 폴더에서 collector, docs, tests 폴더를 저장소 최상단 업로드 화면에 끌어 놓습니다.
+   포함된 파일만 추가·교체되고 기존 docs/data 파일은 삭제되지 않습니다.
+4. Commit message에 "Add IP office AI relevance analysis"를 입력하고 main 브랜치에 Commit합니다.
+5. 숨김 폴더인 .github는 업로드하지 말고 기존 워크플로 파일을 직접 편집합니다.
+   Code → .github → workflows → collect-and-deploy.yml → Edit this file
+6. 패치의 .github/workflows/collect-and-deploy.yml 전체 내용을 복사하여 기존 내용과 교체하고 Commit합니다.
+
+기존 121건을 처음 AI 분석하는 방법
+----------------------------------
+1. 저장소 상단 Actions 탭을 선택합니다.
+2. 왼쪽에서 "보도자료 수집·AI 연관도 분석 및 대시보드 배포"를 선택합니다.
+3. Run workflow를 선택합니다.
+4. 입력값:
+   - start_date: 비움
+   - end_date: 비움
+   - lookback_days: 3
+   - 기존 데이터만 AI 분석하고 보도자료 수집은 생략: 체크
+   - 기존 AI 판정을 모두 다시 수행: 체크하지 않음
+5. Run workflow를 실행합니다.
+6. 로그의 "지식재산처 AI 연관도 분석" 단계에서 다음 형식을 확인합니다.
+   - AI 분석 1/N: 3건 (...)
+   - 연관도 분석 완료: 매우 중요 n건 / 중요 n건 / 보통 n건 / 관계없음 n건
+7. build와 deploy가 모두 성공하면 GitHub Pages 화면을 강력 새로고침합니다.
+
+판정 단계
+---------
+- 매우 중요(빨강): 직접·즉시 영향, 법·규정 개정, 전 부처 즉시 적용 기준, AI 보안사고
+- 중요(주황): 향후 참여·도입 가능성이 높은 전 부처 AI 실험·공통플랫폼·행정효율화
+- 보통(파랑): 개별 기관의 일반적인 AI·정보화·시스템 구축·개선 사업
+- 관계없음(회색): 실질 조치 없이 공청회·간담회·설명회 등 행사 사실만 알림
+
+판정 기준 수정
+--------------
+collector/relevance_policy.json에서 단계 정의와 키워드를 편집할 수 있습니다.
+기준을 바꾸면 prompt_version도 새 값으로 변경하거나, Run workflow에서
+"기존 AI 판정을 모두 다시 수행"을 체크합니다.
+
+AI 장애 시 동작
+---------------
+GitHub Models 호출이 제한되거나 실패해도 배포는 중단하지 않습니다.
+규칙 기반 판정으로 저장하며 목록에 "AI 실패·규칙 판정"이라고 표시됩니다.
+다음 수동·정기 실행에서 AI 판정을 다시 시도합니다.
+
+별도 Secret
+-----------
+추가 API 키나 Secret은 필요하지 않습니다.
+워크플로가 자동 GITHUB_TOKEN과 models: read 권한을 사용합니다.
+기존 DATA_GO_KR_SERVICE_KEY는 이번 기능에서 사용하지 않습니다.

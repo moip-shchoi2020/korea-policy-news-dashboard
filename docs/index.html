@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1" name="viewport"/>
-  <meta content="대한민국 정책브리핑 보도자료 중 AI·정보화 사업·시스템·AX 관련 자료를 달력과 목록으로 조회하는 대시보드" name="description"/>
+  <meta content="대한민국 정책브리핑 보도자료 중 AI·정보화 사업·시스템·AX 관련 자료를 지식재산처 연관도에 따라 분류하는 대시보드" name="description"/>
   <title>정부 보도자료 AI·정보화 동향</title>
   <link href="assets/style.css" rel="stylesheet"/>
 </head>
@@ -15,7 +15,7 @@
       <div>
         <p class="eyebrow">대한민국 정책브리핑 보도자료 모니터링</p>
         <h1 id="site-title">정부 보도자료 AI·정보화 동향</h1>
-        <p class="header-description">좌측에서 키워드와 날짜를 선택하고, 우측 목록의 제목을 누르면 정책브리핑 원문이 새 탭에서 열립니다.</p>
+        <p class="header-description">AI가 지식재산처 영향도를 4단계로 판정합니다. 좌측 달력에서 색상별 건수를 확인하고, 우측 제목을 누르면 정책브리핑 원문이 새 탭에서 열립니다.</p>
       </div>
       <div aria-live="polite" class="header-status">
         <span class="status-label">데이터 최종 갱신</span>
@@ -48,6 +48,17 @@
             </div>
           </div>
           <div aria-label="적용 중인 키워드" class="keyword-chips" id="keyword-chips"></div>
+
+          <details class="relevance-policy">
+            <summary>AI 중요도 판단 기준</summary>
+            <div class="relevance-policy-body">
+              <p><strong class="policy-level relevance-critical">매우 중요</strong> 지식재산처에 직접·즉시 영향. AI 관련 법·정부 공통 규정 개정, 전 부처 즉시 적용 기준, AI·정보시스템 보안사고 등.</p>
+              <p><strong class="policy-level relevance-important">중요</strong> 당장은 아니지만 향후 영향 가능성이 큼. 행안부·과기정통부의 전 부처 AI 실험·공통플랫폼·행정효율화 사업 등.</p>
+              <p><strong class="policy-level relevance-normal">보통</strong> 개별 기관의 일반적인 AI·정보화·시스템 구축·개선 사업으로 사례 참고 가치가 있는 경우.</p>
+              <p><strong class="policy-level relevance-unrelated">관계없음</strong> 실질적인 제도·사업·조치 없이 공청회·간담회·설명회 등 행사 사실만 알리는 경우.</p>
+              <p class="policy-note">AI 판정은 검토 우선순위를 정하기 위한 보조 정보이며, 최종 판단은 담당자가 원문을 확인해 확정합니다.</p>
+            </div>
+          </details>
         </div>
 
         <div class="control-divider" aria-hidden="true"></div>
@@ -82,7 +93,14 @@
             </div>
             <div class="calendar-grid" id="calendar-grid" role="rowgroup"></div>
           </div>
-          <p class="calendar-legend"><span class="legend-today"></span> 오늘 · <strong>5건 (2건)</strong>은 일치 5건 중 수정본 2건을 뜻합니다.</p>
+
+          <div class="relevance-legend" aria-label="지식재산처 연관도 색상 범례">
+            <span><i class="legend-swatch relevance-critical"></i><b>매</b> 매우 중요</span>
+            <span><i class="legend-swatch relevance-important"></i><b>중</b> 중요</span>
+            <span><i class="legend-swatch relevance-normal"></i><b>보</b> 보통</span>
+            <span><i class="legend-swatch relevance-unrelated"></i><b>무</b> 관계없음</span>
+          </div>
+          <p class="calendar-legend"><span class="legend-today"></span> 오늘 · 날짜 옆의 <strong>수정 n</strong>은 수집 이후 내용 변경이 감지된 자료 수입니다.</p>
         </div>
       </section>
     </aside>
@@ -91,11 +109,11 @@
       <section aria-labelledby="selected-date-heading" class="panel list-panel">
         <div class="section-heading list-heading">
           <div>
-            <p class="section-kicker">선택 날짜</p>
+            <p class="section-kicker">선택 날짜 · 지식재산처 영향도순</p>
             <h2 id="selected-date-heading">보도자료 목록</h2>
-            <p class="list-instruction">제목을 선택하면 정책브리핑 원문이 새 탭에서 열립니다.</p>
+            <p class="list-instruction">매우 중요 → 중요 → 보통 → 관계없음 순으로 표시합니다. 제목을 선택하면 정책브리핑 원문이 새 탭에서 열립니다.</p>
           </div>
-          <p class="dataset-summary" id="selected-date-summary"></p>
+          <p class="dataset-summary selected-date-summary" id="selected-date-summary"></p>
         </div>
         <div aria-live="polite" class="article-list" id="article-list"></div>
       </section>
@@ -109,14 +127,21 @@
       ·
       <a href="https://www.korea.kr/guide/copyRight.do" id="copyright-link" rel="noopener noreferrer" target="_blank">저작권 정책</a>
     </p>
-    <p>목록에서 자료를 선택하면 정책브리핑 원문 페이지를 별도 탭으로 엽니다.</p>
+    <p>AI 연관도는 정책 모니터링 보조 지표입니다. 실제 대응 여부는 원문과 관계 법령·사업계획을 확인해 결정해야 합니다.</p>
   </footer>
 
   <template id="article-card-template">
     <a class="article-card" rel="noopener noreferrer" target="_blank">
+      <span class="article-card-relevance-row">
+        <span class="relevance-badge"></span>
+        <span class="relevance-action"></span>
+        <span class="relevance-method"></span>
+      </span>
       <span class="article-card-topline"></span>
       <strong class="article-card-title"></strong>
       <span class="article-card-summary"></span>
+      <span class="article-card-reason"></span>
+      <span class="article-card-signals"></span>
       <span class="article-card-footer">
         <span class="article-card-keywords"></span>
         <span class="article-card-link-hint">원문 새 탭 ↗</span>

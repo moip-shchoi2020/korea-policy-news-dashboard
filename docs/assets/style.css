@@ -1009,3 +1009,415 @@ iframe:focus-visible {
     gap: 4px;
   }
 }
+
+/* --------------------------------------------------------------------------
+   지식재산처 AI 연관도 표시
+   -------------------------------------------------------------------------- */
+:root {
+  --critical-bg: #fff0f1;
+  --critical-border: #c92a2a;
+  --critical-text: #8f121a;
+  --important-bg: #fff4e6;
+  --important-border: #e67700;
+  --important-text: #8a4b00;
+  --normal-bg: #edf6ff;
+  --normal-border: #2f73c8;
+  --normal-text: #174f91;
+  --unrelated-bg: #f4f6f8;
+  --unrelated-border: #7b8794;
+  --unrelated-text: #475467;
+  --unclassified-bg: #fffdf2;
+  --unclassified-border: #a68b2d;
+  --unclassified-text: #6e5b12;
+}
+
+.dashboard-shell {
+  grid-template-columns: minmax(400px, 460px) minmax(0, 1fr);
+}
+
+.relevance-policy {
+  margin-top: 13px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-muted);
+}
+
+.relevance-policy summary {
+  padding: 9px 11px;
+  cursor: pointer;
+  color: var(--accent-dark);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.relevance-policy[open] summary {
+  border-bottom: 1px solid var(--border);
+}
+
+.relevance-policy-body {
+  display: grid;
+  gap: 8px;
+  padding: 10px 11px 12px;
+}
+
+.relevance-policy-body p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
+.policy-level {
+  display: inline-flex;
+  margin-right: 4px;
+  padding: 1px 6px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.67rem;
+  white-space: nowrap;
+}
+
+.policy-level.relevance-critical {
+  background: var(--critical-bg);
+  color: var(--critical-text);
+}
+
+.policy-level.relevance-important {
+  background: var(--important-bg);
+  color: var(--important-text);
+}
+
+.policy-level.relevance-normal {
+  background: var(--normal-bg);
+  color: var(--normal-text);
+}
+
+.policy-level.relevance-unrelated {
+  background: var(--unrelated-bg);
+  color: var(--unrelated-text);
+}
+
+.relevance-policy-body .policy-note {
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-strong);
+  color: #6b5520;
+}
+
+.calendar-cell,
+.calendar-cell-inner {
+  min-height: 82px;
+}
+
+.calendar-cell-inner {
+  padding: 5px;
+  gap: 4px;
+}
+
+.calendar-cell-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 3px;
+}
+
+.calendar-modified-count {
+  color: var(--modified);
+  font-size: 0.52rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.calendar-relevance-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.calendar-relevance-count {
+  min-width: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 3px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 0.58rem;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.calendar-relevance-count strong {
+  font-size: 0.62rem;
+}
+
+.calendar-relevance-count.is-zero {
+  opacity: 0.36;
+}
+
+.calendar-relevance-short {
+  font-weight: 900;
+}
+
+.calendar-relevance-count.relevance-critical,
+.legend-swatch.relevance-critical {
+  border-color: var(--critical-border);
+  background: var(--critical-bg);
+  color: var(--critical-text);
+}
+
+.calendar-relevance-count.relevance-important,
+.legend-swatch.relevance-important {
+  border-color: var(--important-border);
+  background: var(--important-bg);
+  color: var(--important-text);
+}
+
+.calendar-relevance-count.relevance-normal,
+.legend-swatch.relevance-normal {
+  border-color: var(--normal-border);
+  background: var(--normal-bg);
+  color: var(--normal-text);
+}
+
+.calendar-relevance-count.relevance-unrelated,
+.legend-swatch.relevance-unrelated {
+  border-color: var(--unrelated-border);
+  background: var(--unrelated-bg);
+  color: var(--unrelated-text);
+}
+
+.relevance-legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px 8px;
+  margin-top: 9px;
+  color: var(--text-muted);
+  font-size: 0.66rem;
+}
+
+.relevance-legend span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legend-swatch {
+  width: 13px;
+  height: 13px;
+  display: inline-block;
+  border: 1px solid;
+  border-radius: 3px;
+}
+
+.month-summary,
+.selected-date-summary {
+  max-width: 65%;
+  white-space: normal;
+  line-height: 1.5;
+}
+
+.article-card {
+  gap: 6px;
+  border-left-width: 6px;
+}
+
+.article-card.relevance-critical {
+  border-color: #efb3b7;
+  border-left-color: var(--critical-border);
+  background: var(--critical-bg);
+}
+
+.article-card.relevance-important {
+  border-color: #f2c991;
+  border-left-color: var(--important-border);
+  background: var(--important-bg);
+}
+
+.article-card.relevance-normal {
+  border-color: #b9d4f2;
+  border-left-color: var(--normal-border);
+  background: var(--normal-bg);
+}
+
+.article-card.relevance-unrelated {
+  border-color: #d6dce2;
+  border-left-color: var(--unrelated-border);
+  background: var(--unrelated-bg);
+}
+
+.article-card.relevance-unclassified {
+  border-color: var(--unclassified-border);
+  border-left-color: var(--unclassified-border);
+  background: var(--unclassified-bg);
+}
+
+.article-card.relevance-critical:hover {
+  border-color: var(--critical-border);
+}
+
+.article-card.relevance-important:hover {
+  border-color: var(--important-border);
+}
+
+.article-card.relevance-normal:hover {
+  border-color: var(--normal-border);
+}
+
+.article-card.relevance-unrelated:hover {
+  border-color: var(--unrelated-border);
+}
+
+.article-card-relevance-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.relevance-badge,
+.relevance-action,
+.relevance-method {
+  display: inline-flex;
+  align-items: center;
+  min-height: 23px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 850;
+}
+
+.article-card-relevance-row.relevance-critical .relevance-badge {
+  background: var(--critical-border);
+  color: #fff;
+}
+
+.article-card-relevance-row.relevance-important .relevance-badge {
+  background: var(--important-border);
+  color: #fff;
+}
+
+.article-card-relevance-row.relevance-normal .relevance-badge {
+  background: var(--normal-border);
+  color: #fff;
+}
+
+.article-card-relevance-row.relevance-unrelated .relevance-badge {
+  background: var(--unrelated-border);
+  color: #fff;
+}
+
+.article-card-relevance-row.relevance-unclassified .relevance-badge {
+  background: var(--unclassified-border);
+  color: #fff;
+}
+
+.relevance-action {
+  border: 1px solid currentColor;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.article-card-relevance-row.relevance-critical .relevance-action {
+  color: var(--critical-text);
+}
+
+.article-card-relevance-row.relevance-important .relevance-action {
+  color: var(--important-text);
+}
+
+.article-card-relevance-row.relevance-normal .relevance-action {
+  color: var(--normal-text);
+}
+
+.article-card-relevance-row.relevance-unrelated .relevance-action {
+  color: var(--unrelated-text);
+}
+
+.relevance-method {
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.66);
+  color: var(--text-muted);
+  font-weight: 750;
+}
+
+.article-card-reason {
+  padding: 7px 9px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.68);
+  color: var(--text);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.article-card-signals {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.article-card-keywords {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 960px) {
+  .dashboard-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-cell,
+  .calendar-cell-inner {
+    min-height: 88px;
+  }
+}
+
+@media (max-width: 720px) {
+  .month-summary,
+  .selected-date-summary {
+    max-width: none;
+  }
+
+  .article-card-relevance-row {
+    align-items: flex-start;
+  }
+
+  .relevance-method {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-cell,
+  .calendar-cell-inner {
+    min-height: 76px;
+  }
+
+  .calendar-cell-inner {
+    padding: 3px;
+  }
+
+  .calendar-relevance-count {
+    padding: 1px 2px;
+    font-size: 0.52rem;
+  }
+
+  .calendar-relevance-count strong {
+    font-size: 0.55rem;
+  }
+
+  .calendar-modified-count {
+    display: none;
+  }
+
+  .article-card-relevance-row {
+    gap: 4px;
+  }
+
+  .relevance-badge,
+  .relevance-action,
+  .relevance-method {
+    min-height: 21px;
+    padding: 1px 6px;
+    font-size: 0.62rem;
+  }
+}

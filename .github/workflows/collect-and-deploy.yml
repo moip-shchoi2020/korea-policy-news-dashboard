@@ -16,7 +16,7 @@ on:
       - "requirements.txt"
       - ".github/workflows/collect-and-deploy.yml"
   schedule:
-    - cron: "23 6,18 * * *"
+    - cron: "0 9,12,15,18 * * *"
       timezone: "Asia/Seoul"
   workflow_dispatch:
     inputs:
@@ -95,6 +95,11 @@ jobs:
           START_DATE: ${{ inputs.start_date }}
           END_DATE: ${{ inputs.end_date }}
           INPUT_LOOKBACK_DAYS: ${{ inputs.lookback_days || '3' }}
+          CONNECT_TIMEOUT_SECONDS: '15'
+          READ_TIMEOUT_SECONDS: '30'
+          HTTP_RETRY_TOTAL: '2'
+          HTTP_BACKOFF_FACTOR: '1.5'
+          KOREA_MOBILE_FALLBACK: 'true'
           PYTHONUNBUFFERED: '1'
         shell: bash
         run: |

@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any, Iterable, Iterator
-from urllib.parse import parse_qs, urljoin, urlparse
+from urllib.parse import parse_qs, urljoin, urlparse, urlunparse
 from zoneinfo import ZoneInfo
 
 import requests
@@ -37,10 +37,17 @@ from collector.common import (
 
 SEOUL = ZoneInfo("Asia/Seoul")
 BASE_URL = "https://www.korea.kr"
+MOBILE_BASE_URL = "https://m.korea.kr"
 DEFAULT_LIST_URL = f"{BASE_URL}/briefing/pressReleaseList.do"
-DEFAULT_CONNECT_TIMEOUT = float(os.getenv("CONNECT_TIMEOUT_SECONDS", "8"))
-DEFAULT_READ_TIMEOUT = float(os.getenv("READ_TIMEOUT_SECONDS", "20"))
+DEFAULT_CONNECT_TIMEOUT = float(os.getenv("CONNECT_TIMEOUT_SECONDS", "15"))
+DEFAULT_READ_TIMEOUT = float(os.getenv("READ_TIMEOUT_SECONDS", "30"))
+DEFAULT_HTTP_RETRIES = max(0, int(os.getenv("HTTP_RETRY_TOTAL", "2")))
+DEFAULT_HTTP_BACKOFF = max(0.0, float(os.getenv("HTTP_BACKOFF_FACTOR", "1.5")))
+USE_MOBILE_FALLBACK = os.getenv("KOREA_MOBILE_FALLBACK", "true").lower() not in {"0", "false", "no"}
 _DETAIL_THREAD = threading.local()
+_HOST_PREFERENCE_LOCK = threading.Lock()
+_PREFERRED_KOREA_HOST = (os.getenv("KOREA_PREFERRED_HOST") or "").strip().lower()
+_FALLBACK_NOTICE_HOSTS: set[str] = set()
 
 
 @dataclass(frozen=True)
@@ -184,15 +191,22 @@ def resolve_range(args: argparse.Namespace) -> CollectRange:
 
 def create_session() -> requests.Session:
     retry = Retry(
-        total=1,
-        connect=1,
-        read=1,
-        backoff_factor=0.5,
+        total=DEFAULT_HTTP_RETRIES,
+        connect=DEFAULT_HTTP_RETRIES,
+        read=min(DEFAULT_HTTP_RETRIES, 2),
+        status=DEFAULT_HTTP_RETRIES,
+        backoff_factor=DEFAULT_HTTP_BACKOFF,
         status_forcelist=(429, 500, 502, 503, 504),
         allowed_methods=frozenset(["GET"]),
+        respect_retry_after_header=True,
         raise_on_status=False,
     )
-    adapter = HTTPAdapter(max_retries=retry)
+    adapter = HTTPAdapter(
+        max_retries=retry,
+        pool_connections=8,
+        pool_maxsize=8,
+        pool_block=False,
+    )
     session = requests.Session()
     session.headers.update(
         {
@@ -229,6 +243,52 @@ def response_preview(content: bytes | str, max_chars: int = 300) -> str:
     return collapse_whitespace(text)[:max_chars]
 
 
+def _replace_korea_host(url: str, host: str) -> str:
+    parsed = urlparse(url)
+    if parsed.hostname not in {"www.korea.kr", "m.korea.kr"}:
+        return url
+    port = f":{parsed.port}" if parsed.port else ""
+    return urlunparse(parsed._replace(netloc=f"{host}{port}"))
+
+
+def _request_candidates(url: str) -> list[str]:
+    parsed = urlparse(url)
+    if parsed.hostname not in {"www.korea.kr", "m.korea.kr"}:
+        return [url]
+
+    hosts: list[str] = []
+    with _HOST_PREFERENCE_LOCK:
+        preferred = _PREFERRED_KOREA_HOST
+    if preferred in {"www.korea.kr", "m.korea.kr"}:
+        hosts.append(preferred)
+    if parsed.hostname not in hosts:
+        hosts.append(parsed.hostname)
+    if USE_MOBILE_FALLBACK:
+        alternate = "m.korea.kr" if parsed.hostname == "www.korea.kr" else "www.korea.kr"
+        if alternate not in hosts:
+            hosts.append(alternate)
+    return [_replace_korea_host(url, host) for host in hosts]
+
+
+def _remember_working_host(url: str, original_url: str) -> None:
+    global _PREFERRED_KOREA_HOST
+    host = (urlparse(url).hostname or "").lower()
+    original_host = (urlparse(original_url).hostname or "").lower()
+    if host not in {"www.korea.kr", "m.korea.kr"}:
+        return
+    with _HOST_PREFERENCE_LOCK:
+        _PREFERRED_KOREA_HOST = host
+        should_notice = host != original_host and host not in _FALLBACK_NOTICE_HOSTS
+        if should_notice:
+            _FALLBACK_NOTICE_HOSTS.add(host)
+    if should_notice:
+        print(
+            f"::warning title=정책브리핑 대체 호스트 사용::{original_host} 연결이 불안정하여 {host}로 전환했습니다.",
+            file=sys.stderr,
+            flush=True,
+        )
+
+
 def request_page(
     session: requests.Session,
     url: str,
@@ -236,14 +296,55 @@ def request_page(
     params: dict[str, str] | None = None,
     timeout: tuple[float, float] = (DEFAULT_CONNECT_TIMEOUT, DEFAULT_READ_TIMEOUT),
 ) -> bytes:
-    response = session.get(url, params=params, timeout=timeout, allow_redirects=True)
-    if response.status_code >= 400:
-        preview = response_preview(response.content)
-        suffix = f"; 응답={preview}" if preview else ""
-        raise RuntimeError(f"HTTP {response.status_code}: 정책브리핑 요청 실패{suffix}")
-    if not response.content:
-        raise RuntimeError("정책브리핑 응답이 비어 있습니다.")
-    return response.content
+    errors: list[str] = []
+    candidates = _request_candidates(url)
+    for index, candidate in enumerate(candidates):
+        try:
+            response = session.get(
+                candidate,
+                params=params,
+                timeout=timeout,
+                allow_redirects=True,
+            )
+        except requests.RequestException as exc:
+            errors.append(f"{urlparse(candidate).hostname}: {exc}")
+            if index + 1 < len(candidates):
+                print(
+                    f"::warning title=정책브리핑 연결 재시도::{urlparse(candidate).hostname} 연결 실패, "
+                    f"{urlparse(candidates[index + 1]).hostname}로 전환합니다.",
+                    file=sys.stderr,
+                    flush=True,
+                )
+                continue
+            break
+
+        if response.status_code >= 400:
+            preview = response_preview(response.content)
+            suffix = f"; 응답={preview}" if preview else ""
+            errors.append(
+                f"{urlparse(candidate).hostname}: HTTP {response.status_code}{suffix}"
+            )
+            if response.status_code in {403, 408, 425, 429, 500, 502, 503, 504} and index + 1 < len(candidates):
+                print(
+                    f"::warning title=정책브리핑 호스트 전환::{urlparse(candidate).hostname}에서 "
+                    f"HTTP {response.status_code}, {urlparse(candidates[index + 1]).hostname}로 전환합니다.",
+                    file=sys.stderr,
+                    flush=True,
+                )
+                continue
+            break
+
+        if not response.content:
+            errors.append(f"{urlparse(candidate).hostname}: 응답이 비어 있음")
+            if index + 1 < len(candidates):
+                continue
+            break
+
+        _remember_working_host(response.url or candidate, url)
+        return response.content
+
+    detail = " | ".join(errors) if errors else "알 수 없는 연결 오류"
+    raise RuntimeError(f"정책브리핑 모든 접속 경로 실패: {detail}")
 
 
 def clean_text(value: str | None) -> str:
@@ -1010,7 +1111,14 @@ def main() -> int:
     )
     print(
         f"요청 제한: 연결 {DEFAULT_CONNECT_TIMEOUT:g}초 / 읽기 {DEFAULT_READ_TIMEOUT:g}초 / "
+        f"연결 재시도 {DEFAULT_HTTP_RETRIES}회 / 백오프 {DEFAULT_HTTP_BACKOFF:g} / "
         f"본문 동시 요청 {args.detail_workers}개",
+        flush=True,
+    )
+    print(
+        "접속 경로: www.korea.kr 우선, 실패 시 m.korea.kr 자동 전환"
+        if USE_MOBILE_FALLBACK
+        else "접속 경로: 대체 호스트 사용 안 함",
         flush=True,
     )
 

@@ -16,7 +16,11 @@ on:
       - "requirements.txt"
       - ".github/workflows/collect-and-deploy.yml"
   schedule:
-    - cron: "0 9,12,15,18 * * *"
+    # 09시·18시 실행은 수집/분석/배포 후 텔레그램 브리핑도 발송한다.
+    - cron: "0 9,18 * * *"
+      timezone: "Asia/Seoul"
+    # 12시·15시 실행은 수집/분석/배포만 수행한다.
+    - cron: "0 12,15 * * *"
       timezone: "Asia/Seoul"
   workflow_dispatch:
     inputs:
@@ -40,6 +44,11 @@ on:
         type: boolean
       force_ai_reclassify:
         description: "기존 AI 판정을 모두 다시 수행(기준·모델 변경 시만 사용)"
+        required: false
+        default: false
+        type: boolean
+      send_telegram:
+        description: "실행 완료 후 텔레그램 브리핑 시험 발송"
         required: false
         default: false
         type: boolean
@@ -188,3 +197,46 @@ jobs:
       - name: GitHub Pages 배포
         id: deployment
         uses: actions/deploy-pages@v5
+
+  notify_telegram:
+    needs: [build, deploy]
+    if: >-
+      ${{
+        needs.build.result == 'success' &&
+        needs.deploy.result == 'success' &&
+        (
+          (github.event_name == 'schedule' && github.event.schedule == '0 9,18 * * *') ||
+          (github.event_name == 'workflow_dispatch' && inputs.send_telegram)
+        )
+      }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: 최신 데이터 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Telegram 전송 패키지 설치
+        run: pip install requests
+
+      - name: 텔레그램 브리핑 발송
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_KEYWORDS: ${{ vars.TELEGRAM_KEYWORDS }}
+          TELEGRAM_MAX_CRITICAL: ${{ vars.TELEGRAM_MAX_CRITICAL || '20' }}
+          TELEGRAM_MAX_IMPORTANT: ${{ vars.TELEGRAM_MAX_IMPORTANT || '20' }}
+          TELEGRAM_MAX_NORMAL: ${{ vars.TELEGRAM_MAX_NORMAL || '5' }}
+          TELEGRAM_MAX_UNCLASSIFIED: ${{ vars.TELEGRAM_MAX_UNCLASSIFIED || '3' }}
+          TELEGRAM_MAX_ARTICLES: ${{ vars.TELEGRAM_MAX_ARTICLES || '30' }}
+          DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
+          REPORT_DATE: ${{ inputs.end_date }}
+          PYTHONUNBUFFERED: '1'
+        run: python -u -m collector.send_telegram

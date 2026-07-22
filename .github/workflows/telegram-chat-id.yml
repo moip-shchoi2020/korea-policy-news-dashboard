@@ -1,0 +1,95 @@
+name: Telegram Chat ID 확인
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  get-chat-id:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Bot 연결 및 Chat ID 확인
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+          import urllib.error
+          import urllib.request
+
+          token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+          if not token:
+              print("::error::Repository secret TELEGRAM_BOT_TOKEN이 없습니다.")
+              sys.exit(1)
+
+          base_url = f"https://api.telegram.org/bot{token}"
+
+          def call(method: str):
+              request = urllib.request.Request(
+                  f"{base_url}/{method}",
+                  headers={"User-Agent": "github-actions-telegram-check/1.0"},
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      payload = json.load(response)
+              except urllib.error.HTTPError as exc:
+                  body = exc.read().decode("utf-8", errors="replace")
+                  print(f"::error::{method} HTTP {exc.code}: {body[:500]}")
+                  sys.exit(1)
+              except Exception as exc:
+                  print(f"::error::{method} 연결 실패: {exc}")
+                  sys.exit(1)
+
+              if not payload.get("ok"):
+                  print(f"::error::{method} 실패: {payload}")
+                  sys.exit(1)
+              return payload.get("result")
+
+          bot = call("getMe")
+          print(f"Bot 연결 성공: @{bot.get('username', '')}")
+
+          webhook = call("getWebhookInfo")
+          if webhook.get("url"):
+              print("::error::Webhook이 활성화되어 있어 getUpdates를 사용할 수 없습니다.")
+              print("Bot API의 deleteWebhook을 실행한 뒤 다시 시도하세요.")
+              sys.exit(2)
+
+          updates = call("getUpdates")
+          chats = {}
+          for update in updates:
+              for field in (
+                  "message",
+                  "edited_message",
+                  "channel_post",
+                  "edited_channel_post",
+              ):
+                  event = update.get(field)
+                  if not isinstance(event, dict):
+                      continue
+                  chat = event.get("chat")
+                  if not isinstance(chat, dict) or chat.get("id") is None:
+                      continue
+                  chat_id = str(chat["id"])
+                  display_name = (
+                      chat.get("title")
+                      or chat.get("username")
+                      or chat.get("first_name")
+                      or ""
+                  )
+                  chats[chat_id] = (chat.get("type", ""), display_name)
+
+          if not chats:
+              print("::error::Chat ID를 찾지 못했습니다.")
+              print("Telegram에서 해당 Bot에게 /start 메시지를 보낸 뒤 다시 실행하세요.")
+              sys.exit(3)
+
+          print("\n=== TELEGRAM CHAT ID ===")
+          for chat_id, (chat_type, display_name) in chats.items():
+              print(f"Chat ID: {chat_id} | type={chat_type} | name={display_name}")
+          PY

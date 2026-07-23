@@ -281,12 +281,39 @@ def report_slot() -> str:
     return "오전 브리핑" if now.hour < 12 else "오후 브리핑"
 
 
+def pipeline_status_note() -> str:
+    build_result = normalize_text(os.getenv("PIPELINE_BUILD_RESULT", ""))
+    deploy_result = normalize_text(os.getenv("PIPELINE_DEPLOY_RESULT", ""))
+    if not build_result and not deploy_result:
+        return ""
+    if build_result == "success" and deploy_result == "success":
+        return ""
+
+    labels = {
+        "success": "성공",
+        "failure": "실패",
+        "cancelled": "취소",
+        "skipped": "건너뜀",
+    }
+    build_label = labels.get(build_result, build_result or "확인 불가")
+    deploy_label = labels.get(deploy_result, deploy_result or "확인 불가")
+    return (
+        f"⚠️ 이번 자동 수집/배포 상태: build={build_label}, deploy={deploy_label}. "
+        "아래 내용은 저장소에 남아 있는 최신 성공 데이터 기준입니다."
+    )
+
+
 def header_block(result: DigestResult) -> str:
     counts = result.counts
     keyword_text = ", ".join(result.keywords) if result.keywords else "전체 보도자료"
     lines = [
         f"<b>정부 보도자료 AI·정보화 동향 · {escape(report_slot())}</b>",
         f"{escape(result.report_date)} · 키워드: {escape(keyword_text)}",
+    ]
+    status_note = pipeline_status_note()
+    if status_note:
+        lines.extend(["", escape(status_note)])
+    lines.extend([
         "",
         (
             f"🔴 매우 중요 <b>{counts['critical']}</b> · "
@@ -298,7 +325,7 @@ def header_block(result: DigestResult) -> str:
             f"◻️ 미분류 <b>{counts['unclassified']}</b> · "
             f"키워드 일치 <b>{len(result.matched_articles)}</b>건"
         ),
-    ]
+    ])
     if not result.articles:
         lines.extend(["", "오늘 날짜 폴더에 수집된 보도자료가 아직 없습니다."])
     elif not result.matched_articles:

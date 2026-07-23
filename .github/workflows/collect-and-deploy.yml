@@ -3,7 +3,7 @@ name: 보도자료 수집·AI 연관도 분석 및 대시보드 배포
 run-name: >-
   ${{ github.event_name == 'workflow_dispatch' && inputs.skip_collection && '기존 데이터 AI 분석 및 배포' ||
       github.event_name == 'workflow_dispatch' && '수동 수집·AI 분석 및 배포' ||
-      github.event_name == 'schedule' && '정기 수집·AI 분석 및 배포' ||
+      github.event_name == 'schedule' && format('정기 수집·AI 분석 및 배포 ({0})', github.event.schedule) ||
       '코드 변경 배포(수집·AI 분석 없음)' }}
 
 on:
@@ -16,12 +16,15 @@ on:
       - "requirements.txt"
       - ".github/workflows/collect-and-deploy.yml"
   schedule:
-    # 09시·18시 실행은 수집/분석/배포 후 텔레그램 브리핑도 발송한다.
-    - cron: "0 9,18 * * *"
-      timezone: "Asia/Seoul"
-    # 12시·15시 실행은 수집/분석/배포만 수행한다.
-    - cron: "0 12,15 * * *"
-      timezone: "Asia/Seoul"
+    # GitHub 예약 실행의 기준을 UTC로 고정한다.
+    # 한국시간 09:00 = UTC 00:00 (텔레그램 발송)
+    - cron: "0 0 * * *"
+    # 한국시간 12:00 = UTC 03:00
+    - cron: "0 3 * * *"
+    # 한국시간 15:00 = UTC 06:00
+    - cron: "0 6 * * *"
+    # 한국시간 18:00 = UTC 09:00 (텔레그램 발송)
+    - cron: "0 9 * * *"
   workflow_dispatch:
     inputs:
       start_date:
@@ -73,13 +76,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 실행 유형 확인
+      - name: 실행 유형 및 예약 시각 확인
         shell: bash
+        env:
+          SCHEDULE_EXPRESSION: ${{ github.event.schedule }}
         run: |
           echo "GitHub event: $GITHUB_EVENT_NAME"
+          if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
+            echo "Trigger cron (UTC): $SCHEDULE_EXPRESSION"
+            echo "UTC now: $(date -u '+%Y-%m-%d %H:%M:%S %Z')"
+            echo "KST now: $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S %Z')"
+          fi
           if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
             echo "코드 업로드로 시작된 실행이므로 보도자료 수집과 AI 분석은 생략하고 기존 데이터만 배포합니다."
-            echo "기존 자료를 AI 분석하려면 저장소 상단 Actions → 이 워크플로 → Run workflow에서 '기존 데이터만 AI 분석'을 선택하세요."
           fi
 
       - name: Python 설치
@@ -115,7 +124,7 @@ jobs:
           set -euo pipefail
           LOOKBACK_DAYS="$INPUT_LOOKBACK_DAYS"
           if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
-            # HTML 상세페이지를 반복 조회하므로 정기 실행은 최근 2일만 재확인한다.
+            # 정기 실행은 한국시간 오늘과 전날을 재확인한다.
             LOOKBACK_DAYS="2"
           fi
           args=(--lookback-days "$LOOKBACK_DAYS" --continue-on-error --detail-workers 3 --max-pages-per-day 10)
@@ -165,16 +174,49 @@ jobs:
           set -euo pipefail
           git config user.name "policy-dashboard-bot"
           git config user.email "policy-dashboard-bot@users.noreply.github.com"
+
           git add docs/data
-          echo "변경 파일:"
+          echo "커밋 전 데이터 변경 파일:"
           git status --short docs/data
+
           if git diff --cached --quiet; then
             echo "새 데이터 변경이 없습니다."
-          else
-            git commit -m "data: 보도자료 및 지식재산처 AI 연관도 갱신"
-            git pull --rebase origin main
-            git push origin HEAD:main
+            exit 0
           fi
+
+          git commit -m "data: 보도자료 및 지식재산처 AI 연관도 갱신"
+
+          # 드물게 커밋 직후 다시 기록된 데이터 파일이 있으면 같은 커밋에 포함한다.
+          if ! git diff --quiet -- docs/data || ! git diff --cached --quiet -- docs/data; then
+            echo "커밋 직후 추가로 변경된 데이터가 있어 기존 커밋에 포함합니다."
+            git add docs/data
+            git commit --amend --no-edit
+          fi
+
+          echo "커밋 후 전체 작업트리 상태:"
+          git status --short
+
+          # CI에서 의도한 변경은 docs/data뿐이다. pull/rebase를 막는 나머지 tracked 변경을 제거한다.
+          git reset --hard HEAD
+          git clean -fd
+
+          for attempt in 1 2 3; do
+            echo "원격 main 동기화 및 push 시도 ${attempt}/3"
+            git fetch origin main
+            if ! git rebase origin/main; then
+              git rebase --abort || true
+              echo "원격 main과 자동 rebase에 실패했습니다."
+              exit 1
+            fi
+            if git push origin HEAD:main; then
+              echo "데이터 push 완료"
+              exit 0
+            fi
+            sleep $((attempt * 3))
+          done
+
+          echo "3회 시도 후에도 push하지 못했습니다."
+          exit 1
 
       - name: GitHub Pages 설정
         if: success()
@@ -202,17 +244,19 @@ jobs:
     needs: [build, deploy]
     if: >-
       ${{
-        needs.build.result == 'success' &&
-        needs.deploy.result == 'success' &&
+        always() &&
         (
-          (github.event_name == 'schedule' && github.event.schedule == '0 9,18 * * *') ||
+          (
+            github.event_name == 'schedule' &&
+            (github.event.schedule == '0 0 * * *' || github.event.schedule == '0 9 * * *')
+          ) ||
           (github.event_name == 'workflow_dispatch' && inputs.send_telegram)
         )
       }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: 최신 데이터 가져오기
+      - name: 최신 저장 데이터 가져오기
         uses: actions/checkout@v6
         with:
           ref: main
@@ -238,5 +282,8 @@ jobs:
           TELEGRAM_MAX_ARTICLES: ${{ vars.TELEGRAM_MAX_ARTICLES || '30' }}
           DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
           REPORT_DATE: ${{ inputs.end_date }}
+          PIPELINE_BUILD_RESULT: ${{ needs.build.result }}
+          PIPELINE_DEPLOY_RESULT: ${{ needs.deploy.result }}
+          TRIGGER_SCHEDULE: ${{ github.event.schedule }}
           PYTHONUNBUFFERED: '1'
         run: python -u -m collector.send_telegram

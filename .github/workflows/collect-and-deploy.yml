@@ -1,4 +1,4 @@
-﻿name: 보도자료 수집·AI 연관도 분석 및 대시보드 배포
+name: 보도자료 수집·AI 연관도 분석 및 대시보드 배포
 
 run-name: >-
   ${{ github.event_name == 'workflow_dispatch' && inputs.skip_collection && '기존 데이터 AI 분석 및 배포' ||
@@ -23,11 +23,14 @@ on:
       timezone: "Asia/Seoul"
     - cron: "3 11 * * *"
       timezone: "Asia/Seoul"
-    - cron: "25 13 * * *"
-      timezone: "Asia/Seoul"
     - cron: "3 16 * * *"
       timezone: "Asia/Seoul"
     - cron: "3 19 * * *"
+      timezone: "Asia/Seoul"
+
+    # 2026-07-24 14:15 KST 일회성 자동실행 시험.
+    # cron 자체는 연 단위로 반복되므로 schedule_guard가 지정 날짜 외 실행을 차단한다.
+    - cron: "15 14 24 7 *"
       timezone: "Asia/Seoul"
   workflow_dispatch:
     inputs:
@@ -87,6 +90,7 @@ jobs:
           set -euo pipefail
           allowed=true
           expected_label="수동 또는 코드 변경 실행"
+          expected_date=""
 
           echo "GitHub event: $GITHUB_EVENT_NAME"
           echo "UTC now: $(date -u '+%Y-%m-%d %H:%M:%S %Z')"
@@ -94,10 +98,16 @@ jobs:
 
           if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
             case "$SCHEDULE_EXPRESSION" in
-              "7 8 * * *")  expected_hour=8;  expected_minute=7; expected_label="08:07 대시보드 갱신 + Telegram" ;;
-              "7 11 * * *") expected_hour=11; expected_minute=7; expected_label="11:07 대시보드 갱신" ;;
-              "7 16 * * *") expected_hour=16; expected_minute=7; expected_label="16:07 대시보드 갱신 + Telegram" ;;
-              "7 19 * * *") expected_hour=19; expected_minute=7; expected_label="19:07 대시보드 갱신" ;;
+              "3 8 * * *")  expected_hour=8;  expected_minute=3; expected_label="08:03 대시보드 갱신 + Telegram" ;;
+              "3 11 * * *") expected_hour=11; expected_minute=3; expected_label="11:03 대시보드 갱신" ;;
+              "3 16 * * *") expected_hour=16; expected_minute=3; expected_label="16:03 대시보드 갱신 + Telegram" ;;
+              "3 19 * * *") expected_hour=19; expected_minute=3; expected_label="19:03 대시보드 갱신" ;;
+              "15 14 24 7 *")
+                expected_hour=14
+                expected_minute=15
+                expected_date="2026-07-24"
+                expected_label="14:15 일회성 자동실행 시험 + Telegram"
+                ;;
               *)
                 echo "::error::허용되지 않은 예약 표현식입니다: $SCHEDULE_EXPRESSION"
                 allowed=false
@@ -106,6 +116,16 @@ jobs:
                 expected_label="알 수 없는 예약"
                 ;;
             esac
+
+            if [[ "$allowed" == "true" && -n "$expected_date" ]]; then
+              current_date="$(TZ=Asia/Seoul date '+%Y-%m-%d')"
+              echo "일회성 시험 예정일: $expected_date"
+              echo "현재 한국 날짜: $current_date"
+              if [[ "$current_date" != "$expected_date" ]]; then
+                echo "::warning::일회성 시험 예약은 $expected_date에만 허용됩니다. 현재 날짜에는 실행을 건너뜁니다."
+                allowed=false
+              fi
+            fi
 
             if [[ "$allowed" == "true" ]]; then
               current_hour=$((10#$(TZ=Asia/Seoul date '+%H')))
@@ -317,7 +337,7 @@ jobs:
         (
           (
             github.event_name == 'schedule' &&
-            (github.event.schedule == '7 8 * * *' || github.event.schedule == '7 16 * * *')
+            (github.event.schedule == '3 8 * * *' || github.event.schedule == '3 16 * * *' || github.event.schedule == '15 14 24 7 *')
           ) ||
           (github.event_name == 'workflow_dispatch' && inputs.send_telegram)
         )
@@ -354,6 +374,6 @@ jobs:
           PIPELINE_BUILD_RESULT: ${{ needs.build.result }}
           PIPELINE_DEPLOY_RESULT: ${{ needs.deploy.result }}
           TRIGGER_SCHEDULE: ${{ github.event.schedule }}
-          TELEGRAM_REPORT_TITLE: ${{ github.event.schedule == '7 8 * * *' && '08시 브리핑' || github.event.schedule == '7 16 * * *' && '16시 브리핑' || '' }}
+          TELEGRAM_REPORT_TITLE: ${{ github.event.schedule == '3 8 * * *' && '08시 브리핑' || github.event.schedule == '3 16 * * *' && '16시 브리핑' || github.event.schedule == '15 14 24 7 *' && '14시 15분 자동실행 시험' || '' }}
           PYTHONUNBUFFERED: '1'
         run: python -u -m collector.send_telegram

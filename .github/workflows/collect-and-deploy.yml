@@ -16,15 +16,17 @@ on:
       - "requirements.txt"
       - ".github/workflows/collect-and-deploy.yml"
   schedule:
-    # GitHub 예약 실행의 기준을 UTC로 고정한다.
-    # 한국시간 09:00 = UTC 00:00 (텔레그램 발송)
-    - cron: "0 0 * * *"
-    # 한국시간 12:00 = UTC 03:00
-    - cron: "0 3 * * *"
-    # 한국시간 15:00 = UTC 06:00
-    - cron: "0 6 * * *"
-    # 한국시간 18:00 = UTC 09:00 (텔레그램 발송)
-    - cron: "0 9 * * *"
+    # 모든 예약은 GitHub의 IANA 시간대 기능을 사용해 한국시간으로 직접 정의한다.
+    # 대시보드 수집·AI 분석·배포: 08:00, 11:00, 16:00, 19:00 KST
+    # Telegram 발송: 08:00, 16:00 KST
+    - cron: "0 8 * * *"
+      timezone: "Asia/Seoul"
+    - cron: "0 11 * * *"
+      timezone: "Asia/Seoul"
+    - cron: "0 16 * * *"
+      timezone: "Asia/Seoul"
+    - cron: "0 19 * * *"
+      timezone: "Asia/Seoul"
   workflow_dispatch:
     inputs:
       start_date:
@@ -67,7 +69,68 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  schedule_guard:
+    runs-on: ubuntu-latest
+    outputs:
+      allowed: ${{ steps.guard.outputs.allowed }}
+      expected_label: ${{ steps.guard.outputs.expected_label }}
+    steps:
+      - name: 한국시간 예약 실행 유효성 확인
+        id: guard
+        shell: bash
+        env:
+          SCHEDULE_EXPRESSION: ${{ github.event.schedule }}
+          MAX_SCHEDULE_DELAY_MINUTES: '120'
+        run: |
+          set -euo pipefail
+          allowed=true
+          expected_label="수동 또는 코드 변경 실행"
+
+          echo "GitHub event: $GITHUB_EVENT_NAME"
+          echo "UTC now: $(date -u '+%Y-%m-%d %H:%M:%S %Z')"
+          echo "KST now: $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S %Z')"
+
+          if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
+            case "$SCHEDULE_EXPRESSION" in
+              "0 8 * * *")  expected_hour=8;  expected_label="08:00 대시보드 갱신 + Telegram" ;;
+              "0 11 * * *") expected_hour=11; expected_label="11:00 대시보드 갱신" ;;
+              "0 16 * * *") expected_hour=16; expected_label="16:00 대시보드 갱신 + Telegram" ;;
+              "0 19 * * *") expected_hour=19; expected_label="19:00 대시보드 갱신" ;;
+              *)
+                echo "::error::허용되지 않은 예약 표현식입니다: $SCHEDULE_EXPRESSION"
+                allowed=false
+                expected_hour=0
+                expected_label="알 수 없는 예약"
+                ;;
+            esac
+
+            if [[ "$allowed" == "true" ]]; then
+              current_hour=$((10#$(TZ=Asia/Seoul date '+%H')))
+              current_minute=$((10#$(TZ=Asia/Seoul date '+%M')))
+              current_total=$((current_hour * 60 + current_minute))
+              expected_total=$((expected_hour * 60))
+              delay=$((current_total - expected_total))
+              if (( delay < 0 )); then
+                delay=$((delay + 1440))
+              fi
+
+              echo "Trigger cron (Asia/Seoul): $SCHEDULE_EXPRESSION"
+              echo "예정 작업: $expected_label"
+              echo "예약 시각 대비 시작 지연: ${delay}분"
+
+              if (( delay > MAX_SCHEDULE_DELAY_MINUTES )); then
+                echo "::warning::예약 시각보다 ${delay}분 늦게 시작되어 이번 실행을 건너뜁니다. 심야 지연 알림을 방지하기 위한 보호 조건입니다."
+                allowed=false
+              fi
+            fi
+          fi
+
+          echo "allowed=$allowed" >> "$GITHUB_OUTPUT"
+          echo "expected_label=$expected_label" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: schedule_guard
+    if: needs.schedule_guard.outputs.allowed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -79,11 +142,13 @@ jobs:
       - name: 실행 유형 및 예약 시각 확인
         shell: bash
         env:
+          EXPECTED_SCHEDULE_LABEL: ${{ needs.schedule_guard.outputs.expected_label }}
           SCHEDULE_EXPRESSION: ${{ github.event.schedule }}
         run: |
           echo "GitHub event: $GITHUB_EVENT_NAME"
+          echo "예정 작업: $EXPECTED_SCHEDULE_LABEL"
           if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
-            echo "Trigger cron (UTC): $SCHEDULE_EXPRESSION"
+            echo "Trigger cron (Asia/Seoul): $SCHEDULE_EXPRESSION"
             echo "UTC now: $(date -u '+%Y-%m-%d %H:%M:%S %Z')"
             echo "KST now: $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S %Z')"
           fi
@@ -241,14 +306,15 @@ jobs:
         uses: actions/deploy-pages@v5
 
   notify_telegram:
-    needs: [build, deploy]
+    needs: [schedule_guard, build, deploy]
     if: >-
       ${{
         always() &&
+        needs.schedule_guard.outputs.allowed == 'true' &&
         (
           (
             github.event_name == 'schedule' &&
-            (github.event.schedule == '0 0 * * *' || github.event.schedule == '0 9 * * *')
+            (github.event.schedule == '0 8 * * *' || github.event.schedule == '0 16 * * *')
           ) ||
           (github.event_name == 'workflow_dispatch' && inputs.send_telegram)
         )
@@ -285,5 +351,6 @@ jobs:
           PIPELINE_BUILD_RESULT: ${{ needs.build.result }}
           PIPELINE_DEPLOY_RESULT: ${{ needs.deploy.result }}
           TRIGGER_SCHEDULE: ${{ github.event.schedule }}
+          TELEGRAM_REPORT_TITLE: ${{ github.event.schedule == '0 8 * * *' && '08시 브리핑' || github.event.schedule == '0 16 * * *' && '16시 브리핑' || '' }}
           PYTHONUNBUFFERED: '1'
         run: python -u -m collector.send_telegram

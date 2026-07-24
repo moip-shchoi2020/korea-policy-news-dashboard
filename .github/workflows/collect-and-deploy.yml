@@ -1,4 +1,4 @@
-name: 보도자료 수집·AI 연관도 분석 및 대시보드 배포
+﻿name: 보도자료 수집·AI 연관도 분석 및 대시보드 배포
 
 run-name: >-
   ${{ github.event_name == 'workflow_dispatch' && inputs.skip_collection && '기존 데이터 AI 분석 및 배포' ||
@@ -17,15 +17,17 @@ on:
       - ".github/workflows/collect-and-deploy.yml"
   schedule:
     # 모든 예약은 GitHub의 IANA 시간대 기능을 사용해 한국시간으로 직접 정의한다.
-    # 대시보드 수집·AI 분석·배포: 08:00, 11:00, 16:00, 19:00 KST
-    # Telegram 발송: 08:00, 16:00 KST
-    - cron: "0 8 * * *"
+    # 대시보드 수집·AI 분석·배포: 08:03, 11:03, 16:03, 19:03 KST
+    # Telegram 발송: 08:03, 16:03 KST
+    - cron: "3 8 * * *"
       timezone: "Asia/Seoul"
-    - cron: "0 11 * * *"
+    - cron: "3 11 * * *"
       timezone: "Asia/Seoul"
-    - cron: "0 16 * * *"
+    - cron: "25 13 * * *"
       timezone: "Asia/Seoul"
-    - cron: "0 19 * * *"
+    - cron: "3 16 * * *"
+      timezone: "Asia/Seoul"
+    - cron: "3 19 * * *"
       timezone: "Asia/Seoul"
   workflow_dispatch:
     inputs:
@@ -92,14 +94,15 @@ jobs:
 
           if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
             case "$SCHEDULE_EXPRESSION" in
-              "0 8 * * *")  expected_hour=8;  expected_label="08:00 대시보드 갱신 + Telegram" ;;
-              "0 11 * * *") expected_hour=11; expected_label="11:00 대시보드 갱신" ;;
-              "0 16 * * *") expected_hour=16; expected_label="16:00 대시보드 갱신 + Telegram" ;;
-              "0 19 * * *") expected_hour=19; expected_label="19:00 대시보드 갱신" ;;
+              "7 8 * * *")  expected_hour=8;  expected_minute=7; expected_label="08:07 대시보드 갱신 + Telegram" ;;
+              "7 11 * * *") expected_hour=11; expected_minute=7; expected_label="11:07 대시보드 갱신" ;;
+              "7 16 * * *") expected_hour=16; expected_minute=7; expected_label="16:07 대시보드 갱신 + Telegram" ;;
+              "7 19 * * *") expected_hour=19; expected_minute=7; expected_label="19:07 대시보드 갱신" ;;
               *)
                 echo "::error::허용되지 않은 예약 표현식입니다: $SCHEDULE_EXPRESSION"
                 allowed=false
                 expected_hour=0
+                expected_minute=0
                 expected_label="알 수 없는 예약"
                 ;;
             esac
@@ -108,7 +111,7 @@ jobs:
               current_hour=$((10#$(TZ=Asia/Seoul date '+%H')))
               current_minute=$((10#$(TZ=Asia/Seoul date '+%M')))
               current_total=$((current_hour * 60 + current_minute))
-              expected_total=$((expected_hour * 60))
+              expected_total=$((expected_hour * 60 + expected_minute))
               delay=$((current_total - expected_total))
               if (( delay < 0 )); then
                 delay=$((delay + 1440))
@@ -314,7 +317,7 @@ jobs:
         (
           (
             github.event_name == 'schedule' &&
-            (github.event.schedule == '0 8 * * *' || github.event.schedule == '0 16 * * *')
+            (github.event.schedule == '7 8 * * *' || github.event.schedule == '7 16 * * *')
           ) ||
           (github.event_name == 'workflow_dispatch' && inputs.send_telegram)
         )
@@ -351,6 +354,6 @@ jobs:
           PIPELINE_BUILD_RESULT: ${{ needs.build.result }}
           PIPELINE_DEPLOY_RESULT: ${{ needs.deploy.result }}
           TRIGGER_SCHEDULE: ${{ github.event.schedule }}
-          TELEGRAM_REPORT_TITLE: ${{ github.event.schedule == '0 8 * * *' && '08시 브리핑' || github.event.schedule == '0 16 * * *' && '16시 브리핑' || '' }}
+          TELEGRAM_REPORT_TITLE: ${{ github.event.schedule == '7 8 * * *' && '08시 브리핑' || github.event.schedule == '7 16 * * *' && '16시 브리핑' || '' }}
           PYTHONUNBUFFERED: '1'
         run: python -u -m collector.send_telegram

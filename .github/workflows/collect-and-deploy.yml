@@ -3,7 +3,7 @@ name: 보도자료 수집·AI 연관도 분석 및 대시보드 배포
 run-name: >-
   ${{ github.event_name == 'workflow_dispatch' && inputs.skip_collection && '기존 데이터 AI 분석 및 배포' ||
       github.event_name == 'workflow_dispatch' && '수동 수집·AI 분석 및 배포' ||
-      github.event_name == 'schedule' && format('정기 수집·AI 분석 및 배포 ({0})', github.event.schedule) ||
+      github.event_name == 'schedule' && 'KST 예약 슬롯 점검·필요 시 실행' ||
       '코드 변경 배포(수집·AI 분석 없음)' }}
 
 on:
@@ -14,24 +14,13 @@ on:
       - "collector/**"
       - "tests/**"
       - "requirements.txt"
+      - ".gitignore"
       - ".github/workflows/collect-and-deploy.yml"
   schedule:
-    # 모든 예약은 GitHub의 IANA 시간대 기능을 사용해 한국시간으로 직접 정의한다.
-    # 대시보드 수집·AI 분석·배포: 08:03, 11:03, 16:03, 19:03 KST
-    # Telegram 발송: 08:03, 16:03 KST
-    - cron: "3 8 * * *"
-      timezone: "Asia/Seoul"
-    - cron: "3 11 * * *"
-      timezone: "Asia/Seoul"
-    - cron: "3 16 * * *"
-      timezone: "Asia/Seoul"
-    - cron: "3 19 * * *"
-      timezone: "Asia/Seoul"
-
-    # 2026-07-24 14:15 KST 일회성 자동실행 시험.
-    # cron 자체는 연 단위로 반복되므로 schedule_guard가 지정 날짜 외 실행을 차단한다.
-    - cron: "15 14 24 7 *"
-      timezone: "Asia/Seoul"
+    # GitHub의 단일 예약 이벤트는 지연·누락될 수 있으므로 각 목표 시각에 20분 간격으로 재시도한다.
+    # cron은 UTC 기준이며, 아래 시각은 KST로 08/09, 11/12, 16/17, 19/20시의 03·23·43분이다.
+    # 실제 실행 여부는 collector.schedule_control이 KST 기준 슬롯과 완료 상태를 판정한다.
+    - cron: "3,23,43 0,2,3,7,8,10,11,23 * * *"
   workflow_dispatch:
     inputs:
       start_date:
@@ -69,87 +58,55 @@ permissions:
   id-token: write
   models: read
 
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
+# 다음 재시도 이벤트가 이전 실행을 취소하지 않도록 직렬화한다.
 concurrency:
-  group: policy-dashboard-${{ github.ref }}
-  cancel-in-progress: true
+  group: policy-dashboard-${{ github.repository }}-${{ github.ref_name }}
+  cancel-in-progress: false
 
 jobs:
   schedule_guard:
     runs-on: ubuntu-latest
     outputs:
       allowed: ${{ steps.guard.outputs.allowed }}
-      expected_label: ${{ steps.guard.outputs.expected_label }}
+      reason: ${{ steps.guard.outputs.reason }}
+      slot_key: ${{ steps.guard.outputs.slot_key }}
+      slot_date: ${{ steps.guard.outputs.slot_date }}
+      slot_label: ${{ steps.guard.outputs.slot_label }}
+      telegram_required: ${{ steps.guard.outputs.telegram_required }}
+      telegram_title: ${{ steps.guard.outputs.telegram_title }}
     steps:
-      - name: 한국시간 예약 실행 유효성 확인
+      - name: 저장소 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: 한국시간 예약 슬롯 판정
         id: guard
         shell: bash
-        env:
-          SCHEDULE_EXPRESSION: ${{ github.event.schedule }}
-          MAX_SCHEDULE_DELAY_MINUTES: '120'
         run: |
           set -euo pipefail
-          allowed=true
-          expected_label="수동 또는 코드 변경 실행"
-          expected_date=""
-
           echo "GitHub event: $GITHUB_EVENT_NAME"
           echo "UTC now: $(date -u '+%Y-%m-%d %H:%M:%S %Z')"
           echo "KST now: $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S %Z')"
 
           if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
-            case "$SCHEDULE_EXPRESSION" in
-              "3 8 * * *")  expected_hour=8;  expected_minute=3; expected_label="08:03 대시보드 갱신 + Telegram" ;;
-              "3 11 * * *") expected_hour=11; expected_minute=3; expected_label="11:03 대시보드 갱신" ;;
-              "3 16 * * *") expected_hour=16; expected_minute=3; expected_label="16:03 대시보드 갱신 + Telegram" ;;
-              "3 19 * * *") expected_hour=19; expected_minute=3; expected_label="19:03 대시보드 갱신" ;;
-              "15 14 24 7 *")
-                expected_hour=14
-                expected_minute=15
-                expected_date="2026-07-24"
-                expected_label="14:15 일회성 자동실행 시험 + Telegram"
-                ;;
-              *)
-                echo "::error::허용되지 않은 예약 표현식입니다: $SCHEDULE_EXPRESSION"
-                allowed=false
-                expected_hour=0
-                expected_minute=0
-                expected_label="알 수 없는 예약"
-                ;;
-            esac
-
-            if [[ "$allowed" == "true" && -n "$expected_date" ]]; then
-              current_date="$(TZ=Asia/Seoul date '+%Y-%m-%d')"
-              echo "일회성 시험 예정일: $expected_date"
-              echo "현재 한국 날짜: $current_date"
-              if [[ "$current_date" != "$expected_date" ]]; then
-                echo "::warning::일회성 시험 예약은 $expected_date에만 허용됩니다. 현재 날짜에는 실행을 건너뜁니다."
-                allowed=false
-              fi
-            fi
-
-            if [[ "$allowed" == "true" ]]; then
-              current_hour=$((10#$(TZ=Asia/Seoul date '+%H')))
-              current_minute=$((10#$(TZ=Asia/Seoul date '+%M')))
-              current_total=$((current_hour * 60 + current_minute))
-              expected_total=$((expected_hour * 60 + expected_minute))
-              delay=$((current_total - expected_total))
-              if (( delay < 0 )); then
-                delay=$((delay + 1440))
-              fi
-
-              echo "Trigger cron (Asia/Seoul): $SCHEDULE_EXPRESSION"
-              echo "예정 작업: $expected_label"
-              echo "예약 시각 대비 시작 지연: ${delay}분"
-
-              if (( delay > MAX_SCHEDULE_DELAY_MINUTES )); then
-                echo "::warning::예약 시각보다 ${delay}분 늦게 시작되어 이번 실행을 건너뜁니다. 심야 지연 알림을 방지하기 위한 보호 조건입니다."
-                allowed=false
-              fi
-            fi
+            python3 -m collector.schedule_control decide \
+              --state-path docs/data/schedule_state.json \
+              --github-output "$GITHUB_OUTPUT" \
+              --github-summary "$GITHUB_STEP_SUMMARY"
+          else
+            echo "allowed=true" >> "$GITHUB_OUTPUT"
+            echo "reason=수동 실행 또는 코드 변경 배포" >> "$GITHUB_OUTPUT"
+            echo "slot_key=" >> "$GITHUB_OUTPUT"
+            echo "slot_date=" >> "$GITHUB_OUTPUT"
+            echo "slot_label=수동 실행 또는 코드 변경 배포" >> "$GITHUB_OUTPUT"
+            echo "telegram_required=false" >> "$GITHUB_OUTPUT"
+            echo "telegram_title=" >> "$GITHUB_OUTPUT"
           fi
-
-          echo "allowed=$allowed" >> "$GITHUB_OUTPUT"
-          echo "expected_label=$expected_label" >> "$GITHUB_OUTPUT"
 
   build:
     needs: schedule_guard
@@ -160,21 +117,20 @@ jobs:
       - name: 저장소 가져오기
         uses: actions/checkout@v6
         with:
+          ref: main
           fetch-depth: 0
 
-      - name: 실행 유형 및 예약 시각 확인
+      - name: 실행 유형 및 예약 슬롯 확인
         shell: bash
         env:
-          EXPECTED_SCHEDULE_LABEL: ${{ needs.schedule_guard.outputs.expected_label }}
-          SCHEDULE_EXPRESSION: ${{ github.event.schedule }}
+          SLOT_LABEL: ${{ needs.schedule_guard.outputs.slot_label }}
+          SLOT_REASON: ${{ needs.schedule_guard.outputs.reason }}
         run: |
           echo "GitHub event: $GITHUB_EVENT_NAME"
-          echo "예정 작업: $EXPECTED_SCHEDULE_LABEL"
-          if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
-            echo "Trigger cron (Asia/Seoul): $SCHEDULE_EXPRESSION"
-            echo "UTC now: $(date -u '+%Y-%m-%d %H:%M:%S %Z')"
-            echo "KST now: $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S %Z')"
-          fi
+          echo "예정 작업: $SLOT_LABEL"
+          echo "판정 사유: $SLOT_REASON"
+          echo "UTC now: $(date -u '+%Y-%m-%d %H:%M:%S %Z')"
+          echo "KST now: $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S %Z')"
           if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
             echo "코드 업로드로 시작된 실행이므로 보도자료 수집과 AI 분석은 생략하고 기존 데이터만 배포합니다."
           fi
@@ -212,8 +168,8 @@ jobs:
           set -euo pipefail
           LOOKBACK_DAYS="$INPUT_LOOKBACK_DAYS"
           if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
-            # 정기 실행은 한국시간 오늘과 전날을 재확인한다.
-            LOOKBACK_DAYS="2"
+            # 정기 실행은 누락 복구를 위해 한국시간 오늘 포함 최근 3일을 재확인한다.
+            LOOKBACK_DAYS="3"
           fi
           args=(--lookback-days "$LOOKBACK_DAYS" --continue-on-error --detail-workers 3 --max-pages-per-day 10)
           if [[ -n "$START_DATE" && -n "$END_DATE" ]]; then
@@ -274,17 +230,9 @@ jobs:
 
           git commit -m "data: 보도자료 및 지식재산처 AI 연관도 갱신"
 
-          # 드물게 커밋 직후 다시 기록된 데이터 파일이 있으면 같은 커밋에 포함한다.
-          if ! git diff --quiet -- docs/data || ! git diff --cached --quiet -- docs/data; then
-            echo "커밋 직후 추가로 변경된 데이터가 있어 기존 커밋에 포함합니다."
-            git add docs/data
-            git commit --amend --no-edit
-          fi
-
+          # CI에서 의도한 변경은 docs/data뿐이다. Python 캐시 등 나머지 tracked 변경은 제거한다.
           echo "커밋 후 전체 작업트리 상태:"
           git status --short
-
-          # CI에서 의도한 변경은 docs/data뿐이다. pull/rebase를 막는 나머지 tracked 변경을 제거한다.
           git reset --hard HEAD
           git clean -fd
 
@@ -334,11 +282,10 @@ jobs:
       ${{
         always() &&
         needs.schedule_guard.outputs.allowed == 'true' &&
+        needs.build.result == 'success' &&
+        needs.deploy.result == 'success' &&
         (
-          (
-            github.event_name == 'schedule' &&
-            (github.event.schedule == '3 8 * * *' || github.event.schedule == '3 16 * * *' || github.event.schedule == '15 14 24 7 *')
-          ) ||
+          (github.event_name == 'schedule' && needs.schedule_guard.outputs.telegram_required == 'true') ||
           (github.event_name == 'workflow_dispatch' && inputs.send_telegram)
         )
       }}
@@ -359,6 +306,23 @@ jobs:
       - name: Telegram 전송 패키지 설치
         run: pip install requests
 
+      - name: Telegram 설정 사전 점검
+        shell: bash
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$TELEGRAM_BOT_TOKEN" ]]; then
+            echo "::error::Repository secret TELEGRAM_BOT_TOKEN이 없습니다."
+            exit 1
+          fi
+          if [[ -z "$TELEGRAM_CHAT_ID" ]]; then
+            echo "::error::Repository secret TELEGRAM_CHAT_ID가 없습니다."
+            exit 1
+          fi
+          echo "Telegram Bot Token과 Chat ID가 등록되어 있습니다."
+
       - name: 텔레그램 브리핑 발송
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -370,10 +334,75 @@ jobs:
           TELEGRAM_MAX_UNCLASSIFIED: ${{ vars.TELEGRAM_MAX_UNCLASSIFIED || '3' }}
           TELEGRAM_MAX_ARTICLES: ${{ vars.TELEGRAM_MAX_ARTICLES || '30' }}
           DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
-          REPORT_DATE: ${{ inputs.end_date }}
+          REPORT_DATE: ${{ github.event_name == 'schedule' && needs.schedule_guard.outputs.slot_date || inputs.end_date }}
           PIPELINE_BUILD_RESULT: ${{ needs.build.result }}
           PIPELINE_DEPLOY_RESULT: ${{ needs.deploy.result }}
-          TRIGGER_SCHEDULE: ${{ github.event.schedule }}
-          TELEGRAM_REPORT_TITLE: ${{ github.event.schedule == '3 8 * * *' && '08시 브리핑' || github.event.schedule == '3 16 * * *' && '16시 브리핑' || github.event.schedule == '15 14 24 7 *' && '14시 15분 자동실행 시험' || '' }}
+          TRIGGER_SLOT: ${{ needs.schedule_guard.outputs.slot_key }}
+          TELEGRAM_REPORT_TITLE: ${{ github.event_name == 'schedule' && needs.schedule_guard.outputs.telegram_title || '수동 시험 발송' }}
           PYTHONUNBUFFERED: '1'
-        run: python -u -m collector.send_telegram
+        run: python -u -m collector.send_telegram --require-config
+
+  finalize_schedule:
+    needs: [schedule_guard, build, deploy, notify_telegram]
+    if: >-
+      ${{
+        always() &&
+        github.event_name == 'schedule' &&
+        needs.schedule_guard.outputs.allowed == 'true' &&
+        needs.build.result == 'success' &&
+        needs.deploy.result == 'success' &&
+        (
+          needs.schedule_guard.outputs.telegram_required != 'true' ||
+          needs.notify_telegram.result == 'success'
+        )
+      }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: 최신 main 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: 예약 슬롯 완료 상태 기록
+        env:
+          SLOT_KEY: ${{ needs.schedule_guard.outputs.slot_key }}
+          SLOT_LABEL: ${{ needs.schedule_guard.outputs.slot_label }}
+          TELEGRAM_REQUIRED: ${{ needs.schedule_guard.outputs.telegram_required }}
+        run: |
+          set -euo pipefail
+          python3 -m collector.schedule_control mark \
+            --state-path docs/data/schedule_state.json \
+            --slot-key "$SLOT_KEY" \
+            --slot-label "$SLOT_LABEL" \
+            --telegram-required "$TELEGRAM_REQUIRED"
+
+      - name: 완료 상태 저장소에 반영
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+          git add docs/data/schedule_state.json
+
+          if git diff --cached --quiet; then
+            echo "예약 상태 변경이 없습니다."
+            exit 0
+          fi
+
+          git commit -m "chore: KST 예약 슬롯 완료 기록"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            if ! git rebase origin/main; then
+              git rebase --abort || true
+              exit 1
+            fi
+            if git push origin HEAD:main; then
+              echo "예약 슬롯 완료 상태 push 완료"
+              exit 0
+            fi
+            sleep $((attempt * 3))
+          done
+          echo "예약 슬롯 완료 상태를 push하지 못했습니다."
+          exit 1

@@ -456,6 +456,11 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="대시보드 당일 현황을 Telegram Bot으로 발송합니다.")
     parser.add_argument("--date", help="발송 기준일 YYYY-MM-DD (기본: 한국시간 오늘)")
     parser.add_argument("--preview", action="store_true", help="Telegram으로 보내지 않고 메시지만 출력")
+    parser.add_argument(
+        "--require-config",
+        action="store_true",
+        help="Bot Token 또는 Chat ID가 없으면 경고로 끝내지 않고 오류로 종료",
+    )
     args = parser.parse_args(list(argv) if argv is not None else None)
 
     result = build_digest(args.date)
@@ -470,10 +475,16 @@ def main(argv: Iterable[str] | None = None) -> int:
     token = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
     chat_ids = parse_chat_ids(os.getenv("TELEGRAM_CHAT_ID", ""))
     if not token or not chat_ids:
-        print(
-            "Warning: TELEGRAM_BOT_TOKEN 또는 TELEGRAM_CHAT_ID가 없어 텔레그램 발송을 생략합니다.",
-            file=sys.stderr,
-        )
+        missing = []
+        if not token:
+            missing.append("TELEGRAM_BOT_TOKEN")
+        if not chat_ids:
+            missing.append("TELEGRAM_CHAT_ID")
+        message = f"필수 Telegram 설정이 없습니다: {', '.join(missing)}"
+        if args.require_config:
+            print(f"Error: {message}", file=sys.stderr)
+            return 2
+        print(f"Warning: {message}. 텔레그램 발송을 생략합니다.", file=sys.stderr)
         return 0
 
     session = requests.Session()

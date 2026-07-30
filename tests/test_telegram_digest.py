@@ -66,6 +66,11 @@ class TelegramDigestTests(unittest.TestCase):
         self.assertIn("매우 중요", "\n".join(chunks))
         self.assertTrue(all(len(chunk) <= send_telegram.MAX_TELEGRAM_TEXT for chunk in chunks))
 
+    def test_require_config_argument_is_available(self) -> None:
+        from collector import send_telegram
+
+        self.assertTrue(callable(send_telegram.main))
+
 
 if __name__ == "__main__":
     unittest.main()

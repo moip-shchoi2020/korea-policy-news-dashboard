@@ -1,9 +1,9 @@
 name: 보도자료 수집·AI 연관도 분석 및 대시보드 배포
 
 run-name: >-
-  ${{ github.event_name == 'workflow_dispatch' && inputs.skip_collection && '기존 데이터 AI 분석 및 배포' ||
+  ${{ github.event_name == 'workflow_dispatch' && inputs.external_slot != '' && 'Cloudflare 외부 예약 실행' ||
+      github.event_name == 'workflow_dispatch' && inputs.skip_collection && '기존 데이터 AI 분석 및 배포' ||
       github.event_name == 'workflow_dispatch' && '수동 수집·AI 분석 및 배포' ||
-      github.event_name == 'schedule' && 'KST 예약 슬롯 점검·필요 시 실행' ||
       '코드 변경 배포(수집·AI 분석 없음)' }}
 
 on:
@@ -16,11 +16,8 @@ on:
       - "requirements.txt"
       - ".gitignore"
       - ".github/workflows/collect-and-deploy.yml"
-  schedule:
-    # GitHub의 단일 예약 이벤트는 지연·누락될 수 있으므로 각 목표 시각에 20분 간격으로 재시도한다.
-    # cron은 UTC 기준이며, 아래 시각은 KST로 08/09, 11/12, 16/17, 19/20시의 03·23·43분이다.
-    # 실제 실행 여부는 collector.schedule_control이 KST 기준 슬롯과 완료 상태를 판정한다.
-    - cron: "3,23,43 0,2,3,7,8,10,11,23 * * *"
+  # GitHub 자체 cron은 사용하지 않는다.
+  # Cloudflare Workers가 workflow_dispatch REST API를 호출한다.
   workflow_dispatch:
     inputs:
       start_date:
@@ -47,10 +44,30 @@ on:
         default: false
         type: boolean
       send_telegram:
-        description: "실행 완료 후 텔레그램 브리핑 시험 발송"
+        description: "실행 완료 후 Telegram 브리핑 발송"
         required: false
         default: false
         type: boolean
+      external_slot:
+        description: "외부 스케줄 슬롯 식별자(Cloudflare가 자동 입력)"
+        required: false
+        type: string
+      external_label:
+        description: "외부 스케줄 작업명(Cloudflare가 자동 입력)"
+        required: false
+        type: string
+      external_source:
+        description: "외부 호출 출처(Cloudflare가 자동 입력)"
+        required: false
+        type: string
+      report_date:
+        description: "Telegram 기준일 YYYY-MM-DD(Cloudflare가 자동 입력)"
+        required: false
+        type: string
+      telegram_title:
+        description: "Telegram 브리핑 제목(Cloudflare가 자동 입력)"
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -61,22 +78,17 @@ permissions:
 env:
   PYTHONDONTWRITEBYTECODE: "1"
 
-# 다음 재시도 이벤트가 이전 실행을 취소하지 않도록 직렬화한다.
+# 같은 저장소의 수집·배포를 직렬화한다. Cloudflare의 20분 재시도 요청은 앞 실행 뒤에 대기한다.
 concurrency:
-  group: policy-dashboard-${{ github.repository }}-${{ github.ref_name }}
+  group: policy-dashboard-${{ github.repository }}-main
   cancel-in-progress: false
 
 jobs:
-  schedule_guard:
+  dispatch_guard:
     runs-on: ubuntu-latest
     outputs:
       allowed: ${{ steps.guard.outputs.allowed }}
       reason: ${{ steps.guard.outputs.reason }}
-      slot_key: ${{ steps.guard.outputs.slot_key }}
-      slot_date: ${{ steps.guard.outputs.slot_date }}
-      slot_label: ${{ steps.guard.outputs.slot_label }}
-      telegram_required: ${{ steps.guard.outputs.telegram_required }}
-      telegram_title: ${{ steps.guard.outputs.telegram_title }}
     steps:
       - name: 저장소 가져오기
         uses: actions/checkout@v6
@@ -84,33 +96,35 @@ jobs:
           ref: main
           fetch-depth: 1
 
-      - name: 한국시간 예약 슬롯 판정
+      - name: 외부 예약 슬롯 중복 여부 확인
         id: guard
         shell: bash
+        env:
+          EXTERNAL_SLOT: ${{ inputs.external_slot }}
+          EXTERNAL_LABEL: ${{ inputs.external_label }}
+          EXTERNAL_SOURCE: ${{ inputs.external_source }}
         run: |
           set -euo pipefail
           echo "GitHub event: $GITHUB_EVENT_NAME"
           echo "UTC now: $(date -u '+%Y-%m-%d %H:%M:%S %Z')"
           echo "KST now: $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S %Z')"
+          echo "External source: ${EXTERNAL_SOURCE:-manual-or-push}"
+          echo "External slot: ${EXTERNAL_SLOT:-none}"
+          echo "External label: ${EXTERNAL_LABEL:-none}"
 
-          if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
-            python3 -m collector.schedule_control decide \
-              --state-path docs/data/schedule_state.json \
-              --github-output "$GITHUB_OUTPUT" \
-              --github-summary "$GITHUB_STEP_SUMMARY"
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" && -n "$EXTERNAL_SLOT" ]]; then
+            python3 -m collector.external_dispatch_control decide \
+              --state-path docs/data/external_schedule_state.json \
+              --slot-key "$EXTERNAL_SLOT" \
+              --github-output "$GITHUB_OUTPUT"
           else
             echo "allowed=true" >> "$GITHUB_OUTPUT"
-            echo "reason=수동 실행 또는 코드 변경 배포" >> "$GITHUB_OUTPUT"
-            echo "slot_key=" >> "$GITHUB_OUTPUT"
-            echo "slot_date=" >> "$GITHUB_OUTPUT"
-            echo "slot_label=수동 실행 또는 코드 변경 배포" >> "$GITHUB_OUTPUT"
-            echo "telegram_required=false" >> "$GITHUB_OUTPUT"
-            echo "telegram_title=" >> "$GITHUB_OUTPUT"
+            echo "reason=일반 수동 실행 또는 코드 변경 배포" >> "$GITHUB_OUTPUT"
           fi
 
   build:
-    needs: schedule_guard
-    if: needs.schedule_guard.outputs.allowed == 'true'
+    needs: dispatch_guard
+    if: needs.dispatch_guard.outputs.allowed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -120,15 +134,19 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: 실행 유형 및 예약 슬롯 확인
+      - name: 실행 유형 확인
         shell: bash
         env:
-          SLOT_LABEL: ${{ needs.schedule_guard.outputs.slot_label }}
-          SLOT_REASON: ${{ needs.schedule_guard.outputs.reason }}
+          GUARD_REASON: ${{ needs.dispatch_guard.outputs.reason }}
+          EXTERNAL_SLOT: ${{ inputs.external_slot }}
+          EXTERNAL_LABEL: ${{ inputs.external_label }}
+          EXTERNAL_SOURCE: ${{ inputs.external_source }}
         run: |
           echo "GitHub event: $GITHUB_EVENT_NAME"
-          echo "예정 작업: $SLOT_LABEL"
-          echo "판정 사유: $SLOT_REASON"
+          echo "판정 사유: $GUARD_REASON"
+          echo "외부 호출: ${EXTERNAL_SOURCE:-none}"
+          echo "외부 슬롯: ${EXTERNAL_SLOT:-none}"
+          echo "작업명: ${EXTERNAL_LABEL:-manual-or-push}"
           echo "UTC now: $(date -u '+%Y-%m-%d %H:%M:%S %Z')"
           echo "KST now: $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S %Z')"
           if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
@@ -151,7 +169,7 @@ jobs:
         run: node --check docs/assets/app.js
 
       - name: 보도자료 수집
-        if: github.event_name != 'push' && (github.event_name != 'workflow_dispatch' || !inputs.skip_collection)
+        if: github.event_name != 'push' && !inputs.skip_collection
         timeout-minutes: 20
         env:
           START_DATE: ${{ inputs.start_date }}
@@ -166,12 +184,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          LOOKBACK_DAYS="$INPUT_LOOKBACK_DAYS"
-          if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
-            # 정기 실행은 누락 복구를 위해 한국시간 오늘 포함 최근 3일을 재확인한다.
-            LOOKBACK_DAYS="3"
-          fi
-          args=(--lookback-days "$LOOKBACK_DAYS" --continue-on-error --detail-workers 3 --max-pages-per-day 10)
+          args=(--lookback-days "$INPUT_LOOKBACK_DAYS" --continue-on-error --detail-workers 3 --max-pages-per-day 10)
           if [[ -n "$START_DATE" && -n "$END_DATE" ]]; then
             args+=(--start-date "$START_DATE" --end-date "$END_DATE")
           else
@@ -229,10 +242,6 @@ jobs:
           fi
 
           git commit -m "data: 보도자료 및 지식재산처 AI 연관도 갱신"
-
-          # CI에서 의도한 변경은 docs/data뿐이다. Python 캐시 등 나머지 tracked 변경은 제거한다.
-          echo "커밋 후 전체 작업트리 상태:"
-          git status --short
           git reset --hard HEAD
           git clean -fd
 
@@ -277,17 +286,15 @@ jobs:
         uses: actions/deploy-pages@v5
 
   notify_telegram:
-    needs: [schedule_guard, build, deploy]
+    needs: [dispatch_guard, build, deploy]
     if: >-
       ${{
         always() &&
-        needs.schedule_guard.outputs.allowed == 'true' &&
+        needs.dispatch_guard.outputs.allowed == 'true' &&
         needs.build.result == 'success' &&
         needs.deploy.result == 'success' &&
-        (
-          (github.event_name == 'schedule' && needs.schedule_guard.outputs.telegram_required == 'true') ||
-          (github.event_name == 'workflow_dispatch' && inputs.send_telegram)
-        )
+        github.event_name == 'workflow_dispatch' &&
+        inputs.send_telegram
       }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -323,7 +330,7 @@ jobs:
           fi
           echo "Telegram Bot Token과 Chat ID가 등록되어 있습니다."
 
-      - name: 텔레그램 브리핑 발송
+      - name: Telegram 브리핑 발송
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -334,27 +341,25 @@ jobs:
           TELEGRAM_MAX_UNCLASSIFIED: ${{ vars.TELEGRAM_MAX_UNCLASSIFIED || '3' }}
           TELEGRAM_MAX_ARTICLES: ${{ vars.TELEGRAM_MAX_ARTICLES || '30' }}
           DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
-          REPORT_DATE: ${{ github.event_name == 'schedule' && needs.schedule_guard.outputs.slot_date || inputs.end_date }}
+          REPORT_DATE: ${{ inputs.report_date || inputs.end_date }}
           PIPELINE_BUILD_RESULT: ${{ needs.build.result }}
           PIPELINE_DEPLOY_RESULT: ${{ needs.deploy.result }}
-          TRIGGER_SLOT: ${{ needs.schedule_guard.outputs.slot_key }}
-          TELEGRAM_REPORT_TITLE: ${{ github.event_name == 'schedule' && needs.schedule_guard.outputs.telegram_title || '수동 시험 발송' }}
+          TRIGGER_SLOT: ${{ inputs.external_slot }}
+          TELEGRAM_REPORT_TITLE: ${{ inputs.telegram_title || '수동 시험 발송' }}
           PYTHONUNBUFFERED: '1'
         run: python -u -m collector.send_telegram --require-config
 
-  finalize_schedule:
-    needs: [schedule_guard, build, deploy, notify_telegram]
+  finalize_external_slot:
+    needs: [dispatch_guard, build, deploy, notify_telegram]
     if: >-
       ${{
         always() &&
-        github.event_name == 'schedule' &&
-        needs.schedule_guard.outputs.allowed == 'true' &&
+        github.event_name == 'workflow_dispatch' &&
+        inputs.external_slot != '' &&
+        needs.dispatch_guard.outputs.allowed == 'true' &&
         needs.build.result == 'success' &&
         needs.deploy.result == 'success' &&
-        (
-          needs.schedule_guard.outputs.telegram_required != 'true' ||
-          needs.notify_telegram.result == 'success'
-        )
+        (!inputs.send_telegram || needs.notify_telegram.result == 'success')
       }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -365,18 +370,18 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: 예약 슬롯 완료 상태 기록
+      - name: 외부 예약 슬롯 완료 상태 기록
         env:
-          SLOT_KEY: ${{ needs.schedule_guard.outputs.slot_key }}
-          SLOT_LABEL: ${{ needs.schedule_guard.outputs.slot_label }}
-          TELEGRAM_REQUIRED: ${{ needs.schedule_guard.outputs.telegram_required }}
+          EXTERNAL_SLOT: ${{ inputs.external_slot }}
+          EXTERNAL_LABEL: ${{ inputs.external_label }}
+          EXTERNAL_SOURCE: ${{ inputs.external_source }}
         run: |
           set -euo pipefail
-          python3 -m collector.schedule_control mark \
-            --state-path docs/data/schedule_state.json \
-            --slot-key "$SLOT_KEY" \
-            --slot-label "$SLOT_LABEL" \
-            --telegram-required "$TELEGRAM_REQUIRED"
+          python3 -m collector.external_dispatch_control mark \
+            --state-path docs/data/external_schedule_state.json \
+            --slot-key "$EXTERNAL_SLOT" \
+            --slot-label "${EXTERNAL_LABEL:-$EXTERNAL_SLOT}" \
+            --source "${EXTERNAL_SOURCE:-external}"
 
       - name: 완료 상태 저장소에 반영
         shell: bash
@@ -384,14 +389,14 @@ jobs:
           set -euo pipefail
           git config user.name "policy-dashboard-bot"
           git config user.email "policy-dashboard-bot@users.noreply.github.com"
-          git add docs/data/schedule_state.json
+          git add docs/data/external_schedule_state.json
 
           if git diff --cached --quiet; then
-            echo "예약 상태 변경이 없습니다."
+            echo "외부 예약 상태 변경이 없습니다."
             exit 0
           fi
 
-          git commit -m "chore: KST 예약 슬롯 완료 기록"
+          git commit -m "chore: Cloudflare 외부 예약 슬롯 완료 기록"
           for attempt in 1 2 3; do
             git fetch origin main
             if ! git rebase origin/main; then
@@ -399,10 +404,10 @@ jobs:
               exit 1
             fi
             if git push origin HEAD:main; then
-              echo "예약 슬롯 완료 상태 push 완료"
+              echo "외부 예약 슬롯 완료 상태 push 완료"
               exit 0
             fi
             sleep $((attempt * 3))
           done
-          echo "예약 슬롯 완료 상태를 push하지 못했습니다."
+          echo "외부 예약 슬롯 완료 상태를 push하지 못했습니다."
           exit 1

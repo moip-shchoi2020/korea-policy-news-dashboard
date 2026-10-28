@@ -1,9 +1,9 @@
 name: 보도자료 수집·AI 연관도 분석 및 대시보드 배포
 
 run-name: >-
-  ${{ github.event_name == 'workflow_dispatch' && inputs.external_slot != '' && 'Cloudflare 외부 예약 실행' ||
-      github.event_name == 'workflow_dispatch' && inputs.skip_collection && '기존 데이터 AI 분석 및 배포' ||
+  ${{ github.event_name == 'workflow_dispatch' && inputs.skip_collection && '기존 데이터 AI 분석 및 배포' ||
       github.event_name == 'workflow_dispatch' && '수동 수집·AI 분석 및 배포' ||
+      github.event_name == 'schedule' && format('정기 수집·AI 분석 및 배포 ({0})', github.event.schedule) ||
       '코드 변경 배포(수집·AI 분석 없음)' }}
 
 on:
@@ -16,8 +16,16 @@ on:
       - "requirements.txt"
       - ".gitignore"
       - ".github/workflows/collect-and-deploy.yml"
-  # GitHub 자체 cron은 사용하지 않는다.
-  # Cloudflare Workers가 workflow_dispatch REST API를 호출한다.
+  schedule:
+    # 2026-07-29 정상 동작 당시와 동일한 한국시간 예약 구조
+    - cron: "3 8 * * *"
+      timezone: "Asia/Seoul"
+    - cron: "3 11 * * *"
+      timezone: "Asia/Seoul"
+    - cron: "3 16 * * *"
+      timezone: "Asia/Seoul"
+    - cron: "3 19 * * *"
+      timezone: "Asia/Seoul"
   workflow_dispatch:
     inputs:
       start_date:
@@ -39,94 +47,99 @@ on:
         default: false
         type: boolean
       force_ai_reclassify:
-        description: "기존 AI 판정을 모두 다시 수행(기준·모델 변경 시만 사용)"
+        description: "기존 판정을 모두 다시 수행(기준·모델 변경 시만 사용)"
+        required: false
+        default: false
+        type: boolean
+      require_ai:
+        description: "AI 키 누락·호출 실패 시 전체 실행을 실패 처리"
         required: false
         default: false
         type: boolean
       send_telegram:
-        description: "실행 완료 후 Telegram 브리핑 발송"
+        description: "실행 완료 후 Telegram 브리핑 시험 발송"
         required: false
         default: false
         type: boolean
-      external_slot:
-        description: "외부 스케줄 슬롯 식별자(Cloudflare가 자동 입력)"
-        required: false
-        type: string
-      external_label:
-        description: "외부 스케줄 작업명(Cloudflare가 자동 입력)"
-        required: false
-        type: string
-      external_source:
-        description: "외부 호출 출처(Cloudflare가 자동 입력)"
-        required: false
-        type: string
-      report_date:
-        description: "Telegram 기준일 YYYY-MM-DD(Cloudflare가 자동 입력)"
-        required: false
-        type: string
-      telegram_title:
-        description: "Telegram 브리핑 제목(Cloudflare가 자동 입력)"
-        required: false
-        type: string
 
 permissions:
   contents: write
   pages: write
   id-token: write
-  models: read
 
 env:
   PYTHONDONTWRITEBYTECODE: "1"
 
-# 같은 저장소의 수집·배포를 직렬화한다. Cloudflare의 20분 재시도 요청은 앞 실행 뒤에 대기한다.
 concurrency:
-  group: policy-dashboard-${{ github.repository }}-main
-  cancel-in-progress: false
+  group: policy-dashboard-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  dispatch_guard:
+  schedule_guard:
     runs-on: ubuntu-latest
     outputs:
       allowed: ${{ steps.guard.outputs.allowed }}
-      reason: ${{ steps.guard.outputs.reason }}
+      expected_label: ${{ steps.guard.outputs.expected_label }}
     steps:
-      - name: 저장소 가져오기
-        uses: actions/checkout@v6
-        with:
-          ref: main
-          fetch-depth: 1
-
-      - name: 외부 예약 슬롯 중복 여부 확인
+      - name: 한국시간 예약 실행 유효성 확인
         id: guard
         shell: bash
         env:
-          EXTERNAL_SLOT: ${{ inputs.external_slot }}
-          EXTERNAL_LABEL: ${{ inputs.external_label }}
-          EXTERNAL_SOURCE: ${{ inputs.external_source }}
+          SCHEDULE_EXPRESSION: ${{ github.event.schedule }}
+          MAX_SCHEDULE_DELAY_MINUTES: "120"
         run: |
           set -euo pipefail
+          allowed=true
+          expected_label="수동 또는 코드 변경 실행"
+
           echo "GitHub event: $GITHUB_EVENT_NAME"
           echo "UTC now: $(date -u '+%Y-%m-%d %H:%M:%S %Z')"
           echo "KST now: $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S %Z')"
-          echo "External source: ${EXTERNAL_SOURCE:-manual-or-push}"
-          echo "External slot: ${EXTERNAL_SLOT:-none}"
-          echo "External label: ${EXTERNAL_LABEL:-none}"
 
-          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" && -n "$EXTERNAL_SLOT" ]]; then
-            python3 -m collector.external_dispatch_control decide \
-              --state-path docs/data/external_schedule_state.json \
-              --slot-key "$EXTERNAL_SLOT" \
-              --github-output "$GITHUB_OUTPUT"
-          else
-            echo "allowed=true" >> "$GITHUB_OUTPUT"
-            echo "reason=일반 수동 실행 또는 코드 변경 배포" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
+            case "$SCHEDULE_EXPRESSION" in
+              "3 8 * * *")  expected_hour=8;  expected_minute=3; expected_label="08:03 대시보드 갱신 + Telegram" ;;
+              "3 11 * * *") expected_hour=11; expected_minute=3; expected_label="11:03 대시보드 갱신" ;;
+              "3 16 * * *") expected_hour=16; expected_minute=3; expected_label="16:03 대시보드 갱신 + Telegram" ;;
+              "3 19 * * *") expected_hour=19; expected_minute=3; expected_label="19:03 대시보드 갱신" ;;
+              *)
+                echo "::error::허용되지 않은 예약 표현식입니다: $SCHEDULE_EXPRESSION"
+                allowed=false
+                expected_hour=0
+                expected_minute=0
+                expected_label="알 수 없는 예약"
+                ;;
+            esac
+
+            if [[ "$allowed" == "true" ]]; then
+              current_hour=$((10#$(TZ=Asia/Seoul date '+%H')))
+              current_minute=$((10#$(TZ=Asia/Seoul date '+%M')))
+              current_total=$((current_hour * 60 + current_minute))
+              expected_total=$((expected_hour * 60 + expected_minute))
+              delay=$((current_total - expected_total))
+              if (( delay < 0 )); then
+                delay=$((delay + 1440))
+              fi
+
+              echo "Trigger cron (Asia/Seoul): $SCHEDULE_EXPRESSION"
+              echo "예정 작업: $expected_label"
+              echo "예약 시각 대비 시작 지연: ${delay}분"
+
+              if (( delay > MAX_SCHEDULE_DELAY_MINUTES )); then
+                echo "::warning::예약 시각보다 ${delay}분 늦게 시작되어 이번 실행을 건너뜁니다."
+                allowed=false
+              fi
+            fi
           fi
 
+          echo "allowed=$allowed" >> "$GITHUB_OUTPUT"
+          echo "expected_label=$expected_label" >> "$GITHUB_OUTPUT"
+
   build:
-    needs: dispatch_guard
-    if: needs.dispatch_guard.outputs.allowed == 'true'
+    needs: schedule_guard
+    if: needs.schedule_guard.outputs.allowed == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
     steps:
       - name: 저장소 가져오기
         uses: actions/checkout@v6
@@ -134,23 +147,21 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: 실행 유형 확인
+      - name: 실행 유형 및 예약 시각 확인
         shell: bash
         env:
-          GUARD_REASON: ${{ needs.dispatch_guard.outputs.reason }}
-          EXTERNAL_SLOT: ${{ inputs.external_slot }}
-          EXTERNAL_LABEL: ${{ inputs.external_label }}
-          EXTERNAL_SOURCE: ${{ inputs.external_source }}
+          EXPECTED_SCHEDULE_LABEL: ${{ needs.schedule_guard.outputs.expected_label }}
+          SCHEDULE_EXPRESSION: ${{ github.event.schedule }}
         run: |
           echo "GitHub event: $GITHUB_EVENT_NAME"
-          echo "판정 사유: $GUARD_REASON"
-          echo "외부 호출: ${EXTERNAL_SOURCE:-none}"
-          echo "외부 슬롯: ${EXTERNAL_SLOT:-none}"
-          echo "작업명: ${EXTERNAL_LABEL:-manual-or-push}"
+          echo "예정 작업: $EXPECTED_SCHEDULE_LABEL"
+          if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
+            echo "Trigger cron (Asia/Seoul): $SCHEDULE_EXPRESSION"
+          fi
           echo "UTC now: $(date -u '+%Y-%m-%d %H:%M:%S %Z')"
           echo "KST now: $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S %Z')"
           if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
-            echo "코드 업로드로 시작된 실행이므로 보도자료 수집과 AI 분석은 생략하고 기존 데이터만 배포합니다."
+            echo "코드 업로드 실행이므로 수집과 AI 분석은 생략하고 기존 데이터만 배포합니다."
           fi
 
       - name: Python 설치
@@ -169,22 +180,27 @@ jobs:
         run: node --check docs/assets/app.js
 
       - name: 보도자료 수집
-        if: github.event_name != 'push' && !inputs.skip_collection
+        if: github.event_name != 'push' && (github.event_name != 'workflow_dispatch' || !inputs.skip_collection)
         timeout-minutes: 20
         env:
           START_DATE: ${{ inputs.start_date }}
           END_DATE: ${{ inputs.end_date }}
           INPUT_LOOKBACK_DAYS: ${{ inputs.lookback_days || '3' }}
-          CONNECT_TIMEOUT_SECONDS: '15'
-          READ_TIMEOUT_SECONDS: '30'
-          HTTP_RETRY_TOTAL: '2'
-          HTTP_BACKOFF_FACTOR: '1.5'
-          KOREA_MOBILE_FALLBACK: 'true'
-          PYTHONUNBUFFERED: '1'
+          CONNECT_TIMEOUT_SECONDS: "15"
+          READ_TIMEOUT_SECONDS: "30"
+          HTTP_RETRY_TOTAL: "2"
+          HTTP_BACKOFF_FACTOR: "1.5"
+          KOREA_MOBILE_FALLBACK: "true"
+          PYTHONUNBUFFERED: "1"
         shell: bash
         run: |
           set -euo pipefail
-          args=(--lookback-days "$INPUT_LOOKBACK_DAYS" --continue-on-error --detail-workers 3 --max-pages-per-day 10)
+          LOOKBACK_DAYS="$INPUT_LOOKBACK_DAYS"
+          if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
+            # 2026-07-29 정상 동작 당시와 같이 오늘과 전날을 재확인한다.
+            LOOKBACK_DAYS="2"
+          fi
+          args=(--lookback-days "$LOOKBACK_DAYS" --continue-on-error --detail-workers 3 --max-pages-per-day 10)
           if [[ -n "$START_DATE" && -n "$END_DATE" ]]; then
             args+=(--start-date "$START_DATE" --end-date "$END_DATE")
           else
@@ -192,22 +208,38 @@ jobs:
           fi
           python -u -m collector.collect "${args[@]}"
 
+      - name: AI 공급자 설정 확인
+        if: success() && github.event_name != 'push'
+        shell: bash
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [[ -z "$OPENAI_API_KEY" ]]; then
+            echo "::warning title=AI 키 미등록::Repository secret OPENAI_API_KEY가 없습니다. 모델 검토 대상은 rules-fallback으로 저장됩니다."
+          else
+            echo "OPENAI_API_KEY가 등록되어 있습니다."
+          fi
+
       - name: 지식재산처 AI 연관도 분석
         if: success() && github.event_name != 'push'
-        timeout-minutes: 15
+        timeout-minutes: 20
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_MODELS_MODEL: ${{ vars.GITHUB_MODELS_MODEL || 'openai/gpt-4.1-mini' }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4.1-mini' }}
           FORCE_AI_RECLASSIFY: ${{ inputs.force_ai_reclassify || false }}
-          PYTHONUNBUFFERED: '1'
+          REQUIRE_AI: ${{ inputs.require_ai || false }}
+          PYTHONUNBUFFERED: "1"
         shell: bash
         run: |
           set -euo pipefail
-          args=(--model "$GITHUB_MODELS_MODEL" --batch-size 3 --max-articles 300 --request-delay 4.1)
+          args=(--model "$OPENAI_MODEL" --batch-size 3 --max-articles 300 --request-delay 4.1)
           if [[ "$FORCE_AI_RECLASSIFY" == "true" ]]; then
             args+=(--force)
           fi
-          python -u -m collector.classify_relevance "${args[@]}"
+          if [[ "$REQUIRE_AI" == "true" ]]; then
+            args+=(--require-ai)
+          fi
+          python -u -m collector.classify_relevance_openai "${args[@]}"
 
       - name: 색인 재생성
         if: success()
@@ -218,11 +250,22 @@ jobs:
         shell: bash
         run: |
           echo "### 보도자료 수집·지식재산처 연관도 분석 결과" >> "$GITHUB_STEP_SUMMARY"
-          echo '```text' >> "$GITHUB_STEP_SUMMARY"
-          find docs/data -maxdepth 5 -type f -print | sort | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          cat docs/data/manifest.json | tee -a "$GITHUB_STEP_SUMMARY" || true
           echo '```' >> "$GITHUB_STEP_SUMMARY"
-          echo "manifest.json:"
-          cat docs/data/manifest.json || true
+          echo "AI 기록 방식 집계:" >> "$GITHUB_STEP_SUMMARY"
+          python - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
+          import json
+          from collections import Counter
+          from pathlib import Path
+
+          counts = Counter()
+          for path in Path("docs/data").glob("[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json"):
+              payload = json.loads(path.read_text(encoding="utf-8"))
+              for article in payload.get("articles", []):
+                  counts[article.get("ip_relevance", {}).get("method", "unclassified")] += 1
+          print(dict(sorted(counts.items())))
+          PY
 
       - name: 변경 데이터 저장소에 반영
         if: success() && github.event_name != 'push'
@@ -286,15 +329,20 @@ jobs:
         uses: actions/deploy-pages@v5
 
   notify_telegram:
-    needs: [dispatch_guard, build, deploy]
+    needs: [schedule_guard, build, deploy]
     if: >-
       ${{
         always() &&
-        needs.dispatch_guard.outputs.allowed == 'true' &&
+        needs.schedule_guard.outputs.allowed == 'true' &&
         needs.build.result == 'success' &&
         needs.deploy.result == 'success' &&
-        github.event_name == 'workflow_dispatch' &&
-        inputs.send_telegram
+        (
+          (
+            github.event_name == 'schedule' &&
+            (github.event.schedule == '3 8 * * *' || github.event.schedule == '3 16 * * *')
+          ) ||
+          (github.event_name == 'workflow_dispatch' && inputs.send_telegram)
+        )
       }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -328,7 +376,6 @@ jobs:
             echo "::error::Repository secret TELEGRAM_CHAT_ID가 없습니다."
             exit 1
           fi
-          echo "Telegram Bot Token과 Chat ID가 등록되어 있습니다."
 
       - name: Telegram 브리핑 발송
         env:
@@ -341,73 +388,10 @@ jobs:
           TELEGRAM_MAX_UNCLASSIFIED: ${{ vars.TELEGRAM_MAX_UNCLASSIFIED || '3' }}
           TELEGRAM_MAX_ARTICLES: ${{ vars.TELEGRAM_MAX_ARTICLES || '30' }}
           DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
-          REPORT_DATE: ${{ inputs.report_date || inputs.end_date }}
+          REPORT_DATE: ${{ inputs.end_date }}
           PIPELINE_BUILD_RESULT: ${{ needs.build.result }}
           PIPELINE_DEPLOY_RESULT: ${{ needs.deploy.result }}
-          TRIGGER_SLOT: ${{ inputs.external_slot }}
-          TELEGRAM_REPORT_TITLE: ${{ inputs.telegram_title || '수동 시험 발송' }}
-          PYTHONUNBUFFERED: '1'
+          TRIGGER_SCHEDULE: ${{ github.event.schedule }}
+          TELEGRAM_REPORT_TITLE: ${{ github.event.schedule == '3 8 * * *' && '08시 브리핑' || github.event.schedule == '3 16 * * *' && '16시 브리핑' || '수동 시험 발송' }}
+          PYTHONUNBUFFERED: "1"
         run: python -u -m collector.send_telegram --require-config
-
-  finalize_external_slot:
-    needs: [dispatch_guard, build, deploy, notify_telegram]
-    if: >-
-      ${{
-        always() &&
-        github.event_name == 'workflow_dispatch' &&
-        inputs.external_slot != '' &&
-        needs.dispatch_guard.outputs.allowed == 'true' &&
-        needs.build.result == 'success' &&
-        needs.deploy.result == 'success' &&
-        (!inputs.send_telegram || needs.notify_telegram.result == 'success')
-      }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: 최신 main 가져오기
-        uses: actions/checkout@v6
-        with:
-          ref: main
-          fetch-depth: 0
-
-      - name: 외부 예약 슬롯 완료 상태 기록
-        env:
-          EXTERNAL_SLOT: ${{ inputs.external_slot }}
-          EXTERNAL_LABEL: ${{ inputs.external_label }}
-          EXTERNAL_SOURCE: ${{ inputs.external_source }}
-        run: |
-          set -euo pipefail
-          python3 -m collector.external_dispatch_control mark \
-            --state-path docs/data/external_schedule_state.json \
-            --slot-key "$EXTERNAL_SLOT" \
-            --slot-label "${EXTERNAL_LABEL:-$EXTERNAL_SLOT}" \
-            --source "${EXTERNAL_SOURCE:-external}"
-
-      - name: 완료 상태 저장소에 반영
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "policy-dashboard-bot"
-          git config user.email "policy-dashboard-bot@users.noreply.github.com"
-          git add docs/data/external_schedule_state.json
-
-          if git diff --cached --quiet; then
-            echo "외부 예약 상태 변경이 없습니다."
-            exit 0
-          fi
-
-          git commit -m "chore: Cloudflare 외부 예약 슬롯 완료 기록"
-          for attempt in 1 2 3; do
-            git fetch origin main
-            if ! git rebase origin/main; then
-              git rebase --abort || true
-              exit 1
-            fi
-            if git push origin HEAD:main; then
-              echo "외부 예약 슬롯 완료 상태 push 완료"
-              exit 0
-            fi
-            sleep $((attempt * 3))
-          done
-          echo "외부 예약 슬롯 완료 상태를 push하지 못했습니다."
-          exit 1

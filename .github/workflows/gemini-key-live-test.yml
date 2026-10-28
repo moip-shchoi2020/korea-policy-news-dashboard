@@ -6,6 +6,7 @@ on:
       - test/gemini-key-live-20261029-v2
     paths:
       - ".github/workflows/gemini-key-live-test.yml"
+      - "collector/classify_relevance_gemini.py"
 
 permissions:
   contents: read
@@ -40,7 +41,7 @@ jobs:
             "date": "2026-10-29",
             "articles": [
               {
-                "id": "gemini-key-live-test-2",
+                "id": "gemini-key-live-test-3",
                 "title": "전 부처 생성형 AI 공통 보안기준 시행",
                 "summary": "행정기관 공통 보안·데이터 관리 기준을 시행한다.",
                 "ministry": "행정안전부",
@@ -67,6 +68,7 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
+          GEMINI_MAX_ATTEMPTS: "5"
         shell: bash
         run: |
           set -euo pipefail
@@ -96,6 +98,6 @@ jobs:
           assert result['method'] == 'gemini-api', result
           assert result['model'] == f"google/{os.environ['GEMINI_MODEL']}", result
           assert result['level'] in {'critical', 'important', 'normal', 'unrelated'}, result
-          print('GEMINI_COMPATIBILITY_TEST_SUCCESS')
+          print('GEMINI_RETRY_TEST_SUCCESS')
           print(json.dumps(result, ensure_ascii=False, indent=2))
           PY

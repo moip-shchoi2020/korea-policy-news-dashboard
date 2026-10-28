@@ -1,0 +1,101 @@
+name: Gemini 실제 API 검증 (GEMINI_KEY)
+
+on:
+  push:
+    branches:
+      - test/gemini-key-live-20261029-v2
+    paths:
+      - ".github/workflows/gemini-key-live-test.yml"
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  live-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 저장소 가져오기
+        uses: actions/checkout@v6
+
+      - name: Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: 패키지 설치
+        run: pip install -r requirements.txt
+
+      - name: 합성자료 생성
+        shell: bash
+        run: |
+          mkdir -p /tmp/gemini-live/2026/10/29
+          cat > /tmp/gemini-live/2026/10/29/articles.json <<'JSON'
+          {
+            "schema_version": 2,
+            "date": "2026-10-29",
+            "articles": [
+              {
+                "id": "gemini-key-live-test-1",
+                "title": "전 부처 생성형 AI 공통 보안기준 시행",
+                "summary": "행정기관 공통 보안·데이터 관리 기준을 시행한다.",
+                "ministry": "행정안전부",
+                "publish_date": "2026-10-29",
+                "content_text": "정부는 전 부처에 적용되는 생성형 AI 보안, 데이터 관리 및 정보시스템 운영 공통기준을 시행한다. 중앙행정기관은 내부 규정과 시스템에 필요한 보호조치를 반영해야 한다."
+              }
+            ]
+          }
+          JSON
+
+      - name: Secret 등록 여부 확인
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$GEMINI_API_KEY" ]]; then
+            echo "::error title=Secret 미확인::GEMINI_KEY가 비어 있습니다."
+            exit 1
+          fi
+          echo "GEMINI_KEY가 GitHub Actions에 전달되었습니다."
+
+      - name: Gemini 실제 호출
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -u -m collector.classify_relevance_gemini \
+            --data-dir /tmp/gemini-live \
+            --model "$GEMINI_MODEL" \
+            --batch-size 1 \
+            --max-articles 1 \
+            --request-delay 0 \
+            --force \
+            --require-ai
+
+      - name: 결과 검증
+        env:
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          path = Path('/tmp/gemini-live/2026/10/29/articles.json')
+          article = json.loads(path.read_text(encoding='utf-8'))['articles'][0]
+          result = article['ip_relevance']
+          assert result['method'] == 'gemini-api', result
+          assert result['model'] == f"google/{os.environ['GEMINI_MODEL']}", result
+          assert result['level'] in {'critical', 'important', 'normal', 'unrelated'}, result
+          print('GEMINI_LIVE_TEST_SUCCESS')
+          print(json.dumps(result, ensure_ascii=False, indent=2))
+          PY

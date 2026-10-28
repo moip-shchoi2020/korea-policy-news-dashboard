@@ -1,0 +1,266 @@
+name: Gemini 재판정 2026-07-30~2026-08-06
+
+on:
+  push:
+    branches:
+      - ops/gemini-backfill-20260730-20260806
+    paths:
+      - ".github/workflows/gemini-backfill-20260730-20260806.yml"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
+concurrency:
+  group: gemini-backfill-20260730-20260806
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: main 저장소 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Python 패키지 설치
+        run: pip install -r requirements.txt
+
+      - name: 코드 기본 검증
+        run: |
+          python -m unittest discover -s tests -v
+          python -m py_compile collector/*.py
+          node --check docs/assets/app.js
+
+      - name: 대상 기간 rules-fallback 자료 준비
+        id: prepare
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/gemini-backfill
+          mkdir -p /tmp/gemini-backfill
+          python - <<'PY'
+          import json
+          from datetime import date, timedelta
+          from pathlib import Path
+
+          source_root = Path("docs/data")
+          target_root = Path("/tmp/gemini-backfill")
+          start = date(2026, 7, 30)
+          end = date(2026, 8, 6)
+          targets = []
+          copied_dates = []
+
+          current = start
+          while current <= end:
+              relative = Path(f"{current:%Y/%m/%d}/articles.json")
+              source = source_root / relative
+              if not source.exists():
+                  raise SystemExit(f"대상 날짜 파일이 없습니다: {source}")
+
+              payload = json.loads(source.read_text(encoding="utf-8"))
+              articles = payload.get("articles", [])
+              date_targets = 0
+              for article in articles:
+                  relevance = article.get("ip_relevance", {})
+                  if relevance.get("method") == "rules-fallback":
+                      targets.append(str(article.get("id", "")))
+                      article.pop("ip_relevance", None)
+                      date_targets += 1
+
+              destination = target_root / relative
+              destination.parent.mkdir(parents=True, exist_ok=True)
+              destination.write_text(
+                  json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+                  encoding="utf-8",
+              )
+              copied_dates.append({
+                  "date": current.isoformat(),
+                  "articles": len(articles),
+                  "rules_fallback_targets": date_targets,
+              })
+              current += timedelta(days=1)
+
+          Path("/tmp/gemini-backfill-targets.json").write_text(
+              json.dumps(targets, ensure_ascii=False, indent=2),
+              encoding="utf-8",
+          )
+          Path("/tmp/gemini-backfill-summary.json").write_text(
+              json.dumps(copied_dates, ensure_ascii=False, indent=2),
+              encoding="utf-8",
+          )
+
+          print(json.dumps(copied_dates, ensure_ascii=False, indent=2))
+          print(f"Gemini 재판정 대상: {len(targets)}건")
+          if not targets:
+              raise SystemExit("대상 기간에 rules-fallback 자료가 없습니다.")
+
+          with Path("/tmp/gemini-backfill-count.txt").open("w", encoding="utf-8") as handle:
+              handle.write(str(len(targets)))
+          PY
+          echo "target_count=$(cat /tmp/gemini-backfill-count.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Gemini 실제 재판정
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
+          GEMINI_MAX_ATTEMPTS: "5"
+          PYTHONUNBUFFERED: "1"
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$GEMINI_API_KEY" ]]; then
+            echo "::error::GEMINI_KEY 또는 GEMINI_API_KEY가 등록되어 있지 않습니다."
+            exit 1
+          fi
+          python -u -m collector.classify_relevance_gemini \
+            --data-dir /tmp/gemini-backfill \
+            --model "$GEMINI_MODEL" \
+            --batch-size 3 \
+            --max-articles 1000 \
+            --request-delay 4.1 \
+            --require-ai
+
+      - name: Gemini 결과 검증
+        id: verify
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from collections import Counter
+          from pathlib import Path
+
+          target_ids = set(json.loads(Path("/tmp/gemini-backfill-targets.json").read_text(encoding="utf-8")))
+          found = {}
+          methods = Counter()
+          levels = Counter()
+
+          for path in Path("/tmp/gemini-backfill").glob("[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json"):
+              payload = json.loads(path.read_text(encoding="utf-8"))
+              for article in payload.get("articles", []):
+                  article_id = str(article.get("id", ""))
+                  if article_id not in target_ids:
+                      continue
+                  relevance = article.get("ip_relevance", {})
+                  found[article_id] = relevance
+                  methods[str(relevance.get("method", "missing"))] += 1
+                  levels[str(relevance.get("level", "missing"))] += 1
+
+          missing = sorted(target_ids - set(found))
+          invalid = sorted(
+              article_id
+              for article_id, relevance in found.items()
+              if relevance.get("method") != "gemini-api"
+          )
+          if missing:
+              raise SystemExit(f"결과가 없는 대상 {len(missing)}건: {missing[:10]}")
+          if invalid:
+              raise SystemExit(f"Gemini 판정이 아닌 대상 {len(invalid)}건: {invalid[:10]}")
+
+          result = {
+              "target_count": len(target_ids),
+              "methods": dict(sorted(methods.items())),
+              "levels": dict(sorted(levels.items())),
+          }
+          print(json.dumps(result, ensure_ascii=False, indent=2))
+          Path("/tmp/gemini-backfill-result.json").write_text(
+              json.dumps(result, ensure_ascii=False, indent=2),
+              encoding="utf-8",
+          )
+          PY
+
+      - name: 재판정 결과를 운영 데이터에 반영
+        shell: bash
+        run: |
+          set -euo pipefail
+          for day in 30 31; do
+            cp "/tmp/gemini-backfill/2026/07/${day}/articles.json" "docs/data/2026/07/${day}/articles.json"
+          done
+          for day in 01 02 03 04 05 06; do
+            cp "/tmp/gemini-backfill/2026/08/${day}/articles.json" "docs/data/2026/08/${day}/articles.json"
+          done
+          python -m collector.build_indexes
+
+      - name: 변경 데이터 커밋 및 main 반영
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+          git add docs/data
+          git status --short docs/data
+
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "변경할 데이터가 없습니다."
+            exit 0
+          fi
+
+          git commit -m "data: Gemini로 2026-07-30~2026-08-06 연관도 재판정"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            if ! git rebase origin/main; then
+              git rebase --abort || true
+              echo "원격 main과 rebase하지 못했습니다."
+              exit 1
+            fi
+            if git push origin HEAD:main; then
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+              echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            sleep $((attempt * 3))
+          done
+          echo "3회 시도 후에도 main에 push하지 못했습니다."
+          exit 1
+
+      - name: 실행 결과 요약
+        shell: bash
+        run: |
+          {
+            echo "## Gemini 재판정 결과"
+            echo
+            echo "- 기간: 2026-07-30 ~ 2026-08-06"
+            echo "- 대상 rules-fallback: ${{ steps.prepare.outputs.target_count }}건"
+            echo "- main 데이터 변경: ${{ steps.commit.outputs.changed }}"
+            echo "- 반영 커밋: ${{ steps.commit.outputs.commit_sha }}"
+            echo
+            echo '```json'
+            cat /tmp/gemini-backfill-result.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: GitHub Pages 설정
+        uses: actions/configure-pages@v6
+
+      - name: Pages 배포 파일 업로드
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs
+
+  deploy:
+    needs: backfill
+    if: success()
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: GitHub Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v5

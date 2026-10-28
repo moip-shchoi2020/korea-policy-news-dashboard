@@ -212,19 +212,19 @@ jobs:
         if: success() && github.event_name != 'push'
         shell: bash
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
         run: |
           if [[ -z "$GEMINI_API_KEY" ]]; then
-            echo "::warning title=AI 키 미등록::Repository secret GEMINI_API_KEY가 없습니다. 모델 검토 대상은 rules-fallback으로 저장됩니다."
+            echo "::warning title=AI 키 미등록::Repository secret GEMINI_KEY 또는 GEMINI_API_KEY가 없습니다. 모델 검토 대상은 rules-fallback으로 저장됩니다."
           else
-            echo "GEMINI_API_KEY가 등록되어 있습니다."
+            echo "Gemini API 키가 등록되어 있습니다."
           fi
 
       - name: 지식재산처 AI 연관도 분석
         if: success() && github.event_name != 'push'
         timeout-minutes: 20
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
           FORCE_AI_RECLASSIFY: ${{ inputs.force_ai_reclassify || false }}
           REQUIRE_AI: ${{ inputs.require_ai || false }}

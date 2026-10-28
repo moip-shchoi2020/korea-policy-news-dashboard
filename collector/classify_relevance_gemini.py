@@ -34,6 +34,8 @@ from collector.common import read_json
 DEFAULT_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
 DEFAULT_MODEL = "gemini-3.1-flash-lite"
 LEGACY_CACHE_MODEL = "openai/gpt-4.1-mini"
+TRANSIENT_HTTP_STATUS = {429, 500, 502, 503, 504}
+DEFAULT_MAX_ATTEMPTS = 5
 
 
 def parse_args() -> argparse.Namespace:
@@ -55,6 +57,24 @@ def parse_args() -> argparse.Namespace:
         help="GEMINI_API_KEY가 없거나 모델 호출에 실패하면 종료코드 1을 반환합니다.",
     )
     return parser.parse_args()
+
+
+def max_attempts_from_env() -> int:
+    raw = os.getenv("GEMINI_MAX_ATTEMPTS", str(DEFAULT_MAX_ATTEMPTS)).strip()
+    try:
+        return max(1, min(8, int(raw)))
+    except ValueError:
+        return DEFAULT_MAX_ATTEMPTS
+
+
+def retry_delay_seconds(response: requests.Response, attempt: int) -> float:
+    retry_after = response.headers.get("Retry-After", "").strip()
+    if retry_after:
+        try:
+            return max(1.0, min(90.0, float(retry_after)))
+        except ValueError:
+            pass
+    return float(min(30, 5 * (2**attempt)))
 
 
 def call_gemini(
@@ -98,21 +118,31 @@ def call_gemini(
         "Content-Type": "application/json",
     }
 
+    max_attempts = max_attempts_from_env()
     last_error: Exception | None = None
-    for attempt in range(3):
+    for attempt in range(max_attempts):
         try:
             response = session.post(endpoint, headers=headers, json=body, timeout=(10, 90))
-            if response.status_code == 429 and attempt < 2:
-                retry_after = float(response.headers.get("Retry-After", "8"))
-                time.sleep(max(retry_after, 4.0))
-                continue
             if (
                 response.status_code in {400, 422}
                 and body.get("response_format", {}).get("type") == "json_schema"
             ):
                 # 계정·모델 조합에서 JSON Schema가 허용되지 않으면 JSON object 모드로 재시도한다.
                 body["response_format"] = {"type": "json_object"}
+                if attempt < max_attempts - 1:
+                    continue
+
+            if response.status_code in TRANSIENT_HTTP_STATUS and attempt < max_attempts - 1:
+                delay = retry_delay_seconds(response, attempt)
+                print(
+                    f"::warning title=Gemini 일시 오류 재시도::HTTP {response.status_code}, "
+                    f"{delay:g}초 후 {attempt + 2}/{max_attempts}회차를 시도합니다.",
+                    file=sys.stderr,
+                    flush=True,
+                )
+                time.sleep(delay)
                 continue
+
             if response.status_code >= 400:
                 preview = " ".join(response.text.split())[:500]
                 raise RuntimeError(f"Gemini API HTTP {response.status_code}: {preview}")
@@ -133,8 +163,15 @@ def call_gemini(
             return mapped
         except (requests.RequestException, ValueError, RuntimeError) as exc:
             last_error = exc
-            if attempt < 2:
-                time.sleep(3 * (attempt + 1))
+            if attempt < max_attempts - 1:
+                delay = float(min(30, 3 * (attempt + 1)))
+                print(
+                    f"::warning title=Gemini 요청 재시도::{exc}. "
+                    f"{delay:g}초 후 {attempt + 2}/{max_attempts}회차를 시도합니다.",
+                    file=sys.stderr,
+                    flush=True,
+                )
+                time.sleep(delay)
 
     raise RuntimeError(str(last_error or "Gemini API 요청 실패"))
 

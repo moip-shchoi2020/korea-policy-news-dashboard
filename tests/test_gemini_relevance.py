@@ -5,6 +5,7 @@ import json
 import unittest
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
 from collector.classify_relevance import PendingArticle, article_source_hash, load_policy
 from collector.classify_relevance_gemini import (
@@ -153,6 +154,32 @@ class GeminiRelevanceTests(unittest.TestCase):
         self.assertEqual(result["test-1"]["level"], "critical")
         self.assertEqual(session.calls[0]["json"]["response_format"]["type"], "json_schema")
         self.assertEqual(session.calls[1]["json"]["response_format"]["type"], "json_object")
+
+    def test_transient_503_is_retried(self) -> None:
+        session = FakeSession(
+            [
+                FakeResponse(
+                    503,
+                    {"error": {"message": "high demand"}},
+                    headers={"Retry-After": "1"},
+                ),
+                self.successful_response(),
+            ]
+        )
+
+        with patch("collector.classify_relevance_gemini.time.sleep") as sleep:
+            result = call_gemini(
+                [self.pending()],
+                policy=self.policy,
+                endpoint="https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+                model="gemini-3.1-flash-lite",
+                token="test-key",
+                session=session,  # type: ignore[arg-type]
+            )
+
+        self.assertEqual(result["test-1"]["level"], "critical")
+        self.assertEqual(len(session.calls), 2)
+        sleep.assert_called_once_with(1.0)
 
     def test_gemini_record_preserves_provider_and_model(self) -> None:
         record = finalize_gemini_record(

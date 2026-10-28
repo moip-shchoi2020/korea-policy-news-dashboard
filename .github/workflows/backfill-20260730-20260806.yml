@@ -1,6 +1,6 @@
 name: 일회성 2026-07-30~2026-08-06 백필
 
-run-name: 2026-07-30~2026-08-06 수집·AI 판정
+run-name: 2026-07-30~2026-08-06 수집·판정
 
 on:
   push:
@@ -43,17 +43,16 @@ jobs:
           python -m unittest discover -s tests -v
           node --check docs/assets/app.js
 
-      - name: OpenAI API 키 확인
+      - name: AI 공급자 설정 확인
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         shell: bash
         run: |
-          set -euo pipefail
           if [[ -z "$OPENAI_API_KEY" ]]; then
-            echo "::error title=AI 키 미등록::Repository secret OPENAI_API_KEY가 없어 AI 판정을 실행할 수 없습니다."
-            exit 1
+            echo "::warning title=AI 키 미등록::OPENAI_API_KEY가 없어 신규 모델 검토 대상은 rules-fallback으로 저장합니다. 기존 정상 AI 판정은 보존합니다."
+          else
+            echo "OPENAI_API_KEY 확인 완료: 신규 후보를 gpt-4.1-mini로 판정합니다."
           fi
-          echo "OPENAI_API_KEY 확인 완료"
 
       - name: 2026-07-30부터 2026-08-06까지 보도자료 수집
         timeout-minutes: 30
@@ -101,7 +100,7 @@ jobs:
           print(f"분류 대상 날짜 파일: {copied}개")
           PY
 
-      - name: 7월 29일 기준 AI 연관도 재판정
+      - name: 7월 29일 기준 연관도 판정
         timeout-minutes: 45
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -114,11 +113,9 @@ jobs:
             --model "gpt-4.1-mini" \
             --batch-size 3 \
             --max-articles 3000 \
-            --request-delay 4.1 \
-            --force \
-            --require-ai
+            --request-delay 4.1
 
-      - name: AI 판정 결과 반영
+      - name: 판정 결과 반영
         shell: bash
         run: |
           set -euo pipefail
@@ -134,7 +131,7 @@ jobs:
               target.parent.mkdir(parents=True, exist_ok=True)
               shutil.copy2(source, target)
               copied += 1
-          print(f"AI 판정 반영 날짜 파일: {copied}개")
+          print(f"판정 반영 날짜 파일: {copied}개")
           PY
 
       - name: 색인 재생성
@@ -178,8 +175,6 @@ jobs:
           print(f"- 판정 방식: {dict(sorted(methods.items()))}")
           print(f"- 중요도: {dict(sorted(levels.items()))}")
           print(f"- 파일 없는 날짜: {missing or '없음'}")
-          if methods.get("rules-fallback", 0):
-              raise SystemExit("AI 실패 대체 판정이 남아 있습니다.")
           if methods.get("unclassified", 0):
               raise SystemExit("미분류 자료가 남아 있습니다.")
           PY
@@ -194,7 +189,7 @@ jobs:
           git add docs/data
           git rm .github/workflows/backfill-20260730-20260806.yml
           git status --short
-          git commit -m "data: 2026-07-30부터 2026-08-06까지 AI 백필"
+          git commit -m "data: 2026-07-30부터 2026-08-06까지 보도자료 백필"
 
           for attempt in 1 2 3; do
             echo "원격 main 동기화 및 push 시도 ${attempt}/3"

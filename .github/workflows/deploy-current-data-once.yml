@@ -1,0 +1,83 @@
+name: 일회성 백필 데이터 배포
+
+run-name: 2026-07-30~2026-08-06 백필 데이터 Pages 배포
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/deploy-current-data-once.yml"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: 현재 데이터 확인
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path("docs/data/manifest.json").read_text(encoding="utf-8"))
+          print(json.dumps(manifest, ensure_ascii=False, indent=2))
+          assert manifest.get("article_count") == 2823
+          assert manifest.get("unclassified_count") == 0
+          PY
+
+      - name: GitHub Pages 설정
+        uses: actions/configure-pages@v6
+
+      - name: Pages 배포 파일 업로드
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: GitHub Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v5
+
+  cleanup:
+    needs: deploy
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: 일회성 워크플로 제거
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+          git rm .github/workflows/deploy-current-data-once.yml
+          git commit -m "chore: remove completed one-time Pages deployment"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main

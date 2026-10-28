@@ -5,6 +5,7 @@ import json
 import os
 import sys
 import time
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -16,28 +17,33 @@ from collector.classify_relevance import (
     PendingArticle,
     VALID_LEVELS,
     article_excerpt,
+    article_source_hash,
     build_system_prompt,
     chunks,
-    collect_pending,
+    classification_is_current,
     finalize_record,
+    iter_article_files,
     load_policy,
     parse_model_content,
     response_schema,
+    rule_classify,
     save_records,
 )
+from collector.common import read_json
 
-DEFAULT_ENDPOINT = "https://api.openai.com/v1/chat/completions"
-DEFAULT_MODEL = "gpt-4.1-mini"
+DEFAULT_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+DEFAULT_MODEL = "gemini-3.1-flash-lite"
+LEGACY_CACHE_MODEL = "openai/gpt-4.1-mini"
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="저장된 보도자료를 2026-07-29 기준으로 OpenAI API를 이용해 분류합니다."
+        description="저장된 보도자료를 2026-07-29 기준으로 Gemini API를 이용해 분류합니다."
     )
     parser.add_argument("--data-dir", default="docs/data")
     parser.add_argument("--policy", default=str(DEFAULT_POLICY_PATH))
-    parser.add_argument("--endpoint", default=os.getenv("OPENAI_API_ENDPOINT", DEFAULT_ENDPOINT))
-    parser.add_argument("--model", default=os.getenv("OPENAI_MODEL", DEFAULT_MODEL))
+    parser.add_argument("--endpoint", default=os.getenv("GEMINI_API_ENDPOINT", DEFAULT_ENDPOINT))
+    parser.add_argument("--model", default=os.getenv("GEMINI_MODEL", DEFAULT_MODEL))
     parser.add_argument("--batch-size", type=int, default=3)
     parser.add_argument("--max-articles", type=int, default=300)
     parser.add_argument("--request-delay", type=float, default=4.1)
@@ -46,12 +52,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--require-ai",
         action="store_true",
-        help="OPENAI_API_KEY가 없거나 모델 호출에 실패하면 종료코드 1을 반환합니다.",
+        help="GEMINI_API_KEY가 없거나 모델 호출에 실패하면 종료코드 1을 반환합니다.",
     )
     return parser.parse_args()
 
 
-def call_openai(
+def call_gemini(
     batch: list[PendingArticle],
     *,
     policy: dict[str, Any],
@@ -104,12 +110,12 @@ def call_openai(
                 response.status_code in {400, 422}
                 and body.get("response_format", {}).get("type") == "json_schema"
             ):
-                # 일부 모델에서 JSON Schema를 지원하지 않을 때 JSON object 모드로 재시도한다.
+                # 계정·모델 조합에서 JSON Schema가 허용되지 않으면 JSON object 모드로 재시도한다.
                 body["response_format"] = {"type": "json_object"}
                 continue
             if response.status_code >= 400:
                 preview = " ".join(response.text.split())[:500]
-                raise RuntimeError(f"OpenAI API HTTP {response.status_code}: {preview}")
+                raise RuntimeError(f"Gemini API HTTP {response.status_code}: {preview}")
 
             parsed = parse_model_content(response.json())
             results = parsed.get("results")
@@ -130,10 +136,10 @@ def call_openai(
             if attempt < 2:
                 time.sleep(3 * (attempt + 1))
 
-    raise RuntimeError(str(last_error or "OpenAI API 요청 실패"))
+    raise RuntimeError(str(last_error or "Gemini API 요청 실패"))
 
 
-def finalize_openai_record(
+def finalize_gemini_record(
     base: dict[str, Any],
     *,
     source_hash: str,
@@ -141,36 +147,101 @@ def finalize_openai_record(
     model: str,
     method: str,
 ) -> dict[str, Any]:
+    provider_model = f"google/{model}"
     record = finalize_record(
         base,
         source_hash=source_hash,
         policy=policy,
-        model=f"openai/{model}",
+        model=provider_model,
         method=method,
     )
-    if method == "openai-api":
-        record["model"] = f"openai/{model}"
+    if method == "gemini-api":
+        record["model"] = provider_model
     return record
+
+
+def gemini_classification_is_current(
+    article: dict[str, Any],
+    policy: dict[str, Any],
+    model: str,
+    token_available: bool,
+) -> bool:
+    """기존 정상 판정을 보존하면서 Gemini 판정의 모델 변경은 감지합니다."""
+
+    current = article.get("ip_relevance")
+    if not isinstance(current, dict):
+        return False
+    method = str(current.get("method") or "")
+
+    # 2026-07-29까지의 정상 GitHub Models 판정은 공급자 교체와 무관하게 보존한다.
+    compatibility_model = LEGACY_CACHE_MODEL if method == "github-models" else model
+    if not classification_is_current(article, policy, compatibility_model, token_available):
+        return False
+
+    # Gemini로 생성한 결과는 현재 설정 모델과 같을 때만 재사용한다.
+    if method == "gemini-api":
+        return current.get("model") == model
+    return True
+
+
+def collect_pending_gemini(
+    data_dir: Path,
+    policy: dict[str, Any],
+    model: str,
+    token_available: bool,
+    force: bool,
+    max_articles: int,
+) -> tuple[list[PendingArticle], Counter[str]]:
+    pending: list[PendingArticle] = []
+    stats: Counter[str] = Counter()
+    for path in iter_article_files(data_dir):
+        payload = read_json(path, {})
+        articles = payload.get("articles")
+        if not isinstance(articles, list):
+            continue
+        for article in articles:
+            if not isinstance(article, dict):
+                continue
+            stats["scanned"] += 1
+            if not force and gemini_classification_is_current(
+                article, policy, model, token_available
+            ):
+                stats["cached"] += 1
+                continue
+            rule_result, needs_model = rule_classify(article, policy)
+            pending.append(
+                PendingArticle(
+                    path=path,
+                    article=article,
+                    source_hash=article_source_hash(article),
+                    rule_result=rule_result,
+                    needs_model=needs_model,
+                )
+            )
+            if len(pending) >= max_articles:
+                stats["limited"] += 1
+                return pending, stats
+    return pending, stats
 
 
 def main() -> int:
     args = parse_args()
     data_dir = Path(args.data_dir)
     policy = load_policy(Path(args.policy))
-    token = os.getenv("OPENAI_API_KEY", "").strip()
+    token = os.getenv("GEMINI_API_KEY", "").strip()
     token_available = bool(token) and not args.rules_only
-    cache_model = f"openai/{args.model}"
+    provider_model = f"google/{args.model}"
 
     print(f"지식재산처 연관도 분석 기준: {policy['prompt_version']}", flush=True)
-    print(f"AI 모델: {cache_model}", flush=True)
+    print(f"AI 모델: {provider_model}", flush=True)
     print(
         "분석 방식: "
-        + ("OpenAI API + 2026-07-29 규칙 사전판정" if token_available else "규칙 기반 대체"),
+        + ("Gemini API + 2026-07-29 규칙 사전판정" if token_available else "규칙 기반 대체"),
         flush=True,
     )
     if not token_available and not args.rules_only:
         print(
-            "::warning title=AI 키 미등록::OPENAI_API_KEY가 없어 모델 검토 대상은 "
+            "::warning title=AI 키 미등록::GEMINI_API_KEY가 없어 모델 검토 대상은 "
             "rules-fallback으로 저장됩니다.",
             file=sys.stderr,
             flush=True,
@@ -178,10 +249,10 @@ def main() -> int:
         if args.require_ai:
             return 1
 
-    pending, scan_stats = collect_pending(
+    pending, scan_stats = collect_pending_gemini(
         data_dir,
         policy,
-        cache_model,
+        provider_model,
         token_available,
         args.force,
         max(1, args.max_articles),
@@ -207,7 +278,7 @@ def main() -> int:
             records.append(
                 (
                     item,
-                    finalize_openai_record(
+                    finalize_gemini_record(
                         item.rule_result,
                         source_hash=item.source_hash,
                         policy=policy,
@@ -228,7 +299,7 @@ def main() -> int:
                 flush=True,
             )
             try:
-                model_results = call_openai(
+                model_results = call_gemini(
                     batch,
                     policy=policy,
                     endpoint=args.endpoint,
@@ -254,11 +325,11 @@ def main() -> int:
                     ai_failed = True
                 else:
                     base_record = model_record
-                    method = "openai-api"
+                    method = "gemini-api"
                 records.append(
                     (
                         item,
-                        finalize_openai_record(
+                        finalize_gemini_record(
                             base_record,
                             source_hash=item.source_hash,
                             policy=policy,
@@ -278,7 +349,7 @@ def main() -> int:
     fallback_count = sum(
         1 for _, record in records if record.get("method") == "rules-fallback"
     )
-    ai_count = sum(1 for _, record in records if record.get("method") == "openai-api")
+    ai_count = sum(1 for _, record in records if record.get("method") == "gemini-api")
     rule_count = len(records) - ai_count - fallback_count
     print(
         "연관도 분석 완료: "

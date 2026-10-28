@@ -212,34 +212,34 @@ jobs:
         if: success() && github.event_name != 'push'
         shell: bash
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          if [[ -z "$OPENAI_API_KEY" ]]; then
-            echo "::warning title=AI 키 미등록::Repository secret OPENAI_API_KEY가 없습니다. 모델 검토 대상은 rules-fallback으로 저장됩니다."
+          if [[ -z "$GEMINI_API_KEY" ]]; then
+            echo "::warning title=AI 키 미등록::Repository secret GEMINI_API_KEY가 없습니다. 모델 검토 대상은 rules-fallback으로 저장됩니다."
           else
-            echo "OPENAI_API_KEY가 등록되어 있습니다."
+            echo "GEMINI_API_KEY가 등록되어 있습니다."
           fi
 
       - name: 지식재산처 AI 연관도 분석
         if: success() && github.event_name != 'push'
         timeout-minutes: 20
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4.1-mini' }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
           FORCE_AI_RECLASSIFY: ${{ inputs.force_ai_reclassify || false }}
           REQUIRE_AI: ${{ inputs.require_ai || false }}
           PYTHONUNBUFFERED: "1"
         shell: bash
         run: |
           set -euo pipefail
-          args=(--model "$OPENAI_MODEL" --batch-size 3 --max-articles 300 --request-delay 4.1)
+          args=(--model "$GEMINI_MODEL" --batch-size 3 --max-articles 300 --request-delay 4.1)
           if [[ "$FORCE_AI_RECLASSIFY" == "true" ]]; then
             args+=(--force)
           fi
           if [[ "$REQUIRE_AI" == "true" ]]; then
             args+=(--require-ai)
           fi
-          python -u -m collector.classify_relevance_openai "${args[@]}"
+          python -u -m collector.classify_relevance_gemini "${args[@]}"
 
       - name: 색인 재생성
         if: success()

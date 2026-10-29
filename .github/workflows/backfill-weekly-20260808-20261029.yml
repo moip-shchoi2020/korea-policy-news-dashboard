@@ -1,0 +1,318 @@
+name: 2026-08-08~2026-10-29 주간 순차 재처리
+
+run-name: 8월 8일~10월 29일 일주일 단위 순차 수집·Gemini 판정
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/backfill-weekly-20260808-20261029.yml"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONUNBUFFERED: "1"
+
+concurrency:
+  group: weekly-backfill-20260808-20261029
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
+      GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
+      GEMINI_MAX_ATTEMPTS: "5"
+      CONNECT_TIMEOUT_SECONDS: "15"
+      READ_TIMEOUT_SECONDS: "30"
+      HTTP_RETRY_TOTAL: "2"
+      HTTP_BACKOFF_FACTOR: "1.5"
+      KOREA_MOBILE_FALLBACK: "true"
+    steps:
+      - name: 저장소 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: 패키지 설치
+        run: pip install -r requirements.txt
+
+      - name: 사전 검증
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$GEMINI_API_KEY" ]]; then
+            echo "::error::GEMINI_KEY 또는 GEMINI_API_KEY가 없습니다."
+            exit 1
+          fi
+          python -m unittest discover -s tests -v
+          python -m py_compile collector/*.py
+          node --check docs/assets/app.js
+
+      - name: 주간 구간 순차 처리
+        timeout-minutes: 345
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+
+          ranges=(
+            "2026-08-08 2026-08-14"
+            "2026-08-15 2026-08-21"
+            "2026-08-22 2026-08-28"
+            "2026-08-29 2026-09-04"
+            "2026-09-05 2026-09-11"
+            "2026-09-12 2026-09-18"
+            "2026-09-19 2026-09-25"
+            "2026-09-26 2026-10-02"
+            "2026-10-03 2026-10-09"
+            "2026-10-10 2026-10-16"
+            "2026-10-17 2026-10-23"
+            "2026-10-24 2026-10-29"
+          )
+
+          process_range() {
+            local start_date="$1"
+            local end_date="$2"
+            local range_label="${start_date}~${end_date}"
+
+            echo "::group::${range_label} 보도자료 재수집"
+            python -u -m collector.collect \
+              --start-date "$start_date" \
+              --end-date "$end_date" \
+              --continue-on-error \
+              --detail-workers 3 \
+              --max-pages-per-day 10
+            echo "::endgroup::"
+
+            rm -rf /tmp/week-data /tmp/retry-data
+            START_DATE="$start_date" END_DATE="$end_date" python - <<'PY'
+          from datetime import date, timedelta
+          from pathlib import Path
+          import json
+          import os
+          import shutil
+
+          start = date.fromisoformat(os.environ['START_DATE'])
+          end = date.fromisoformat(os.environ['END_DATE'])
+          current = start
+          total = 0
+          missing = []
+          while current <= end:
+              rel = Path(f"{current:%Y/%m/%d}")
+              source = Path('docs/data') / rel / 'articles.json'
+              target = Path('/tmp/week-data') / rel / 'articles.json'
+              if not source.exists():
+                  missing.append(current.isoformat())
+              else:
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  shutil.copy2(source, target)
+                  payload = json.loads(source.read_text(encoding='utf-8'))
+                  total += len(payload.get('articles', []))
+              current += timedelta(days=1)
+          if missing:
+              raise SystemExit('날짜별 데이터 파일 누락: ' + ', '.join(missing))
+          print(f'주간 분류 작업본 생성: {total}건')
+          PY
+
+            echo "::group::${range_label} Gemini 재판정"
+            python -u -m collector.classify_relevance_gemini \
+              --data-dir /tmp/week-data \
+              --model "$GEMINI_MODEL" \
+              --batch-size 5 \
+              --max-articles 5000 \
+              --request-delay 6.5 \
+              --force
+            echo "::endgroup::"
+
+            for round in 1 2 3; do
+              rm -rf /tmp/retry-data
+              fallback_count=$(python - <<'PY'
+          from pathlib import Path
+          import json
+
+          source_root = Path('/tmp/week-data')
+          retry_root = Path('/tmp/retry-data')
+          count = 0
+          for path in source_root.glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              fallback = []
+              for article in payload.get('articles', []):
+                  if article.get('ip_relevance', {}).get('method') == 'rules-fallback':
+                      copied = dict(article)
+                      copied.pop('ip_relevance', None)
+                      fallback.append(copied)
+              if fallback:
+                  target = retry_root / path.relative_to(source_root)
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  target.write_text(json.dumps({
+                      'schema_version': 2,
+                      'date': payload.get('date'),
+                      'articles': fallback,
+                  }, ensure_ascii=False, indent=2), encoding='utf-8')
+                  count += len(fallback)
+          print(count)
+          PY
+              )
+
+              echo "${range_label} Gemini 추가 재시도 ${round}/3: ${fallback_count}건"
+              if [[ "$fallback_count" == "0" ]]; then
+                break
+              fi
+
+              sleep $((round * 20))
+              python -u -m collector.classify_relevance_gemini \
+                --data-dir /tmp/retry-data \
+                --model "$GEMINI_MODEL" \
+                --batch-size 3 \
+                --max-articles 5000 \
+                --request-delay 8 \
+                --force
+
+              python - <<'PY'
+          from pathlib import Path
+          import json
+
+          target_root = Path('/tmp/week-data')
+          retry_root = Path('/tmp/retry-data')
+          for retry_path in retry_root.glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              target_path = target_root / retry_path.relative_to(retry_root)
+              target_payload = json.loads(target_path.read_text(encoding='utf-8'))
+              retry_payload = json.loads(retry_path.read_text(encoding='utf-8'))
+              results = {
+                  str(article.get('id')): article.get('ip_relevance')
+                  for article in retry_payload.get('articles', [])
+              }
+              for article in target_payload.get('articles', []):
+                  result = results.get(str(article.get('id')))
+                  if isinstance(result, dict):
+                      article['ip_relevance'] = result
+              target_path.write_text(
+                  json.dumps(target_payload, ensure_ascii=False, indent=2),
+                  encoding='utf-8',
+              )
+          PY
+            done
+
+            python - <<'PY'
+          from pathlib import Path
+          import shutil
+
+          source_root = Path('/tmp/week-data')
+          target_root = Path('docs/data')
+          copied = 0
+          for source in source_root.glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              target = target_root / source.relative_to(source_root)
+              target.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copy2(source, target)
+              copied += 1
+          print(f'운영 데이터 반영 파일: {copied}개')
+          PY
+
+            python -m collector.build_indexes
+
+            START_DATE="$start_date" END_DATE="$end_date" python - <<'PY' | tee /tmp/week-summary.txt
+          from collections import Counter
+          from datetime import date, timedelta
+          from pathlib import Path
+          import json
+          import os
+
+          start = date.fromisoformat(os.environ['START_DATE'])
+          end = date.fromisoformat(os.environ['END_DATE'])
+          current = start
+          methods = Counter()
+          levels = Counter()
+          total = 0
+          print(f'{start.isoformat()}~{end.isoformat()}')
+          while current <= end:
+              path = Path(f'docs/data/{current:%Y/%m/%d}/articles.json')
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              articles = payload.get('articles', [])
+              print(f'  {current.isoformat()}: {len(articles)}건')
+              total += len(articles)
+              for article in articles:
+                  result = article.get('ip_relevance', {})
+                  methods[result.get('method', 'unclassified')] += 1
+                  levels[result.get('level', 'unclassified')] += 1
+              current += timedelta(days=1)
+          print(f'합계: {total}건')
+          print('판정 방식:', dict(sorted(methods.items())))
+          print('중요도:', dict(sorted(levels.items())))
+          print('rules-fallback 잔여:', methods['rules-fallback'])
+          PY
+
+            {
+              echo "### ${range_label} 처리 결과"
+              echo '```text'
+              cat /tmp/week-summary.txt
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+
+            git add docs/data
+            if git diff --cached --quiet; then
+              echo "${range_label}: 저장할 변경사항이 없습니다."
+              return 0
+            fi
+
+            git commit -m "data: ${range_label} 주간 재수집 및 Gemini 재판정"
+            for attempt in 1 2 3; do
+              git fetch origin main
+              if ! git rebase origin/main; then
+                git rebase --abort || true
+                return 1
+              fi
+              if git push origin HEAD:main; then
+                echo "${range_label}: main 반영 완료"
+                return 0
+              fi
+              sleep $((attempt * 5))
+            done
+            return 1
+          }
+
+          for range in "${ranges[@]}"; do
+            read -r start_date end_date <<< "$range"
+            process_range "$start_date" "$end_date"
+          done
+
+      - name: 최종 전체 색인 검증
+        run: |
+          python -m collector.build_indexes
+          node --check docs/assets/app.js
+          git status --short docs/data
+
+      - name: Pages 배포 파일 업로드
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs
+
+  deploy:
+    needs: backfill
+    if: success()
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: GitHub Pages 설정
+        uses: actions/configure-pages@v6
+
+      - name: GitHub Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v5

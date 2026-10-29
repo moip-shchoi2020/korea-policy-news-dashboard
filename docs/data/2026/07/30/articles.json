@@ -38,7 +38,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "318081e36795ba398b5168592157c244a5b87df802eeb6ad7b6b463968166b61"
       }
     },
@@ -76,7 +76,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "8292b9a1431faf9e821f88bc18a813f2fae885d6db6fbf49d73fb55cd1677310"
       }
     },
@@ -114,7 +114,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "ebc9879b69c9177f6ce5e8b37239788d64edda74c1904e7ae8ef41661a1a66fa"
       }
     },
@@ -152,7 +152,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "27c40b7cb25ec1eae68970eb2ca62c9773a25e3172581eb91f3d042c79d4b220"
       }
     },
@@ -189,7 +189,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "c9aedac49ee99b7db347b4df678abc1adf4384f3bebf283867c6fbd02ff5d4eb"
       }
     },
@@ -226,7 +226,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "cdcc0d480b486637580cb13d43de1215c4980f56522be82e12c6af332b190f96"
       }
     },
@@ -261,7 +261,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "784ad6035ee8d5089378876cfcf2f7ebf5d5680813bdf60d4e75feaa6b041726"
       }
     },
@@ -286,22 +286,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.78,
-        "reason": "개별 기관의 AI·정보화 사업으로 직접 영향은 낮지만 사례 참고 가치가 있습니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.95,
+        "reason": "소방청의 특정 재난 대응 기술 실증 사례로, 지식재산처의 업무나 정보화 정책에 직접적인 영향이 없음.",
         "signals": [
-          "데이터",
-          "고도화",
-          "적용",
-          "실증"
+          "소방기술",
+          "드론",
+          "현장실증"
         ],
-        "recommended_action": "참고",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "제외",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:08+09:00",
         "source_hash": "d7a92bf595c5411900fc3a6e9ad1b9a210eb610ea94df83dd3d47d222219be3e"
       }
     },
@@ -340,7 +339,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "dd2df5ba2b673eba4a7748d9bbce3edf91aae1bb05a6ef063ae47916b8ae6d1b"
       }
     },
@@ -375,7 +374,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "a7d6c59874be915c2fd676a11b1eaa036cfa4d7a7b9072aebab0d809bf8a1f8b"
       }
     },
@@ -400,19 +399,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.78,
-        "reason": "개별 기관의 AI·정보화 사업으로 직접 영향은 낮지만 사례 참고 가치가 있습니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.95,
+        "reason": "청소년 대상 진로 상담 및 소통 행사로, 지식재산처의 정책이나 시스템에 미치는 실질적 영향이 없음.",
         "signals": [
+          "청소년",
+          "진로상담",
           "인공지능"
         ],
-        "recommended_action": "참고",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "제외",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:08+09:00",
         "source_hash": "32c01cb0860a24aa82fc2513d91b0d46913d086acb66cb7d736faa305a985005"
       }
     },
@@ -450,7 +451,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "de801118b55447582f48124d541d2e3d7d418ebd6f5b2eba89c18ce160a0cf06"
       }
     },
@@ -489,7 +490,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "43c0248dc9004bf6883c6fb75d47cc24f54a18ca722000a7108eedc112462394"
       }
     },
@@ -526,7 +527,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "c2bba8ca5897dea0a8f75bfcf60c6e5dea1f6da00cb6b5183b2ece711813b76a"
       }
     },
@@ -564,7 +565,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "edd03789b46a7c7c319f6a0862663b928d82588b2c19e6fbe637d3afba910df9"
       }
     },
@@ -602,7 +603,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "c68f9dba88bec2b717ec4bcbf675c1b99949eb18d90f66b3f84c9e08ae12ae39"
       }
     },
@@ -640,7 +641,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "9ec304be77df8cb19da5dab57d653e78c7a57683ac168dbc20c8d5a130f100e9"
       }
     },
@@ -677,7 +678,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "43b9fddb9a93611e095ae49956f82d340826a0a2426d379b7f230f49c32eab0f"
       }
     },
@@ -716,7 +717,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "2f9a7a92b39600400ec58f94c39a105626d1e0dc33ea0a0954143bf53980b616"
       }
     },
@@ -753,7 +754,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "3c9b0d5bd01d243137bcb6490a1f50bfd59a54ea276041ff0461cf6631cf60ad"
       }
     },
@@ -793,7 +794,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "0f3743999c0dc60d5c9de89e40b2acbe0323f2752ac824ca044420f210ab3018"
       }
     },
@@ -828,7 +829,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "94cb1229ba9ec52f297d5b6821121b045b2cbf531389cd53f50fe0cfeb1c6757"
       }
     },
@@ -863,7 +864,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "f63cdc2709fa7d813bcfc535ef965a42b88aeb751dc07130d9deb23100a9d2a3"
       }
     },
@@ -898,7 +899,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "9558333700ec7510b6ac0dad7db2ad3317da6796649dc2b830e50f48fbbb9ccc"
       }
     },
@@ -923,22 +924,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.78,
-        "reason": "전 부처 정책을 담당하는 기관의 AI·정보화 조치로 확산 가능성을 확인할 필요가 있습니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.9,
+        "reason": "국가 간 AI 정책 경험 교류 및 면담 행사로, 구체적인 제도 변화나 지식재산처 업무 적용 사항이 없음.",
         "signals": [
-          "인공지능",
-          "구축",
-          "개발",
-          "면담"
+          "국제협력",
+          "AI생태계",
+          "정책교류"
         ],
-        "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "제외",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:08+09:00",
         "source_hash": "6a8e0d73fb03307a0302b11382f40cf849931f5aa2cae56b70e57474f1b3cf24"
       }
     },
@@ -975,7 +975,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "49ffaec14250d4bda63f7ca0587fbe68c282c3f50f3d3a89a79e7ca88ff8b52a"
       }
     },
@@ -1014,7 +1014,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "0bc4fd71adfaab512c29cfae6ad09d187036620a9fa42e9a51ff9761c4db434d"
       }
     },
@@ -1052,7 +1052,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "8e1469f55493c87a2fb9406f5fa11fd59ea41b6bd4a618e189c006ab6290ba6e"
       }
     },
@@ -1090,7 +1090,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "b0500978667596e83da3bd6fc477a890047a9d3bc6ca6a0d604a311c82b74885"
       }
     },
@@ -1128,7 +1128,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "68acdd205236bb50ebd7f5667b3e4eccbda03207b5af01f24aa120d2176a3124"
       }
     },
@@ -1169,7 +1169,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "00cdf6c480ffc33ae700d679b239e9f21d907ae861fdf2f6a6bd63d1b8537e82"
       }
     },
@@ -1204,7 +1204,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "dbd97b5f63857c7c3f566211b5e56368ec4521a80a68653a41cb0e1f4d03b541"
       }
     },
@@ -1241,7 +1241,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "33e3a0b779233b57719dc5d5f8703851e2725a011fc049951f7b8ca4a941df26"
       }
     },
@@ -1279,7 +1279,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "08a2f5ba32769b50766d86de3113e62bd08499be4282dfe9501c242e2987219b"
       }
     },
@@ -1320,7 +1320,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "13a830d3e51a610dd45b427b65095ecea711f16cef7cc22d137c4a54da33c61d"
       }
     },
@@ -1348,20 +1348,18 @@
         "level": "important",
         "label": "중요",
         "score": 3,
-        "confidence": 0.78,
-        "reason": "전 부처 정책을 담당하는 기관의 AI·정보화 조치로 확산 가능성을 확인할 필요가 있습니다.",
+        "confidence": 0.85,
+        "reason": "범정부 차원의 에이전틱 AI 연구개발 사업으로, 향후 지식재산 행정 분야의 AI 도입 및 기술 확산 시 참고할 가치가 높음.",
         "signals": [
-          "AI",
-          "인공지능",
-          "확산",
-          "개발",
-          "사업"
+          "에이전틱AI",
+          "연구개발",
+          "산업확산"
         ],
         "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:08+09:00",
         "source_hash": "b55456d7f10ad9c0f644f72136a02556f7768413f7c7f2d9e5f7a33e5cd0f8a0"
       }
     },
@@ -1400,7 +1398,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "0a09a5a8b99bccdf2d9a57d83155cb323323860d4d252ee967a71d3e564fb243"
       }
     },
@@ -1439,7 +1437,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "121d36cabc4a134eadd0cc81782e95fd83200b4207c6e7ad480ed2fdb0814b91"
       }
     },
@@ -1474,7 +1472,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "7c23cd586b7a5e57167a54ff94766854ecd96ab00ad9ed21b7414a2f1ea65bd1"
       }
     },
@@ -1513,7 +1511,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "711b02b4593fb9508242ddc5d5670b6a06df2e38e1eae9e6315a90d4395dbbda"
       }
     },
@@ -1551,7 +1549,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "867bc04be43c6534d71f942cf32fac7acdca497ae09d0c8e0a7e9648b04b96be"
       }
     },
@@ -1592,7 +1590,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "9ea70f611fdaf99fd6edaeeebc8a0fd9aedc11acda767f908e8c86756659eafa"
       }
     },
@@ -1629,7 +1627,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "d1e3fdac05419e8f103cfa7b02bdd62f463853eaced7b0e5f8f496e7d2fb69d2"
       }
     },
@@ -1668,7 +1666,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "6151593eb954db86347dbd616e44f6c487dbcc0bcf02e5f073e8a493205947d3"
       }
     },
@@ -1705,7 +1703,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "bb6d6ebfd021b46041721eb777584c7cc2110b9bdab4cf9de22648e8e822659b"
       }
     },
@@ -1742,7 +1740,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "5f7d9a7fdf1f1bb5d5a514aa7e7342a50647e97e5e27b2ddf593c5cdda8fba22"
       }
     },
@@ -1767,21 +1765,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.84,
-        "reason": "지식재산·특허 업무와 직접 관련된 사안으로 후속 영향 검토가 필요합니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.95,
+        "reason": "특정 산업 분야의 입찰 담합 사건에 대한 공정위 심의 절차로, 지식재산처의 법령이나 정보화 사업과 무관함.",
         "signals": [
-          "심사",
-          "사업",
-          "입찰"
+          "입찰담합",
+          "공정거래",
+          "심의절차"
         ],
-        "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "제외",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:08+09:00",
         "source_hash": "bffd4dfe070ad20441c55cd3e4b923a065dfecafe9e32fbbc49efb515ad6aacf"
       }
     },
@@ -1819,7 +1817,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "818031c82c8c531c43659d31c72f2ca6e0929df8f1ce140d23fc0f82239f2e0f"
       }
     },
@@ -1844,21 +1842,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "critical",
-        "label": "매우 중요",
-        "score": 4,
-        "confidence": 0.92,
-        "reason": "지식재산 업무와 AI·정보화·규정 변화가 직접 연결되어 즉각적인 영향 가능성이 있습니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.95,
+        "reason": "퇴직공직자 취업심사 결과 공개는 공직윤리 관련 행정 절차로, 지식재산처의 정보화 정책이나 AI 사업과는 직접적인 관련이 없습니다.",
         "signals": [
-          "심사",
-          "시스템",
-          "법령"
+          "퇴직공직자",
+          "취업심사",
+          "공직윤리시스템"
         ],
-        "recommended_action": "즉시 검토",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "제외",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:48+09:00",
         "source_hash": "0aaa87b966294fd00fd8d19a56a7222b191bc36c41d9d19eb258b0c7e6b6da81"
       }
     },
@@ -1897,7 +1895,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "bbae262297ec190587618cc6d282ed1eebf835942bf93e57b5c920bfb5aadd35"
       }
     },
@@ -1922,23 +1920,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "critical",
-        "label": "매우 중요",
-        "score": 4,
-        "confidence": 0.92,
-        "reason": "지식재산 업무와 AI·정보화·규정 변화가 직접 연결되어 즉각적인 영향 가능성이 있습니다.",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.9,
+        "reason": "재난안전데이터 활용 창업경진대회는 특정 분야의 데이터 활용 사례로, 지식재산처의 업무에 직접적인 영향은 없으나 데이터 활용 정책 참고 사례로 적합합니다.",
         "signals": [
-          "심사",
-          "데이터",
-          "개발",
-          "연계",
-          "사업"
+          "재난안전데이터",
+          "창업경진대회",
+          "데이터 활용"
         ],
-        "recommended_action": "즉시 검토",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "참고",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:48+09:00",
         "source_hash": "f80392d026944c78b6848b593e9deb640dd382ee41e9a8ad627b3b208dcf5c31"
       }
     },
@@ -1967,17 +1963,17 @@
         "label": "관계없음",
         "score": 1,
         "confidence": 0.95,
-        "reason": "인구감소지역 생활인구 통계 발표로 지식재산처의 법령, 정보시스템, AI 사업과 무관함.",
+        "reason": "생활인구 산정 결과 발표는 인구 통계 및 지역 활력 정책에 관한 내용으로, 지식재산처의 정보화 및 AI 사업과 무관합니다.",
         "signals": [
           "생활인구",
-          "통계",
-          "인구감소지역"
+          "인구감소지역",
+          "통계 발표"
         ],
         "recommended_action": "제외",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:20:53+09:00",
+        "classified_at": "2026-10-29T21:17:48+09:00",
         "source_hash": "df265773a0825003695321c6ef1e23a13d1d517a780247328faf945a477f9884"
       }
     },
@@ -2006,18 +2002,18 @@
         "label": "중요",
         "score": 3,
         "confidence": 0.85,
-        "reason": "국가정보자원관리원의 AI 정부 인프라 혁신 ISP 사업은 향후 범정부 정보화 표준 및 인프라 구축 방향에 영향을 줄 수 있음.",
+        "reason": "국가정보자원관리원의 혁신 ISP 수립은 범정부 AI 인프라 및 정보화 전략과 연계되어 있어, 향후 지식재산처의 정보시스템 구축 및 클라우드 전환 정책에 영향을 줄 수 있습니다.",
         "signals": [
           "국가정보자원관리원",
           "ISP",
-          "AI정부",
-          "인프라"
+          "AI정부 인프라",
+          "정보화전략계획"
         ],
         "recommended_action": "동향 추적",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:20:53+09:00",
+        "classified_at": "2026-10-29T21:17:48+09:00",
         "source_hash": "df476de0cf95ed7bf62549bc7285ce1297ad6c9e2fd06839f8772a3e750038ba"
       }
     },
@@ -2052,7 +2048,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "c7e4bfabb4478f2b6a91b5adb6c8fea6255cfa59e2f323b302c543cb421b1a83"
       }
     },
@@ -2081,16 +2077,17 @@
         "label": "관계없음",
         "score": 1,
         "confidence": 0.95,
-        "reason": "생활인구 산정 결과 발표로 지식재산처의 업무와 직접적인 관련이 없음.",
+        "reason": "생활인구 산정 결과에 대한 단순 통계 발표로, 지식재산처의 법령, 업무, 정보시스템 등에 미치는 영향이 없습니다.",
         "signals": [
           "생활인구",
-          "통계"
+          "통계 산정",
+          "데이터 분석"
         ],
         "recommended_action": "제외",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:20:53+09:00",
+        "classified_at": "2026-10-29T21:17:48+09:00",
         "source_hash": "d78b054822c6d2bda2f732b7dcf449657eeebcdeb0423634420b2b2e48670093"
       }
     },
@@ -2118,17 +2115,18 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.95,
-        "reason": "농산물 생산량 조사 결과 발표로 지식재산처의 정보화 및 AI 정책과 무관함.",
+        "confidence": 1.0,
+        "reason": "농산물 생산량 통계 자료로 지식재산처의 업무, 정보시스템, AI 정책 등과 관련성이 없습니다.",
         "signals": [
-          "생산량조사",
-          "통계"
+          "농산물 생산량",
+          "통계 자료",
+          "단순 정보 제공"
         ],
         "recommended_action": "제외",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:20:53+09:00",
+        "classified_at": "2026-10-29T21:17:58+09:00",
         "source_hash": "43e83551f5cae991a1921ae5f919d5b910d17a81e392d4126f21882990628c73"
       }
     },
@@ -2165,7 +2163,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "6c9f6e09e53358166f1da34a0c05e1d6e0faf9dd1f345b5a677b20f1948a2775"
       }
     },
@@ -2206,7 +2204,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "2b4d63cb93009444ee83f3de9c534f716994aefcbe15a3d25119b48ca733c8e7"
       }
     },
@@ -2243,7 +2241,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "639aea1357c00cfff414c8861b13f12e3135a9e37614cc822c69928e8704c129"
       }
     },
@@ -2281,7 +2279,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "c773b813fcd201b0c4b4aff0bfcaf090296cb722be3a51cb87bab5d208633fdb"
       }
     },
@@ -2310,18 +2308,19 @@
         "label": "매우 중요",
         "score": 4,
         "confidence": 0.95,
-        "reason": "사이버 위협 동향 및 침해사고 증가는 지식재산처의 정보시스템 보안 및 데이터 보호 정책에 즉각적인 대응이 필요한 사안임.",
+        "reason": "사이버 위협 동향 및 침해사고 증가는 지식재산처의 정보시스템 보안 및 데이터 보호 정책에 즉각적인 대응이 필요한 사안입니다.",
         "signals": [
           "사이버위협",
           "침해사고",
           "보안위협",
-          "랜섬웨어"
+          "API 탈취",
+          "데이터 보호"
         ],
         "recommended_action": "즉시 검토",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:20:53+09:00",
+        "classified_at": "2026-10-29T21:17:58+09:00",
         "source_hash": "02df1e8b6d8b55c960a4d77162c03a7bfd8c93bbc52679e4a0e75be669a4bff4"
       }
     },
@@ -2360,7 +2359,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "a9d9fa4298cea572e74b00063c13d643a0774d0f24299d1015baa739b3ffbc92"
       }
     },
@@ -2389,18 +2388,18 @@
         "label": "중요",
         "score": 3,
         "confidence": 0.85,
-        "reason": "범부처 신속대응 R&D 체계는 향후 지식재산처가 긴급 현안 대응을 위한 연구개발 사업에 참여하거나 관련 체계를 도입할 가능성이 있음.",
+        "reason": "범부처 신속대응 R&D 체계는 향후 지식재산처가 긴급 현안 대응을 위해 참여하거나 관련 기술을 도입할 가능성이 있는 정책입니다.",
         "signals": [
+          "범부처 연구개발",
           "신속대응",
-          "연구개발",
-          "범부처",
-          "개인정보유출"
+          "긴급현안",
+          "개인정보 유출 대응"
         ],
         "recommended_action": "동향 추적",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:20:53+09:00",
+        "classified_at": "2026-10-29T21:17:58+09:00",
         "source_hash": "cc8b814bdefde4175e5ec7f310db89277b480552c6586fd36e3d5594a1331a43"
       }
     },
@@ -2439,7 +2438,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "67a0a455f7dd736ef127d55d87c4fb566303ca07f25337ab62366975afa18752"
       }
     },
@@ -2476,7 +2475,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "048b3455cb8788d5919ceb06e9edf4b122f7c751252d8b8a3cf7c0ee04286c19"
       }
     },
@@ -2516,7 +2515,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "1167d3fd5ed21239364b362bd79ea2aa07d5a0206c0d1ea7236deda84dea0f8c"
       }
     },
@@ -2553,7 +2552,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "d68c8af75510bb76532eb99b0c7299d8ffffa2cc0f09882801cf6af36a6d4c34"
       }
     },
@@ -2578,21 +2577,22 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.9,
-        "reason": "제약산업 인증제 개편은 특정 산업 분야의 정책으로, 지식재산처의 직접적인 업무나 정보화 사업과는 관련성이 낮음.",
+        "level": "important",
+        "label": "중요",
+        "score": 3,
+        "confidence": 0.8,
+        "reason": "제약산업 R&D 투자 및 인증제 개편은 지식재산권(특허)과 밀접한 관련이 있어 향후 정책 연계 가능성이 있습니다.",
         "signals": [
           "제약산업",
-          "인증제 개편",
-          "R&D 투자"
+          "연구개발 투자",
+          "혁신형 제약기업",
+          "특허 연계"
         ],
-        "recommended_action": "참고",
+        "recommended_action": "동향 추적",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:21:53+09:00",
+        "classified_at": "2026-10-29T21:17:58+09:00",
         "source_hash": "370b782ba0d1492a6ec1d917300894ea2d707c07096131ecf0e3f505035429bd"
       }
     },
@@ -2621,18 +2621,19 @@
         "label": "매우 중요",
         "score": 4,
         "confidence": 0.95,
-        "reason": "개인정보 유출 및 시스템 보안 사고는 전 부처 정보보호 및 데이터 관리 지침에 직접적인 영향을 미치는 사안임.",
+        "reason": "개인정보 유출 사고에 대한 제재 및 안전조치 의무 위반 사례는 지식재산처의 정보시스템 보안 및 개인정보 보호 관리 기준에 직접적인 경각심을 줍니다.",
         "signals": [
           "개인정보 유출",
-          "보안사고",
+          "안전조치 의무",
+          "과징금",
           "시스템 접근통제",
-          "과징금"
+          "보안사고"
         ],
         "recommended_action": "즉시 검토",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:21:53+09:00",
+        "classified_at": "2026-10-29T21:17:58+09:00",
         "source_hash": "7493c961d4d68e5d4b0adc9a967315ffdd543fb7783d673fc0ca3d6aa89aa9dd"
       }
     },
@@ -2667,7 +2668,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "fd885a29e1fb30e7a49fc16c6d2e645a80aeaa6ee154016da616826cf6fbeded"
       }
     },
@@ -2702,7 +2703,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "0b502aa6e3c028c4ac713093485f28c55fd4a5df909a08c741aabfbc4d8849fd"
       }
     },
@@ -2743,7 +2744,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "c7f6a995a3816872e63ac1f83cb894c2e5118ceb1f120d60ab87b1008e4e8f2e"
       }
     },
@@ -2780,7 +2781,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "d11ff9a1498157bf8f5c3d0104062f3d6f71c010bbbda16e4a98489c66b04130"
       }
     },
@@ -2818,7 +2819,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "be40bdc75cf685b135bf4d0d8c6f0e5803be10396a6eeca2a8be5c6009795fa7"
       }
     },
@@ -2853,7 +2854,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "3534735491f59b162aae1b2535a5358dc80a8514a07a610ebefeae25b889d70b"
       }
     },
@@ -2893,7 +2894,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "eaad643d78abad3d2c8eb20180ca5c8abda1a6975022f46ad7d6965babec55af"
       }
     },
@@ -2934,7 +2935,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "2ad9c3d0500c4d64194b672a1d5ba83087a051234913e79604eb82053542b209"
       }
     },
@@ -2975,7 +2976,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "eeb0c0814e4afa71b5e5710efa0a462422a78173af54dd173a877a05febd7bf5"
       }
     },
@@ -3013,7 +3014,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "b6aba5dc01188be35384a4a1271e0bd5ab5e585bc29ad65bc2a3ad220482bd7c"
       }
     },
@@ -3051,7 +3052,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "1096d796699efb4f6eee694b35cbb9a1236a6db1bd8c0baf64d4799657bcc33b"
       }
     },
@@ -3089,7 +3090,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "2ae17294ed7712b1b75db63b753556fed3c8357cf86906af8e77a64c427c60b4"
       }
     },
@@ -3117,18 +3118,18 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.85,
-        "reason": "방위산업 특수분류 제정은 타 부처의 산업 통계 체계 정비 사례로, 지식재산처의 데이터 분류 체계에 참고가 될 수 있음.",
+        "confidence": 0.9,
+        "reason": "방위사업청의 특정 산업 분류 체계 정비 및 실태조사 개선 사업으로, 지식재산처의 업무와 직접적인 연관성이 낮음.",
         "signals": [
-          "데이터 기반",
-          "산업분류",
-          "통계체계"
+          "방위산업 특수분류",
+          "데이터 기반 강화",
+          "산업 실태조사"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:21:53+09:00",
+        "classified_at": "2026-10-29T21:19:40+09:00",
         "source_hash": "b7a274274d7122cedd247938e4eed6c4dbc1c471c0099b74ef730cab82033899"
       }
     },
@@ -3156,18 +3157,18 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.9,
-        "reason": "아동학대 예방을 위한 전문가 간담회 개최 사실을 알리는 내용으로, 지식재산처의 업무와 무관함.",
+        "confidence": 0.95,
+        "reason": "아동학대 예방을 위한 전문가 간담회 개최 사실을 알리는 내용으로, 지식재산처의 정보화나 AI 정책에 미치는 영향이 없음.",
         "signals": [
-          "아동학대",
-          "간담회",
-          "사례 분석"
+          "아동학대 예방",
+          "사례 분석 제도",
+          "전문가 간담회"
         ],
         "recommended_action": "제외",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:21:53+09:00",
+        "classified_at": "2026-10-29T21:19:40+09:00",
         "source_hash": "74b74f6a488dd64cd9a3bfa109269e5ea8cceded889014dfffabff456e273719"
       }
     },
@@ -3207,7 +3208,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "d37555732cf4c2fd5e1010a911c1f4bea238a3539b93f541c733d4f3b406e743"
       }
     },
@@ -3246,7 +3247,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "1fecc3e5732d2629597414252b7522eba7867607b465725c7540cfdb6af59dab"
       }
     },
@@ -3285,7 +3286,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "dc9f3ffb2aeea778a33d8c0f8fcc4a89d7489d9aa8af77775bb1667806de794d"
       }
     },
@@ -3324,7 +3325,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "7484cf542edbf883c70163f5beb5eeb83f716fc7c5fd003bb6a820d94a1d04b6"
       }
     },
@@ -3365,7 +3366,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "a07de053e67344b301e28a0bb70a1bfb621df40c5d02ac2d9d131cca64b3dcf5"
       }
     },
@@ -3403,7 +3404,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "a807f96ad8cb4628ca647c1d936c8c3c1df5dfce9c5a98e3d317fe90b5387370"
       }
     },
@@ -3441,7 +3442,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "4edd33c7b8be5e8e762e7068b254275fc442b5e15121247d7e1331055eb7b168"
       }
     },
@@ -3478,7 +3479,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "c677a33c5110b383d4b0f9ccba123742521c9f8bee8f4c1ba3d724bde61fe76c"
       }
     },
@@ -3513,7 +3514,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "2622ee21a44696f93105895405427128e2389dcafe6841cb3059e2ed3435007a"
       }
     },
@@ -3550,7 +3551,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "2a1c1d6b016a2a869c47273f1eaac1e68f2ea833effa4c6bc0c225be7db759c3"
       }
     },
@@ -3579,17 +3580,17 @@
         "label": "보통",
         "score": 2,
         "confidence": 0.85,
-        "reason": "개인정보 최소 수집 원칙 준수는 공공기관의 일반적인 정보화 행정 지침으로, 지식재산처의 민원 처리 및 데이터 수집 시 참고 가능함.",
+        "reason": "개인정보 최소 수집 원칙 준수를 위한 권익위의 의견표명 사례로, 타 부처의 개인정보보호 준수 사례로서 참고 가치가 있음.",
         "signals": [
           "개인정보보호법",
           "최소 수집 원칙",
-          "양식 개선"
+          "의견표명"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:21:53+09:00",
+        "classified_at": "2026-10-29T21:19:40+09:00",
         "source_hash": "f707c474aa666a9a9942869e8a72fa4495f3b0a4a6cebf72d7b157fcf1b815df"
       }
     },
@@ -3630,7 +3631,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "fe3d4044038c2bb542acb010c708adb3b3b5c4252613a5ab8e3d2ea839c73041"
       }
     },
@@ -3655,21 +3656,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
+        "level": "important",
+        "label": "중요",
+        "score": 3,
         "confidence": 0.8,
-        "reason": "조달청의 대형 정보화 사업 평가 계획은 일반적인 정보화 사업 추진 사례로, 지식재산처의 사업 추진 시 참고 가능함.",
+        "reason": "조달청의 정보화 용역 사업 평가 계획으로, 향후 지식재산처의 정보시스템 고도화 사업 추진 시 조달 절차 및 평가 기준을 참고할 필요가 있음.",
         "signals": [
           "정보시스템 고도화",
-          "협상계약",
-          "제안서 평가"
+          "조달청 평가",
+          "협상계약"
         ],
-        "recommended_action": "참고",
+        "recommended_action": "동향 추적",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:21:53+09:00",
+        "classified_at": "2026-10-29T21:19:40+09:00",
         "source_hash": "3e907fb076601f442cf487e83167c9eff3cee412b8e9ac1d6572b8851688f51a"
       }
     },
@@ -3708,7 +3709,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "ddcaf9b2427483bb270e2726906265b4795668c46521732bc5a9d43ca82c6a7c"
       }
     },
@@ -3747,7 +3748,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "ce807b76dcdee285084357011d805e4471accb6a1db78c7a34336199a124a6a8"
       }
     },
@@ -3787,7 +3788,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "814c04449a50987f7028a90a3dda0a5b29ee7ff4dc688a80ab7f1895e31a4154"
       }
     },
@@ -3824,7 +3825,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "bc75b9430d893a76a029fc448849ff86caa745d748e5e51db8eac836105a9784"
       }
     },
@@ -3861,7 +3862,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "d99d040ddaf641e72c7938e91686535c5453260fac198cda7947b1faf8564f7a"
       }
     },
@@ -3896,7 +3897,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "23cf6c594a7f36ee45db621fda9e657a9f29f0448f1573ac4cca46c22355ddd2"
       }
     },
@@ -3931,7 +3932,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "66b921295daf9a7976ecc868d18ab568c2be150ef5cc2f7a8b624a57d32aa955"
       }
     },
@@ -3966,7 +3967,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "23ae7cbdaeed184f02f14cd7716b7ebe2e224dff4e6e1a2fef6b68866255ba54"
       }
     },
@@ -4001,7 +4002,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "7ed4a39f7a6e855c67755d98ed62749f61bbdf32aed644d8adb83539886b3af0"
       }
     },
@@ -4039,7 +4040,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "9823aa8258853eb22eac58d894f32f3e6c684104ade50f107e466b1b5cba6bd4"
       }
     },
@@ -4076,7 +4077,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "a17e70c307fa81e25a02d10706273be2a243be84137bf2c57942bf3e55c4856e"
       }
     },
@@ -4113,7 +4114,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "36f432f8d3b2f849756f37ab980e8c49c613886984a56b078fefb8567ca04ec9"
       }
     },
@@ -4152,7 +4153,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "2b38851f15480cec9768e9647d34dcd11d952d9f538d364ae0b0fcaa5104bbda"
       }
     },
@@ -4191,7 +4192,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "25edbf087d0bfe2ae841fff8dd67cccad00ae37658a8d7f47fca8926ca6ac8ed"
       }
     },
@@ -4226,7 +4227,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "f7fad8f7a93700b1c925c4e14537e1d2645503c318477260975709cff5abb99c"
       }
     },
@@ -4263,7 +4264,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "d20e74e1b7e5b2442715dc37526188ed03927588162a6f124139b4a601ae73ab"
       }
     },
@@ -4300,7 +4301,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "9db030f908819f292bf09164f19eed67898a5ad00716baf0dbd6acbd32f6e571"
       }
     },
@@ -4335,7 +4336,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "448e2f8962767935e0d1d2e4f73f165fd5575d371dcc9d0b5c55ab1cb1a98e7c"
       }
     },
@@ -4372,7 +4373,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "ef605644a4b54c60df492482a83ffcc143c9b9f2944afe17ca24f4627cd34ee3"
       }
     },
@@ -4409,7 +4410,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "8bd4c2cc08209aa317780b91b08bd14c2e70d7bc9d0c47ff651fe218a3d5e296"
       }
     },
@@ -4450,7 +4451,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "513154ce6e402d38ecd2d36202147eed05493c91d68d4a56c779156e6bdad70b"
       }
     },
@@ -4490,7 +4491,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "0a2c6f915dad965f264cea9c4007c4db6885d4e19d0502fa6473874826299469"
       }
     },
@@ -4525,7 +4526,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T00:11:58+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "9c1299998b19dc2cb8ba32ffb73b0c53d658e80c88a5ab829c03562bbc5f2198"
       }
     },
@@ -4564,7 +4565,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "65e0c01455db939babc6422ff3ed89eccca1474efdc78f15f21f88644af59314"
       }
     },
@@ -4601,7 +4602,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00",
+        "classified_at": "2026-10-29T21:17:05+09:00",
         "source_hash": "a4d8c4863da5aebb546c988249b3692f6e2a4954b20f5b9ea7c0216968874cf9"
       }
     },
@@ -4630,17 +4631,17 @@
         "label": "관계없음",
         "score": 1,
         "confidence": 0.9,
-        "reason": "핀테크 산업 활성화를 위한 행사 개최 안내로, 지식재산처의 직접적인 업무나 정보화 정책과는 무관함.",
+        "reason": "핀테크 산업 활성화를 위한 행사 개최 안내로, 지식재산처의 직접적인 업무나 정보화 정책과 무관함.",
         "signals": [
-          "핀테크",
-          "행사 개최",
-          "금융기술"
+          "핀테크 위크",
+          "금융기술",
+          "행사 개최"
         ],
         "recommended_action": "제외",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:21:53+09:00",
+        "classified_at": "2026-10-29T21:19:40+09:00",
         "source_hash": "ee4cdc214a53c42c80db172b7a9a1e051705a46022d3b2483224e1e97d1b3943"
       }
     }
@@ -4649,11 +4650,11 @@
   "article_count": 122,
   "modified_count": 5,
   "classification_prompt_version": "ip-office-relevance-v1.0",
-  "classification_updated_at": "2026-10-29T18:23:12+09:00",
+  "classification_updated_at": "2026-10-29T21:26:22+09:00",
   "relevance_counts": {
-    "unrelated": 107,
-    "normal": 6,
+    "unrelated": 112,
     "important": 5,
-    "critical": 4
+    "normal": 3,
+    "critical": 2
   }
 }

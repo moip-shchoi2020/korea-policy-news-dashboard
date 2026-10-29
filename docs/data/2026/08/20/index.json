@@ -7,8 +7,8 @@
   "relevance_counts": {
     "critical": 1,
     "important": 3,
-    "normal": 10,
-    "unrelated": 105,
+    "normal": 7,
+    "unrelated": 108,
     "unclassified": 0
   },
   "classified_count": 119,
@@ -37,7 +37,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -66,7 +66,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -97,7 +97,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -126,7 +126,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -155,7 +155,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -172,21 +172,22 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156775031",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.85,
-        "reason": "타 부처의 에너지 관련 법령 개정으로, 지식재산처의 직접적인 업무와는 거리가 있으나 첨단산업 지원 정책의 일환으로 참고할 가치가 있음.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.9,
+        "reason": "기후에너지환경부 소관의 재생에너지 관련 법안 통과로, 지식재산처의 업무나 정보화 정책에 직접적인 영향이 없음.",
         "signals": [
-          "법령 개정",
-          "첨단산업",
-          "에너지 정책"
+          "재생에너지",
+          "전기사업법",
+          "법안 통과",
+          "에너지안보"
         ],
-        "recommended_action": "참고",
+        "recommended_action": "제외",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:33+09:00"
+        "classified_at": "2026-10-29T22:42:04+09:00"
       }
     },
     {
@@ -215,7 +216,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -235,18 +236,19 @@
         "level": "important",
         "label": "중요",
         "score": 3,
-        "confidence": 0.9,
-        "reason": "신산업 분야 규제혁신은 지식재산권과 밀접한 관련이 있으며, 범정부 차원의 규제 개선 방향은 지식재산처의 정책 수립에 영향을 미칠 수 있음.",
+        "confidence": 0.85,
+        "reason": "범정부 차원의 신산업 규제혁신 간담회로, AI 등 신산업 분야의 규제 합리화 정책은 지식재산처의 AI 관련 정책 및 제도 개선에 간접적인 영향을 미칠 수 있음.",
         "signals": [
           "규제혁신",
           "신산업",
-          "범정부 정책"
+          "AI",
+          "규제합리화"
         ],
         "recommended_action": "동향 추적",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:33+09:00"
+        "classified_at": "2026-10-29T22:42:04+09:00"
       }
     },
     {
@@ -273,7 +275,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -306,7 +308,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -327,17 +329,18 @@
         "label": "보통",
         "score": 2,
         "confidence": 0.8,
-        "reason": "특정 산업(화장품) 육성을 위한 법 제정으로, 지식재산처의 직접적인 업무 범위는 아니나 AI·디지털 융합 사례로서 참고 가치가 있음.",
+        "reason": "화장품산업육성법 제정으로 AI·디지털 융합 산업혁신 촉진 내용이 포함되어 있으나, 타 부처의 산업 육성 정책으로 지식재산처에 직접적인 의무를 부여하지 않음.",
         "signals": [
-          "산업 육성",
+          "화장품산업육성법",
           "AI 융합",
-          "법 제정"
+          "산업혁신",
+          "법률 제정"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:33+09:00"
+        "classified_at": "2026-10-29T22:42:04+09:00"
       }
     },
     {
@@ -357,18 +360,19 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.8,
-        "reason": "보건복지부 소관 법률 개정으로, 지식재산처의 업무와 직접적인 연관성은 낮으나 정보시스템 확인 의무화 등은 참고 사례가 될 수 있음.",
+        "confidence": 0.85,
+        "reason": "보건복지부 소관 법률안 통과 내용으로, 의약품안전사용정보시스템 확인 의무화 등 타 부처 정보시스템 관련 사항이 포함되어 있으나 지식재산처와는 무관함.",
         "signals": [
-          "법률 개정",
+          "법률안 통과",
+          "의약품안전사용정보시스템",
           "정보시스템",
-          "의무화"
+          "보건복지부"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:33+09:00"
+        "classified_at": "2026-10-29T22:42:04+09:00"
       }
     },
     {
@@ -397,7 +401,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -426,7 +430,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -458,7 +462,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -488,7 +492,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -517,7 +521,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -544,7 +548,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -574,7 +578,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -601,7 +605,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -633,7 +637,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -664,7 +668,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -691,7 +695,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -711,20 +715,18 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.78,
-        "reason": "개별 기관의 AI·정보화 사업으로 직접 영향은 낮지만 사례 참고 가치가 있습니다.",
+        "confidence": 0.9,
+        "reason": "고용노동부의 고용센터 업무 혁신 및 AI 도입 사례로, 타 부처의 업무 자동화 사례로서 참고 가치는 있으나 지식재산처에 직접적인 영향은 없음.",
         "signals": [
-          "AI",
-          "인공지능",
-          "통합",
-          "사업",
-          "과제"
+          "고용서비스 혁신",
+          "AI 업무 자동화",
+          "상담 효율화"
         ],
         "recommended_action": "참고",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:33+09:00"
+        "classified_at": "2026-10-29T22:42:17+09:00"
       }
     },
     {
@@ -751,7 +753,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -781,7 +783,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -810,7 +812,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -839,7 +841,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -866,7 +868,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -896,7 +898,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -927,7 +929,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -958,7 +960,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -989,7 +991,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1018,7 +1020,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1048,7 +1050,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1069,18 +1071,17 @@
         "label": "매우 중요",
         "score": 4,
         "confidence": 1.0,
-        "reason": "개인정보보호법 개정은 지식재산처의 데이터 활용 및 AI 개발 업무에 직접적인 법적 근거와 제약을 부여하는 매우 중요한 사안임.",
+        "reason": "개인정보 보호법 개정으로 AI 개발 시 개인정보 활용 특례가 신설됨에 따라, 지식재산처의 AI 기반 특허 행정 및 데이터 활용 업무에 직접적인 법적 기준이 됨.",
         "signals": [
-          "개인정보보호법",
-          "AI 개발",
-          "데이터 활용",
-          "법령 개정"
+          "개인정보 보호법 개정",
+          "AI 개발 특례",
+          "데이터 활용 법적 근거"
         ],
         "recommended_action": "즉시 검토",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:33+09:00"
+        "classified_at": "2026-10-29T22:42:17+09:00"
       }
     },
     {
@@ -1107,7 +1108,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1136,7 +1137,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1165,7 +1166,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1195,7 +1196,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1228,7 +1229,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1249,17 +1250,16 @@
         "label": "보통",
         "score": 2,
         "confidence": 0.9,
-        "reason": "공정거래위원회의 특정 업종 대상 정보시스템 구축 사업으로, 지식재산처 업무와 직접적인 연관성이 낮음.",
+        "reason": "공정거래위원회의 할부거래법 개정 및 정보시스템 구축 사업으로, 지식재산처의 정보화 사업과는 직접적인 관련이 없는 개별 부처의 시스템 고도화 사례임.",
         "signals": [
-          "할부거래법",
-          "통합정보시스템",
-          "소비자 보호"
+          "할부거래법 개정",
+          "통합정보시스템 구축"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:42+09:00"
+        "classified_at": "2026-10-29T22:42:17+09:00"
       }
     },
     {
@@ -1289,7 +1289,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1319,7 +1319,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1350,7 +1350,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1379,7 +1379,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1408,7 +1408,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1437,7 +1437,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1467,7 +1467,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1497,7 +1497,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1524,7 +1524,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1555,7 +1555,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1586,7 +1586,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1613,7 +1613,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1643,7 +1643,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1673,7 +1673,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1700,7 +1700,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1727,7 +1727,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1754,7 +1754,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1785,7 +1785,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1817,7 +1817,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1846,7 +1846,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1875,7 +1875,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1907,7 +1907,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1934,7 +1934,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1963,7 +1963,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -1993,7 +1993,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2024,7 +2024,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2051,7 +2051,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2080,7 +2080,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2100,17 +2100,17 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.95,
-        "reason": "교육부의 학교 시설 관련 공모사업으로 지식재산처의 정보화 및 AI 정책과 무관함.",
+        "confidence": 1.0,
+        "reason": "학교복합시설 공모사업 선정 결과 발표로, 지식재산처의 법령, 업무, 정보시스템 등과 무관한 행사성 보도자료임.",
         "signals": [
           "학교복합시설",
-          "공모사업"
+          "공모사업 선정"
         ],
         "recommended_action": "제외",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:42+09:00"
+        "classified_at": "2026-10-29T22:42:17+09:00"
       }
     },
     {
@@ -2130,8 +2130,8 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.95,
-        "reason": "고용 통계 자료 발표로 지식재산처의 정보화 정책이나 업무에 미치는 영향이 없음.",
+        "confidence": 1.0,
+        "reason": "지역별 고용지표 통계 발표로, 지식재산처의 업무나 정보화 정책에 영향을 미치는 내용이 없는 단순 통계 자료임.",
         "signals": [
           "고용지표",
           "통계 발표"
@@ -2140,7 +2140,7 @@
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:42+09:00"
+        "classified_at": "2026-10-29T22:42:17+09:00"
       }
     },
     {
@@ -2157,20 +2157,21 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156774926",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.85,
-        "reason": "국가 통계 데이터 발표로 지식재산처의 데이터 활용 정책에 참고할 수 있는 일반적인 통계 자료임.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 1.0,
+        "reason": "인구주택총조사 결과 발표로 지식재산처의 법령, 업무, 정보시스템 등과 직접적인 관련이 없는 통계 자료입니다.",
         "signals": [
           "인구주택총조사",
-          "데이터 통계"
+          "고령자조사",
+          "통계 발표"
         ],
-        "recommended_action": "참고",
+        "recommended_action": "제외",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:42+09:00"
+        "classified_at": "2026-10-29T22:42:25+09:00"
       }
     },
     {
@@ -2203,7 +2204,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2233,7 +2234,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2260,7 +2261,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2280,19 +2281,18 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.78,
-        "reason": "개별 기관의 AI·정보화 사업으로 직접 영향은 낮지만 사례 참고 가치가 있습니다.",
+        "confidence": 0.9,
+        "reason": "인사혁신처의 내부 업무 자동화 및 일하는 방식 혁신 사례로, 타 부처의 업무 효율화 사례로서 참고 가치가 있습니다.",
         "signals": [
-          "자동화",
-          "개선",
-          "전환",
-          "계획"
+          "업무 자동화",
+          "일하는 방식 혁신",
+          "행정 효율화"
         ],
         "recommended_action": "참고",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:42+09:00"
+        "classified_at": "2026-10-29T22:42:25+09:00"
       }
     },
     {
@@ -2319,7 +2319,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2336,21 +2336,21 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156774917",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.85,
-        "reason": "기업결합 심사 결과 발표로 지식재산권 관련 경쟁 제한성 검토 등 참고할 수 있는 사례임.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 1.0,
+        "reason": "석유화학 기업결합 심사 결과로 지식재산처의 고유 업무인 지식재산권 행정이나 정보화 정책에 미치는 영향이 없습니다.",
         "signals": [
-          "기업결합",
-          "시정조치",
-          "시장 경쟁"
+          "기업결합 심사",
+          "석유화학",
+          "공정거래위원회"
         ],
-        "recommended_action": "참고",
+        "recommended_action": "제외",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:42+09:00"
+        "classified_at": "2026-10-29T22:42:25+09:00"
       }
     },
     {
@@ -2382,7 +2382,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2412,7 +2412,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2439,7 +2439,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2468,7 +2468,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2497,7 +2497,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2526,7 +2526,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2557,7 +2557,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2590,7 +2590,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2621,7 +2621,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2652,7 +2652,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2679,7 +2679,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2700,17 +2700,18 @@
         "label": "중요",
         "score": 3,
         "confidence": 0.9,
-        "reason": "국가 AI 컴퓨팅 인프라 생태계 구축은 지식재산처의 AI 도입 및 데이터 활용 정책과 밀접한 관련이 있음.",
+        "reason": "국가 AI 컴퓨팅 인프라 생태계 구축은 지식재산처의 AI 기반 특허 행정 및 데이터 활용 정책과 밀접한 관련이 있어 향후 대응이 필요합니다.",
         "signals": [
           "AI 컴퓨팅 인프라",
           "민관 협력",
-          "AI 반도체"
+          "AI 반도체",
+          "국가 AI 정책"
         ],
         "recommended_action": "동향 추적",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:42+09:00"
+        "classified_at": "2026-10-29T22:42:25+09:00"
       }
     },
     {
@@ -2737,7 +2738,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2767,7 +2768,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2784,21 +2785,22 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156774898",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.84,
-        "reason": "지식재산·특허 업무와 직접 관련된 사안으로 후속 영향 검토가 필요합니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.9,
+        "reason": "K-콘텐츠 속 IP 이슈에 대한 현장소통 간담회 개최 사실을 알리는 행사성 보도자료로, 구체적인 제도 개정이나 사업 조치가 포함되어 있지 않습니다.",
         "signals": [
-          "지식재산처",
-          "지식재산",
-          "간담회"
+          "IP 이슈",
+          "현장소통 간담회",
+          "K-콘텐츠",
+          "지식재산권"
         ],
-        "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "제외",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:23:03+09:00"
+        "classified_at": "2026-10-29T22:42:25+09:00"
       }
     },
     {
@@ -2828,7 +2830,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2855,7 +2857,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2876,17 +2878,17 @@
         "label": "보통",
         "score": 2,
         "confidence": 0.9,
-        "reason": "질병관리청의 연구 표준 마련 사례로, 데이터 분석 및 연구 표준화 측면에서 참고할 가치가 있음.",
+        "reason": "질병관리청의 특정 분야 연구 표준 마련 사례로, 지식재산처의 업무나 정보화 정책에 직접적인 영향이 없는 일반적인 연구 고도화 사업임.",
         "signals": [
-          "연구 표준",
+          "연구 표준 마련",
           "유전정보 분석",
-          "데이터 활용"
+          "보건의료 데이터"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:23:03+09:00"
+        "classified_at": "2026-10-29T22:42:34+09:00"
       }
     },
     {
@@ -2916,7 +2918,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2943,7 +2945,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -2964,17 +2966,17 @@
         "label": "보통",
         "score": 2,
         "confidence": 0.9,
-        "reason": "중소기업 대상 AI·디지털 전환 지원 사업으로, 타 부처의 디지털 전환 정책 사례임.",
+        "reason": "중소벤처기업부의 중소기업 대상 AI·디지털 전환 지원 사업으로, 타 부처의 개별적인 산업 지원 정책 사례에 해당함.",
         "signals": [
-          "중소기업",
-          "AI",
-          "디지털 전환"
+          "중소기업 스마트서비스",
+          "AI 디지털 전환",
+          "사업 모델 개발"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:23:03+09:00"
+        "classified_at": "2026-10-29T22:42:34+09:00"
       }
     },
     {
@@ -3004,7 +3006,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -3031,7 +3033,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -3058,7 +3060,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -3088,7 +3090,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -3117,7 +3119,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -3134,21 +3136,21 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156774885",
       "ip_relevance": {
-        "level": "unrelated",
-        "label": "관계없음",
-        "score": 1,
-        "confidence": 0.95,
-        "reason": "특정 기관의 연구 성과 발표 및 특허 출원 사실을 알리는 내용으로, 지식재산처의 정책, 법령, 정보시스템 등에 직접적인 영향이나 제도적 변화를 수반하지 않음.",
+        "level": "important",
+        "label": "중요",
+        "score": 3,
+        "confidence": 0.85,
+        "reason": "특허 출원과 관련된 생물자원 연구 성과로, 지식재산권 확보 및 기술이전과 밀접한 관련이 있어 향후 참고할 가치가 있음.",
         "signals": [
-          "연구 성과 발표",
           "특허 출원",
-          "천연물질 효능 확인"
+          "천연물질",
+          "생물자원 연구"
         ],
-        "recommended_action": "제외",
+        "recommended_action": "동향 추적",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:23:12+09:00"
+        "classified_at": "2026-10-29T22:42:34+09:00"
       }
     },
     {
@@ -3177,7 +3179,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -3206,7 +3208,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -3237,7 +3239,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -3268,7 +3270,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -3301,7 +3303,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -3328,7 +3330,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -3358,7 +3360,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -3389,7 +3391,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -3416,7 +3418,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -3447,7 +3449,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -3479,7 +3481,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -3506,7 +3508,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     },
     {
@@ -3539,7 +3541,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:40:56+09:00"
       }
     }
   ]

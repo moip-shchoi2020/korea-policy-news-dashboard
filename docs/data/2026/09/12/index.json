@@ -1,17 +1,17 @@
 {
   "schema_version": 2,
   "date": "2026-09-12",
-  "generated_at": "2026-10-29T19:32:15+09:00",
+  "generated_at": "2026-10-29T23:27:45+09:00",
   "article_count": 3,
-  "modified_count": 0,
+  "modified_count": 1,
   "relevance_counts": {
     "critical": 0,
     "important": 0,
     "normal": 0,
-    "unrelated": 0,
-    "unclassified": 3
+    "unrelated": 3,
+    "unclassified": 0
   },
-  "classified_count": 0,
+  "classified_count": 3,
   "articles": [
     {
       "id": "156781389",
@@ -27,17 +27,20 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156781389",
       "ip_relevance": {
-        "level": "unclassified",
-        "label": "미분류",
-        "score": 0,
-        "confidence": 0.0,
-        "reason": "",
-        "signals": [],
-        "recommended_action": "검토 필요",
-        "method": "unclassified",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
+        "signals": [
+          "감사",
+          "점검"
+        ],
+        "recommended_action": "제외",
+        "method": "rules",
         "model": null,
-        "prompt_version": null,
-        "classified_at": null
+        "prompt_version": "ip-office-relevance-v1.0",
+        "classified_at": "2026-10-29T23:35:44+09:00"
       }
     },
     {
@@ -54,17 +57,21 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156781379",
       "ip_relevance": {
-        "level": "unclassified",
-        "label": "미분류",
-        "score": 0,
-        "confidence": 0.0,
-        "reason": "",
-        "signals": [],
-        "recommended_action": "검토 필요",
-        "method": "unclassified",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
+        "signals": [
+          "운영",
+          "대응",
+          "박람회"
+        ],
+        "recommended_action": "제외",
+        "method": "rules",
         "model": null,
-        "prompt_version": null,
-        "classified_at": null
+        "prompt_version": "ip-office-relevance-v1.0",
+        "classified_at": "2026-10-29T23:35:44+09:00"
       }
     },
     {
@@ -74,24 +81,24 @@
       "summary_source": "list_lead",
       "ministry": "문화체육관광부",
       "approved_at": "2026-09-12T00:00:00+09:00",
-      "modified_at": null,
+      "modified_at": "2026-10-29T23:27:45+09:00",
       "publish_date": "2026-09-12",
-      "contents_status": "I",
-      "modify_id": 1,
-      "is_modified": false,
+      "contents_status": "U",
+      "modify_id": 2,
+      "is_modified": true,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156781381",
       "ip_relevance": {
-        "level": "unclassified",
-        "label": "미분류",
-        "score": 0,
-        "confidence": 0.0,
-        "reason": "",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [],
-        "recommended_action": "검토 필요",
-        "method": "unclassified",
+        "recommended_action": "제외",
+        "method": "rules",
         "model": null,
-        "prompt_version": null,
-        "classified_at": null
+        "prompt_version": "ip-office-relevance-v1.0",
+        "classified_at": "2026-10-29T23:35:44+09:00"
       }
     }
   ]

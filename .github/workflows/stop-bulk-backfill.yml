@@ -1,0 +1,21 @@
+name: 정체된 일괄 백필 중단
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/stop-bulk-backfill.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: full-backfill-20260807-20261029
+  cancel-in-progress: true
+
+jobs:
+  stop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 날짜별 정밀 복구로 전환
+        run: echo "정체된 일괄 백필을 중단하고 workflow_run 기반 정밀 복구로 전환합니다."

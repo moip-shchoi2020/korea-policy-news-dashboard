@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
   "date": "2026-08-19",
-  "generated_at": "2026-08-20T10:33:01+09:00",
+  "generated_at": "2026-10-29T18:24:30+09:00",
   "article_count": 74,
-  "modified_count": 0,
+  "modified_count": 3,
   "relevance_counts": {
     "critical": 0,
     "important": 1,
-    "normal": 2,
-    "unrelated": 71,
+    "normal": 3,
+    "unrelated": 70,
     "unclassified": 0
   },
   "classified_count": 74,
@@ -169,15 +169,15 @@
     {
       "id": "156774860",
       "title": "「2026 전국 지방정부 일자리대상」 시상식 개최",
-      "summary": "- 한성숙 국무총리, 고용노동부 대변인 주요 수상 지방정부 시상 - 대통령상(종합대상): 전남광주통합특별시(舊 광주광역시) - 국무총리상(부문별 대상): 광역경상남도, 기초충남 천안시 고용노동부(장관 김영훈)는 8월 19일(수) 14시, 서울 한국프레스센터에서 2026년 전국 지방정부 일자리대상 시상식을 개최하였다. 이날 행사에는 한성숙 국무총리와 고용노동부 홍경의 대변인, 지방정부 단체장, 지역 일자리 사업 관계자 등…",
+      "summary": "- 한성숙 국무총리, 고용노동부 대변인 주요 수상 지방정부 시상-대통령상(종합대상): 전남광주통합특별시(舊 광주광역시)-국무총리상(부문별 대상): 광역경상남도, 기초충남 천안시고용노동부(장관 김영훈)는 8월 19일(수) 14시, 서울 한국프레스센터에서 2026년 전국 지방정부 일자리대상 시상식을 개최하였다. 이날 행사에는 한성숙 국무총리와 고용노동부 홍경의 대변인, 지방정부 단체장, 지역 일자리 사업 관계자 등 250여 명이…",
       "summary_source": "list_lead",
       "ministry": "고용노동부",
       "approved_at": "2026-08-19T16:50:25+09:00",
-      "modified_at": null,
+      "modified_at": "2026-10-29T18:24:50+09:00",
       "publish_date": "2026-08-19",
-      "contents_status": "I",
-      "modify_id": 1,
-      "is_modified": false,
+      "contents_status": "U",
+      "modify_id": 2,
+      "is_modified": true,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156774860",
       "ip_relevance": {
         "level": "unrelated",
@@ -194,7 +194,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T18:30:21+09:00"
       }
     },
     {
@@ -550,31 +550,33 @@
     },
     {
       "id": "156774837",
-      "title": "과기정통부, GPS 전파혼신 대비 민·관·군 합동 실제훈련 실시",
+      "title": "과기정통부, 위치 확인 시스템(GPS) 전파혼신 대비 민·관·군 합동 실제훈련 실시",
       "summary": "- 국방부·합동참모본부 등 군기관, 국토부·해수부 등 관계부처, 이통사 참여- 파주 소재 국가에너지시설로 접근하는 복수의 전파혼신 상황에 대응",
       "summary_source": "list_lead",
       "ministry": "과학기술정보통신부",
       "approved_at": "2026-08-19T14:00:00+09:00",
-      "modified_at": null,
+      "modified_at": "2026-10-29T18:24:50+09:00",
       "publish_date": "2026-08-19",
-      "contents_status": "I",
-      "modify_id": 1,
-      "is_modified": false,
+      "contents_status": "U",
+      "modify_id": 2,
+      "is_modified": true,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156774837",
       "ip_relevance": {
-        "level": "unrelated",
-        "label": "관계없음",
-        "score": 1,
-        "confidence": 0.91,
-        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.8,
+        "reason": "국가 기반시설의 전파혼신 대응 훈련으로, 지식재산처의 정보시스템 보안 및 인프라 운영에 직접적인 영향은 없으나 재난 대응 사례로 참고 가능함.",
         "signals": [
-          "대응"
+          "정보시스템 보안",
+          "국가 기반시설",
+          "전파혼신"
         ],
-        "recommended_action": "제외",
-        "method": "rules",
-        "model": null,
+        "recommended_action": "참고",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T18:30:33+09:00"
       }
     },
     {
@@ -1059,16 +1061,16 @@
     },
     {
       "id": "156774816",
-      "title": "공공서비스 혁신의 출발점 ｢2026 GovTech 창업경진대회｣ 참가 공모 개시",
-      "summary": "- 아이디어 기획 및 제품·서비스 개발 2개 부문(트랙) 운영, 총상금 7천만 원 규모 - GovTech 분야 예비창업자나 초기창업기업이 ①대국민 공공서비스 ②지역·사회문제 해결 ③공공 기반 시설(공공 인프라) 혁신 중 1개 분야 자유주제 공모",
+      "title": "공공서비스 혁신의 출발점 ｢2026 공공기술(GovTech) 창업경진대회｣ 참가 공모 개시",
+      "summary": "- 아이디어 기획 및 제품·서비스 개발 2개 부문(트랙) 운영, 총상금 7천만 원 규모 - 공공기술(GovTech) 분야 예비창업자나 초기창업기업이 ①대국민 공공서비스, ②지역·사회문제 해결 ③공공 기반 시설 (공공 인프라) 혁신 중 1개 분야 자유주제 공모",
       "summary_source": "list_lead",
       "ministry": "과학기술정보통신부",
       "approved_at": "2026-08-19T12:00:00+09:00",
-      "modified_at": null,
+      "modified_at": "2026-10-29T18:24:50+09:00",
       "publish_date": "2026-08-19",
-      "contents_status": "I",
-      "modify_id": 1,
-      "is_modified": false,
+      "contents_status": "U",
+      "modify_id": 2,
+      "is_modified": true,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156774816",
       "ip_relevance": {
         "level": "unrelated",
@@ -1085,7 +1087,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:17+09:00"
+        "classified_at": "2026-10-29T18:30:21+09:00"
       }
     },
     {

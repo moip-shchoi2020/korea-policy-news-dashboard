@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
   "date": "2026-08-09",
-  "generated_at": "2026-10-29T18:20:32+09:00",
+  "generated_at": "2026-10-29T22:24:30+09:00",
   "article_count": 18,
-  "modified_count": 0,
+  "modified_count": 5,
   "relevance_counts": {
     "critical": 0,
     "important": 0,
-    "normal": 4,
-    "unrelated": 14,
+    "normal": 0,
+    "unrelated": 18,
     "unclassified": 0
   },
   "classified_count": 18,
@@ -37,7 +37,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:20:50+09:00"
+        "classified_at": "2026-10-29T22:29:55+09:00"
       }
     },
     {
@@ -67,7 +67,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:20:50+09:00"
+        "classified_at": "2026-10-29T22:29:55+09:00"
       }
     },
     {
@@ -100,7 +100,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:20:50+09:00"
+        "classified_at": "2026-10-29T22:29:55+09:00"
       }
     },
     {
@@ -132,7 +132,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:20:50+09:00"
+        "classified_at": "2026-10-29T22:29:55+09:00"
       }
     },
     {
@@ -152,18 +152,18 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.95,
-        "reason": "우주센터 건립지 선정은 지식재산처의 법령, 정보시스템, AI 사업과 실질적인 연관성이 없음.",
+        "confidence": 1.0,
+        "reason": "우주항공청의 특정 시설 건립지 선정에 관한 행사성 보도자료로, 지식재산처의 업무나 정보화 정책에 미치는 실질적인 영향이 없습니다.",
         "signals": [
-          "우주센터",
-          "건립지 공모",
-          "지자체"
+          "우주항공청",
+          "제2우주센터",
+          "건립지 선정"
         ],
         "recommended_action": "제외",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:22:27+09:00"
+        "classified_at": "2026-10-29T22:30:08+09:00"
       }
     },
     {
@@ -190,7 +190,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:20:50+09:00"
+        "classified_at": "2026-10-29T22:29:55+09:00"
       }
     },
     {
@@ -219,7 +219,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:20:50+09:00"
+        "classified_at": "2026-10-29T22:29:55+09:00"
       }
     },
     {
@@ -246,7 +246,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:20:50+09:00"
+        "classified_at": "2026-10-29T22:29:55+09:00"
       }
     },
     {
@@ -273,7 +273,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:20:50+09:00"
+        "classified_at": "2026-10-29T22:29:55+09:00"
       }
     },
     {
@@ -304,7 +304,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:20:50+09:00"
+        "classified_at": "2026-10-29T22:29:55+09:00"
       }
     },
     {
@@ -331,7 +331,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:20:50+09:00"
+        "classified_at": "2026-10-29T22:29:55+09:00"
       }
     },
     {
@@ -348,21 +348,21 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156773786",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.9,
-        "reason": "교육 분야의 데이터 통계 발간 사례로, 지식재산처의 데이터 활용 및 정보화 정책에 참고할 수 있는 일반적인 사례임.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 1.0,
+        "reason": "교육부의 BK21 사업 통계 자료 발간에 관한 내용으로, 지식재산처의 정보시스템이나 AI 정책과 무관합니다.",
         "signals": [
-          "데이터 통계",
-          "교육 데이터",
-          "BK21"
+          "교육부",
+          "데이터",
+          "BK21사업"
         ],
-        "recommended_action": "참고",
+        "recommended_action": "제외",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:22:27+09:00"
+        "classified_at": "2026-10-29T22:30:08+09:00"
       }
     },
     {
@@ -389,7 +389,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:20:50+09:00"
+        "classified_at": "2026-10-29T22:29:55+09:00"
       }
     },
     {
@@ -399,28 +399,24 @@
       "summary_source": "list_lead",
       "ministry": "외교부",
       "approved_at": "2026-08-09T00:00:00+09:00",
-      "modified_at": null,
+      "modified_at": "2026-10-29T22:24:30+09:00",
       "publish_date": "2026-08-09",
-      "contents_status": "I",
-      "modify_id": 1,
-      "is_modified": false,
+      "contents_status": "U",
+      "modify_id": 2,
+      "is_modified": true,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156773802",
       "ip_relevance": {
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 1.0,
-        "reason": "특사 파견 및 외교 행사 개최 사실을 알리는 내용으로, 지식재산처의 업무나 정보화 정책에 직접적인 영향이 없습니다.",
-        "signals": [
-          "특사 파견",
-          "외교 행사",
-          "국제 협력"
-        ],
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
+        "signals": [],
         "recommended_action": "제외",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
+        "method": "rules",
+        "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:22:36+09:00"
+        "classified_at": "2026-10-29T22:29:55+09:00"
       }
     },
     {
@@ -430,28 +426,29 @@
       "summary_source": "list_lead",
       "ministry": "고용노동부",
       "approved_at": "2026-08-09T00:00:00+09:00",
-      "modified_at": null,
+      "modified_at": "2026-10-29T22:24:30+09:00",
       "publish_date": "2026-08-09",
-      "contents_status": "I",
-      "modify_id": 1,
-      "is_modified": false,
+      "contents_status": "U",
+      "modify_id": 2,
+      "is_modified": true,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156773801",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.9,
-        "reason": "타 부처의 인력 채용 및 내부 정책 추진에 관한 보도자료로, 지식재산처에 직접적인 영향은 없으나 참고 사례로 활용 가능합니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "인력 채용",
-          "공공서비스",
-          "정책 추진"
+          "시행",
+          "적용",
+          "개편",
+          "과제"
         ],
-        "recommended_action": "참고",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
+        "recommended_action": "제외",
+        "method": "rules",
+        "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:22:36+09:00"
+        "classified_at": "2026-10-29T22:29:55+09:00"
       }
     },
     {
@@ -461,28 +458,26 @@
       "summary_source": "list_lead",
       "ministry": "해양수산부",
       "approved_at": "2026-08-09T00:00:00+09:00",
-      "modified_at": null,
+      "modified_at": "2026-10-29T22:24:30+09:00",
       "publish_date": "2026-08-09",
-      "contents_status": "I",
-      "modify_id": 1,
-      "is_modified": false,
+      "contents_status": "U",
+      "modify_id": 2,
+      "is_modified": true,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156773792",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.8,
-        "reason": "해양수산부의 세제 혜택 및 면세유 지원 연장에 관한 내용으로, 지식재산처의 업무와 직접적인 관련이 없습니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "세제 개편",
-          "어업 지원",
-          "일몰제"
+          "개편"
         ],
-        "recommended_action": "참고",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
+        "recommended_action": "제외",
+        "method": "rules",
+        "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:22:36+09:00"
+        "classified_at": "2026-10-29T22:29:55+09:00"
       }
     },
     {
@@ -492,28 +487,26 @@
       "summary_source": "list_lead",
       "ministry": "농림축산식품부",
       "approved_at": "2026-08-09T00:00:00+09:00",
-      "modified_at": null,
+      "modified_at": "2026-10-29T22:24:30+09:00",
       "publish_date": "2026-08-09",
-      "contents_status": "I",
-      "modify_id": 1,
-      "is_modified": false,
+      "contents_status": "U",
+      "modify_id": 2,
+      "is_modified": true,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156773788",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.8,
-        "reason": "농림축산식품부의 농업법인 세제 혜택 및 면세유 지원에 관한 내용으로, 지식재산처의 업무와 직접적인 관련이 없습니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "세제 개편",
-          "농업 지원",
-          "과세특례"
+          "개편"
         ],
-        "recommended_action": "참고",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
+        "recommended_action": "제외",
+        "method": "rules",
+        "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:22:36+09:00"
+        "classified_at": "2026-10-29T22:29:55+09:00"
       }
     },
     {
@@ -523,28 +516,24 @@
       "summary_source": "list_lead",
       "ministry": "교육부",
       "approved_at": "2026-08-09T00:00:00+09:00",
-      "modified_at": null,
+      "modified_at": "2026-10-29T22:24:30+09:00",
       "publish_date": "2026-08-09",
-      "contents_status": "I",
-      "modify_id": 1,
-      "is_modified": false,
+      "contents_status": "U",
+      "modify_id": 2,
+      "is_modified": true,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156773784",
       "ip_relevance": {
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 1.0,
-        "reason": "교육부의 미래차 경진대회 행사 개최 사실을 알리는 내용으로, 지식재산처의 업무와 무관합니다.",
-        "signals": [
-          "경진대회",
-          "인재양성",
-          "행사"
-        ],
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
+        "signals": [],
         "recommended_action": "제외",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
+        "method": "rules",
+        "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:22:36+09:00"
+        "classified_at": "2026-10-29T22:29:55+09:00"
       }
     }
   ]

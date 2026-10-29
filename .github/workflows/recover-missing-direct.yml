@@ -1,0 +1,422 @@
+name: 누락일 직접 수집·Gemini 판정·최종 검증
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/recover-missing-direct.yml"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
+concurrency:
+  group: recover-missing-20260807-20261029
+  cancel-in-progress: true
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: 최신 main 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: 패키지 설치
+        run: pip install -r requirements.txt
+
+      - name: 기본 검증 및 키 확인
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests -v
+          python -m py_compile collector/*.py
+          node --check docs/assets/app.js
+          if [[ -z "$GEMINI_API_KEY" ]]; then
+            echo "::error::GEMINI_KEY 또는 GEMINI_API_KEY가 등록되어 있지 않습니다."
+            exit 1
+          fi
+
+      - name: 저장 파일이 없는 날짜 산출
+        shell: bash
+        run: |
+          python - <<'PY'
+          from datetime import date, timedelta
+          from pathlib import Path
+
+          start = date.fromisoformat('2026-08-07')
+          end = date.fromisoformat('2026-10-29')
+          missing = []
+          cursor = start
+          while cursor <= end:
+              path = Path('docs/data') / cursor.strftime('%Y/%m/%d') / 'articles.json'
+              if not path.exists():
+                  missing.append(cursor.isoformat())
+              cursor += timedelta(days=1)
+
+          Path('/tmp/missing_dates.txt').write_text(
+              ''.join(f'{day}\n' for day in missing), encoding='utf-8'
+          )
+          print(f'저장 파일 누락 날짜: {len(missing)}일')
+          print(missing)
+          PY
+
+      - name: 누락일을 1일 단위 독립 프로세스로 수집
+        timeout-minutes: 230
+        env:
+          CONNECT_TIMEOUT_SECONDS: "18"
+          READ_TIMEOUT_SECONDS: "40"
+          HTTP_RETRY_TOTAL: "4"
+          HTTP_BACKOFF_FACTOR: "2"
+          KOREA_MOBILE_FALLBACK: "true"
+          KOREA_PREFERRED_HOST: "www.korea.kr"
+          PYTHONUNBUFFERED: "1"
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+          : > /tmp/unresolved_dates.txt
+          recovered_batch=0
+
+          push_progress() {
+            local label="$1"
+            git add docs/data
+            if git diff --cached --quiet; then
+              return 0
+            fi
+            git commit -m "data: ${label} 날짜별 수집 [skip ci]"
+            for push_attempt in 1 2 3; do
+              git fetch origin main
+              if git rebase origin/main && git push origin HEAD:main; then
+                return 0
+              fi
+              git rebase --abort || true
+              sleep $((push_attempt * 5))
+            done
+            return 1
+          }
+
+          while read -r day; do
+            [[ -z "$day" ]] && continue
+            echo "::group::${day} 독립 수집"
+            success=false
+            for attempt in 1 2 3 4; do
+              echo "${day}: ${attempt}/4회차"
+              if python -u -m collector.collect \
+                   --start-date "$day" \
+                   --end-date "$day" \
+                   --max-pages-per-day 20 \
+                   --detail-workers 3 \
+                   --request-delay 0.25 \
+                   --require-records; then
+                success=true
+                break
+              fi
+              sleep $((attempt * 7))
+            done
+
+            if [[ "$success" == "true" ]]; then
+              recovered_batch=$((recovered_batch + 1))
+              if (( recovered_batch >= 4 )); then
+                push_progress "누락일 4일 묶음"
+                recovered_batch=0
+              fi
+            else
+              echo "$day" >> /tmp/unresolved_dates.txt
+              echo "::warning::${day} 4회 수집 실패"
+            fi
+            echo "::endgroup::"
+            sleep 2
+          done < /tmp/missing_dates.txt
+
+          push_progress "누락일 최종 묶음"
+          echo "1차 미해결 날짜:"
+          cat /tmp/unresolved_dates.txt || true
+
+      - name: 원문 건수 병렬 대조
+        env:
+          CONNECT_TIMEOUT_SECONDS: "12"
+          READ_TIMEOUT_SECONDS: "25"
+          HTTP_RETRY_TOTAL: "2"
+          HTTP_BACKOFF_FACTOR: "1.5"
+          KOREA_MOBILE_FALLBACK: "true"
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import time
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+          from datetime import date, timedelta
+          from pathlib import Path
+
+          from collector.collect import DEFAULT_LIST_URL, create_session, parse_list_page, request_page
+
+          start = date.fromisoformat('2026-08-07')
+          end = date.fromisoformat('2026-10-29')
+          days = []
+          cursor = start
+          while cursor <= end:
+              days.append(cursor)
+              cursor += timedelta(days=1)
+
+          def inspect(day):
+              last_error = None
+              for attempt in range(1, 4):
+                  try:
+                      session = create_session()
+                      content = request_page(
+                          session,
+                          DEFAULT_LIST_URL,
+                          params={
+                              'pageIndex': '1', 'startDate': day.isoformat(),
+                              'endDate': day.isoformat(), 'period': '',
+                              'srchWord': '', 'repCode': '', 'repCodeType': '',
+                          },
+                      )
+                      parsed = parse_list_page(content, day)
+                      expected = parsed.total_count if parsed.total_count is not None else parsed.candidate_count
+                      path = Path('docs/data') / day.strftime('%Y/%m/%d') / 'articles.json'
+                      stored = 0
+                      if path.exists():
+                          stored = len(json.loads(path.read_text(encoding='utf-8')).get('articles', []))
+                      return {'date': day.isoformat(), 'expected': int(expected), 'stored': stored, 'error': None}
+                  except Exception as exc:
+                      last_error = str(exc)
+                      time.sleep(attempt * 2)
+              return {'date': day.isoformat(), 'expected': None, 'stored': 0, 'error': last_error}
+
+          results = []
+          with ThreadPoolExecutor(max_workers=4) as executor:
+              futures = {executor.submit(inspect, day): day for day in days}
+              for future in as_completed(futures):
+                  item = future.result()
+                  results.append(item)
+                  print(item)
+
+          results.sort(key=lambda item: item['date'])
+          incomplete = [item for item in results if item['error'] or (item['expected'] or 0) > item['stored']]
+          Path('/tmp/source_check.json').write_text(
+              json.dumps(results, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
+          )
+          Path('/tmp/incomplete_dates.txt').write_text(
+              ''.join(f"{item['date']} {item['expected'] if item['expected'] is not None else -1}\n" for item in incomplete),
+              encoding='utf-8',
+          )
+          print(f'원문 대비 미완전 또는 조회실패: {len(incomplete)}일')
+          print(json.dumps(incomplete, ensure_ascii=False, indent=2))
+          PY
+
+      - name: 원문 대조 미완전 날짜 2차 수집
+        timeout-minutes: 100
+        env:
+          CONNECT_TIMEOUT_SECONDS: "20"
+          READ_TIMEOUT_SECONDS: "45"
+          HTTP_RETRY_TOTAL: "5"
+          HTTP_BACKOFF_FACTOR: "2"
+          KOREA_MOBILE_FALLBACK: "true"
+          KOREA_PREFERRED_HOST: "www.korea.kr"
+          PYTHONUNBUFFERED: "1"
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+          : > /tmp/final_unresolved_dates.txt
+
+          while read -r day expected; do
+            [[ -z "$day" ]] && continue
+            echo "::group::${day} 2차 수집"
+            success=false
+            for attempt in 1 2 3; do
+              if python -u -m collector.collect \
+                   --start-date "$day" \
+                   --end-date "$day" \
+                   --max-pages-per-day 20 \
+                   --detail-workers 2 \
+                   --request-delay 0.45 \
+                   --require-records; then
+                actual=$(python - "$day" <<'PY'
+          import json, sys
+          from datetime import date
+          from pathlib import Path
+          day = date.fromisoformat(sys.argv[1])
+          path = Path('docs/data') / day.strftime('%Y/%m/%d') / 'articles.json'
+          print(len(json.loads(path.read_text(encoding='utf-8')).get('articles', [])) if path.exists() else 0)
+          PY
+                )
+                if (( expected < 0 || actual >= expected )); then
+                  success=true
+                  break
+                fi
+              fi
+              sleep $((attempt * 10))
+            done
+            [[ "$success" == "true" ]] || echo "$day $expected" >> /tmp/final_unresolved_dates.txt
+            echo "::endgroup::"
+          done < /tmp/incomplete_dates.txt
+
+          python -m collector.build_indexes
+          git add docs/data
+          if ! git diff --cached --quiet; then
+            git commit -m "data: 원문 대조 미완전 날짜 2차 복구 [skip ci]"
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
+          fi
+
+      - name: Gemini 전체 미판정·대체판정 처리
+        timeout-minutes: 150
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
+          GEMINI_MAX_ATTEMPTS: "8"
+          PYTHONUNBUFFERED: "1"
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+
+          clear_fallback() {
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          changed = 0
+          for path in Path('docs/data').glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              dirty = False
+              for article in payload.get('articles', []):
+                  if article.get('ip_relevance', {}).get('method') == 'rules-fallback':
+                      article.pop('ip_relevance', None)
+                      dirty = True
+                      changed += 1
+              if dirty:
+                  path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          print(f'rules-fallback 초기화: {changed}건')
+          PY
+          }
+
+          count_fallback() {
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          print(sum(
+              1
+              for path in Path('docs/data').glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json')
+              for article in json.loads(path.read_text(encoding='utf-8')).get('articles', [])
+              if article.get('ip_relevance', {}).get('method') == 'rules-fallback'
+          ))
+          PY
+          }
+
+          for pass in 1 2 3 4; do
+            clear_fallback
+            python -u -m collector.classify_relevance_gemini \
+              --model "$GEMINI_MODEL" \
+              --batch-size 8 \
+              --max-articles 5000 \
+              --request-delay 10
+            python -m collector.build_indexes
+            git add docs/data
+            if ! git diff --cached --quiet; then
+              git commit -m "data: Gemini 전체 판정 ${pass} [skip ci]"
+              git fetch origin main
+              git rebase origin/main
+              git push origin HEAD:main
+            fi
+            remaining=$(count_fallback)
+            echo "Gemini 처리 ${pass}/4 후 rules-fallback: ${remaining}건"
+            [[ "$remaining" == "0" ]] && break
+            sleep 30
+          done
+
+      - name: 최종 저장 상태 검증
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git reset --hard origin/main
+          python - <<'PY'
+          import json
+          import os
+          from collections import Counter
+          from datetime import date, timedelta
+          from pathlib import Path
+
+          start = date.fromisoformat('2026-08-07')
+          end = date.fromisoformat('2026-10-29')
+          missing_files = []
+          cursor = start
+          while cursor <= end:
+              path = Path('docs/data') / cursor.strftime('%Y/%m/%d') / 'articles.json'
+              if not path.exists():
+                  missing_files.append(cursor.isoformat())
+              cursor += timedelta(days=1)
+
+          final_unresolved = Path('/tmp/final_unresolved_dates.txt').read_text(encoding='utf-8').strip() if Path('/tmp/final_unresolved_dates.txt').exists() else ''
+          methods = Counter()
+          total = 0
+          for path in Path('docs/data').glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              articles = json.loads(path.read_text(encoding='utf-8')).get('articles', [])
+              total += len(articles)
+              methods.update(article.get('ip_relevance', {}).get('method', 'unclassified') for article in articles)
+
+          manifest = json.loads(Path('docs/data/manifest.json').read_text(encoding='utf-8'))
+          print('파일 누락 날짜:', missing_files)
+          print('원문 대조 최종 미해결:', final_unresolved)
+          print('판정 방식:', dict(sorted(methods.items())))
+          print('manifest:', json.dumps(manifest, ensure_ascii=False, indent=2))
+
+          Path(os.environ['GITHUB_STEP_SUMMARY']).write_text(
+              '## 전체 일정 실행 결과\n\n'
+              f'- 실행 범위: 2026-08-07 ~ 2026-10-29\n'
+              f'- 날짜 파일 누락: {len(missing_files)}일\n'
+              f'- 원문 대조 미해결: `{final_unresolved}`\n'
+              f'- 전체 저장 기사: {total:,}건\n'
+              f'- 판정 방식: `{dict(sorted(methods.items()))}`\n'
+              f'- 최종 데이터 날짜: {manifest.get("last_date")}\n',
+              encoding='utf-8',
+          )
+
+          if final_unresolved:
+              raise SystemExit(f'원문 대조 미해결 날짜가 있습니다: {final_unresolved}')
+          if manifest.get('last_date') != '2026-10-29':
+              raise SystemExit(f'최종 날짜가 2026-10-29가 아닙니다: {manifest.get("last_date")}')
+          PY
+
+      - name: GitHub Pages 설정
+        uses: actions/configure-pages@v6
+
+      - name: Pages 배포 파일 업로드
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs
+
+  deploy:
+    needs: recover
+    if: success()
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: GitHub Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v5

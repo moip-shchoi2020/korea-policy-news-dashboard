@@ -396,7 +396,7 @@ function compareArticles(left, right) {
 
 function classificationMethodText(relevance) {
   const percent = Math.round((relevance.confidence || 0) * 100);
-  if (relevance.method === "github-models") return `AI 판정 ${percent}%`;
+  if (["github-models", "gemini-api", "openai-api"].includes(relevance.method)) return `AI 판정 ${percent}%`;
   if (relevance.method === "rules-fallback") return `AI 실패·규칙 판정 ${percent}%`;
   if (relevance.method === "rules") return `규칙 판정 ${percent}%`;
   return "미분류";

@@ -1,0 +1,80 @@
+name: 정책브리핑 날짜 조회 진단
+
+on:
+  push:
+    branches:
+      - diag/date-query-20261029
+    paths:
+      - ".github/workflows/diagnose-date-query.yml"
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  CONNECT_TIMEOUT_SECONDS: "15"
+  READ_TIMEOUT_SECONDS: "30"
+  HTTP_RETRY_TOTAL: "2"
+  HTTP_BACKOFF_FACTOR: "1.5"
+  KOREA_MOBILE_FALLBACK: "true"
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 날짜별 목록 응답 진단
+        shell: bash
+        run: |
+          python - <<'PY'
+          from datetime import date
+          from collector.collect import (
+              DEFAULT_LIST_URL,
+              create_session,
+              parse_list_page,
+              request_page,
+              response_preview,
+          )
+
+          session = create_session()
+          days = [
+              date.fromisoformat('2026-08-10'),
+              date.fromisoformat('2026-08-14'),
+              date.fromisoformat('2026-08-26'),
+              date.fromisoformat('2026-09-01'),
+              date.fromisoformat('2026-10-01'),
+              date.fromisoformat('2026-10-29'),
+          ]
+          for day in days:
+              print(f'=== {day.isoformat()} ===')
+              try:
+                  content = request_page(
+                      session,
+                      DEFAULT_LIST_URL,
+                      params={
+                          'pageIndex': '1',
+                          'startDate': day.isoformat(),
+                          'endDate': day.isoformat(),
+                          'period': '',
+                          'srchWord': '',
+                          'repCode': '',
+                          'repCodeType': '',
+                      },
+                  )
+                  parsed = parse_list_page(content, day)
+                  print('bytes=', len(content))
+                  print('total_count=', parsed.total_count)
+                  print('candidate_count=', parsed.candidate_count)
+                  print('entry_count=', len(parsed.entries))
+                  print('dates_seen=', parsed.dates_seen)
+                  print('titles=', [entry.title for entry in parsed.entries[:3]])
+                  print('preview=', response_preview(content, 500))
+              except Exception as exc:
+                  print('ERROR=', repr(exc))
+          PY

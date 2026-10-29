@@ -1,0 +1,264 @@
+name: 2026-07-30~2026-08-07 재수집·Gemini 재판정
+
+run-name: 2026-07-30~2026-08-07 재수집 및 Gemini 재판정
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/reprocess-20260730-20260807.yml"
+
+permissions:
+  contents: write
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONUNBUFFERED: "1"
+  START_DATE: "2026-07-30"
+  END_DATE: "2026-08-07"
+
+concurrency:
+  group: reprocess-20260730-20260807
+  cancel-in-progress: false
+
+jobs:
+  reprocess:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: 저장소 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: 패키지 설치
+        run: pip install -r requirements.txt
+
+      - name: 코드 기본 검증
+        run: |
+          python -m unittest discover -s tests -v
+          python -m py_compile collector/*.py
+          node --check docs/assets/app.js
+
+      - name: 지정기간 보도자료 재수집
+        timeout-minutes: 45
+        env:
+          CONNECT_TIMEOUT_SECONDS: "15"
+          READ_TIMEOUT_SECONDS: "30"
+          HTTP_RETRY_TOTAL: "2"
+          HTTP_BACKOFF_FACTOR: "1.5"
+          KOREA_MOBILE_FALLBACK: "true"
+        run: |
+          python -u -m collector.collect \
+            --start-date "$START_DATE" \
+            --end-date "$END_DATE" \
+            --continue-on-error \
+            --detail-workers 3 \
+            --max-pages-per-day 10
+
+      - name: 대상기간 분류용 작업본 생성
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/target-data
+          python - <<'PY'
+          from datetime import date, timedelta
+          from pathlib import Path
+          import json, shutil
+
+          start = date.fromisoformat("2026-07-30")
+          end = date.fromisoformat("2026-08-07")
+          current = start
+          total = 0
+          missing = []
+          while current <= end:
+              rel = Path(f"{current:%Y/%m/%d}")
+              source = Path("docs/data") / rel / "articles.json"
+              target = Path("/tmp/target-data") / rel / "articles.json"
+              if not source.exists():
+                  missing.append(current.isoformat())
+              else:
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  shutil.copy2(source, target)
+                  payload = json.loads(source.read_text(encoding="utf-8"))
+                  total += len(payload.get("articles", []))
+              current += timedelta(days=1)
+          if missing:
+              raise SystemExit(f"날짜별 데이터 파일 누락: {', '.join(missing)}")
+          print(f"대상기간 작업본 생성 완료: {total}건")
+          PY
+
+      - name: 대상기간 Gemini 재판정
+        timeout-minutes: 100
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
+          GEMINI_MAX_ATTEMPTS: "5"
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$GEMINI_API_KEY" ]]; then
+            echo "::error::GEMINI_KEY 또는 GEMINI_API_KEY가 없습니다."
+            exit 1
+          fi
+          python -u -m collector.classify_relevance_gemini \
+            --data-dir /tmp/target-data \
+            --model "$GEMINI_MODEL" \
+            --batch-size 5 \
+            --max-articles 5000 \
+            --request-delay 6.5 \
+            --force
+
+      - name: Gemini 실패 건 추가 재시도
+        timeout-minutes: 60
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
+          GEMINI_MAX_ATTEMPTS: "5"
+        shell: bash
+        run: |
+          set -euo pipefail
+          for round in 1 2; do
+            rm -rf /tmp/retry-data
+            fallback_count=$(python - <<'PY'
+          from pathlib import Path
+          import json
+
+          source_root = Path('/tmp/target-data')
+          retry_root = Path('/tmp/retry-data')
+          count = 0
+          for path in source_root.glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              fallback = []
+              for article in payload.get('articles', []):
+                  if article.get('ip_relevance', {}).get('method') == 'rules-fallback':
+                      copied = dict(article)
+                      copied.pop('ip_relevance', None)
+                      fallback.append(copied)
+              if fallback:
+                  target = retry_root / path.relative_to(source_root)
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  target.write_text(json.dumps({'schema_version': 2, 'date': payload.get('date'), 'articles': fallback}, ensure_ascii=False, indent=2), encoding='utf-8')
+                  count += len(fallback)
+          print(count)
+          PY
+            )
+            echo "추가 재시도 ${round}/2: ${fallback_count}건"
+            if [[ "$fallback_count" == "0" ]]; then
+              break
+            fi
+            sleep $((round * 20))
+            python -u -m collector.classify_relevance_gemini \
+              --data-dir /tmp/retry-data \
+              --model "$GEMINI_MODEL" \
+              --batch-size 3 \
+              --max-articles 5000 \
+              --request-delay 8
+            python - <<'PY'
+          from pathlib import Path
+          import json
+
+          target_root = Path('/tmp/target-data')
+          retry_root = Path('/tmp/retry-data')
+          for retry_path in retry_root.glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              target_path = target_root / retry_path.relative_to(retry_root)
+              target_payload = json.loads(target_path.read_text(encoding='utf-8'))
+              retry_payload = json.loads(retry_path.read_text(encoding='utf-8'))
+              results = {str(a.get('id')): a.get('ip_relevance') for a in retry_payload.get('articles', [])}
+              for article in target_payload.get('articles', []):
+                  result = results.get(str(article.get('id')))
+                  if isinstance(result, dict):
+                      article['ip_relevance'] = result
+              target_path.write_text(json.dumps(target_payload, ensure_ascii=False, indent=2), encoding='utf-8')
+          PY
+          done
+
+      - name: 판정 결과를 운영 데이터에 반영
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+
+          source_root = Path('/tmp/target-data')
+          target_root = Path('docs/data')
+          copied = 0
+          for source in source_root.glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              target = target_root / source.relative_to(source_root)
+              target.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copy2(source, target)
+              copied += 1
+          print(f'판정 결과 반영 파일: {copied}개')
+          PY
+          python -m collector.build_indexes
+
+      - name: 대상기간 결과 진단
+        shell: bash
+        run: |
+          python - <<'PY' | tee /tmp/reprocess-summary.txt
+          from collections import Counter
+          from datetime import date, timedelta
+          from pathlib import Path
+          import json
+
+          start = date.fromisoformat('2026-07-30')
+          end = date.fromisoformat('2026-08-07')
+          current = start
+          method_counts = Counter()
+          level_counts = Counter()
+          total = 0
+          print('날짜별 건수')
+          while current <= end:
+              path = Path(f'docs/data/{current:%Y/%m/%d}/articles.json')
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              articles = payload.get('articles', [])
+              print(f'{current.isoformat()}: {len(articles)}건')
+              total += len(articles)
+              for article in articles:
+                  result = article.get('ip_relevance', {})
+                  method_counts[result.get('method', 'unclassified')] += 1
+                  level_counts[result.get('level', 'unclassified')] += 1
+              current += timedelta(days=1)
+          print(f'합계: {total}건')
+          print('판정 방식:', dict(sorted(method_counts.items())))
+          print('중요도:', dict(sorted(level_counts.items())))
+          print('rules-fallback 잔여:', method_counts['rules-fallback'])
+          PY
+          {
+            echo '### 2026-07-30~2026-08-07 재수행 결과'
+            echo '```text'
+            cat /tmp/reprocess-summary.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 변경 데이터 저장소 반영
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+          git add docs/data
+          git status --short docs/data
+          if git diff --cached --quiet; then
+            echo "변경 데이터가 없습니다."
+            exit 0
+          fi
+          git commit -m "data: 2026-07-30~2026-08-07 재수집 및 Gemini 재판정"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            if ! git rebase origin/main; then
+              git rebase --abort || true
+              exit 1
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((attempt * 5))
+          done
+          exit 1

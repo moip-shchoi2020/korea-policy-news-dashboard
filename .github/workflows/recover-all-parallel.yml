@@ -1,0 +1,495 @@
+name: 전체 일정 병렬 정밀 복구·Gemini 판정
+
+run-name: 2026-08-07~2026-10-29 병렬 정밀 복구
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/recover-all-parallel.yml"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
+concurrency:
+  group: recover-missing-20260807-20261029
+  cancel-in-progress: true
+
+jobs:
+  collect:
+    name: 날짜 수집 shard-${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: [0, 1, 2, 3]
+    steps:
+      - name: 최신 main 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: 패키지 설치
+        run: pip install -r requirements.txt
+
+      - name: shard별 날짜 산출
+        env:
+          SHARD: ${{ matrix.shard }}
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          from datetime import date, timedelta
+          from pathlib import Path
+
+          shard = int(os.environ['SHARD'])
+          start = date.fromisoformat('2026-08-07')
+          end = date.fromisoformat('2026-10-29')
+          dates = []
+          cursor = start
+          index = 0
+          while cursor <= end:
+              if index % 4 == shard:
+                  dates.append(cursor.isoformat())
+              cursor += timedelta(days=1)
+              index += 1
+          Path('/tmp/shard_dates.txt').write_text(
+              ''.join(f'{day}\n' for day in dates), encoding='utf-8'
+          )
+          print(f'shard {shard}: {len(dates)}일')
+          PY
+
+      - name: 원문 대조 후 날짜별 독립 수집
+        timeout-minutes: 130
+        env:
+          SHARD: ${{ matrix.shard }}
+          CONNECT_TIMEOUT_SECONDS: "15"
+          READ_TIMEOUT_SECONDS: "35"
+          HTTP_RETRY_TOTAL: "4"
+          HTTP_BACKOFF_FACTOR: "2"
+          KOREA_MOBILE_FALLBACK: "true"
+          KOREA_PREFERRED_HOST: "www.korea.kr"
+          PYTHONUNBUFFERED: "1"
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/shard-data /tmp/artifact/data /tmp/artifact/unresolved /tmp/artifact/checks
+          : > "/tmp/artifact/unresolved/shard-${SHARD}.txt"
+          : > /tmp/check-lines.jsonl
+
+          source_count() {
+            local day="$1"
+            python - "$day" <<'PY' | tail -n 1
+          import sys
+          import time
+          from datetime import date
+          from collector.collect import DEFAULT_LIST_URL, create_session, parse_list_page, request_page
+
+          day = date.fromisoformat(sys.argv[1])
+          last_error = None
+          for attempt in range(1, 5):
+              try:
+                  session = create_session()
+                  content = request_page(
+                      session,
+                      DEFAULT_LIST_URL,
+                      params={
+                          'pageIndex': '1',
+                          'startDate': day.isoformat(),
+                          'endDate': day.isoformat(),
+                          'period': '',
+                          'srchWord': '',
+                          'repCode': '',
+                          'repCodeType': '',
+                      },
+                  )
+                  parsed = parse_list_page(content, day)
+                  count = parsed.total_count
+                  if count is None:
+                      count = parsed.candidate_count
+                  print(int(count))
+                  raise SystemExit(0)
+              except Exception as exc:
+                  last_error = exc
+                  time.sleep(attempt * 3)
+          print(f'ERROR:{last_error}')
+          PY
+          }
+
+          stored_count() {
+            local root="$1"
+            local day="$2"
+            python - "$root" "$day" <<'PY'
+          import json
+          import sys
+          from datetime import date
+          from pathlib import Path
+          root = Path(sys.argv[1])
+          day = date.fromisoformat(sys.argv[2])
+          path = root / day.strftime('%Y/%m/%d') / 'articles.json'
+          if not path.exists():
+              print(0)
+          else:
+              try:
+                  print(len(json.loads(path.read_text(encoding='utf-8')).get('articles', [])))
+              except Exception:
+                  print(0)
+          PY
+          }
+
+          make_empty_day() {
+            local day="$1"
+            python - "$day" <<'PY'
+          import json
+          import sys
+          from datetime import date, datetime
+          from pathlib import Path
+          from zoneinfo import ZoneInfo
+          day = date.fromisoformat(sys.argv[1])
+          root = Path('/tmp/shard-data') / day.strftime('%Y/%m/%d')
+          root.mkdir(parents=True, exist_ok=True)
+          payload = {
+              'schema_version': 2,
+              'source': '대한민국 정책브리핑 보도자료 HTML',
+              'date': day.isoformat(),
+              'generated_at': datetime.now(ZoneInfo('Asia/Seoul')).isoformat(timespec='seconds'),
+              'article_count': 0,
+              'modified_count': 0,
+              'articles': [],
+          }
+          (root / 'articles.json').write_text(
+              json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
+          )
+          PY
+          }
+
+          stage_day() {
+            local day="$1"
+            python - "$day" <<'PY'
+          import shutil
+          import sys
+          from datetime import date
+          from pathlib import Path
+          day = date.fromisoformat(sys.argv[1])
+          source = Path('/tmp/shard-data') / day.strftime('%Y/%m/%d')
+          target = Path('/tmp/artifact/data') / day.strftime('%Y/%m/%d')
+          if target.exists():
+              shutil.rmtree(target)
+          target.parent.mkdir(parents=True, exist_ok=True)
+          shutil.copytree(source, target)
+          PY
+          }
+
+          while read -r day; do
+            [[ -z "$day" ]] && continue
+            echo "::group::shard ${SHARD} / ${day}"
+            expected=$(source_count "$day")
+            if [[ "$expected" == ERROR:* ]]; then
+              echo "원문 건수 조회 실패: $expected"
+              echo "$day source-query $expected" >> "/tmp/artifact/unresolved/shard-${SHARD}.txt"
+              printf '{"date":"%s","status":"source-query-failed","detail":%s}\n' "$day" "$(python -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$expected")" >> /tmp/check-lines.jsonl
+              echo "::endgroup::"
+              continue
+            fi
+
+            existing=$(stored_count docs/data "$day")
+            echo "원문 ${expected}건 / 기존 저장 ${existing}건"
+            if (( existing >= expected )); then
+              printf '{"date":"%s","expected":%s,"stored":%s,"status":"already-complete"}\n' "$day" "$expected" "$existing" >> /tmp/check-lines.jsonl
+              echo "::endgroup::"
+              continue
+            fi
+
+            if (( expected == 0 )); then
+              make_empty_day "$day"
+              stage_day "$day"
+              printf '{"date":"%s","expected":0,"stored":0,"status":"empty-source"}\n' "$day" >> /tmp/check-lines.jsonl
+              echo "::endgroup::"
+              continue
+            fi
+
+            success=false
+            actual=0
+            for attempt in 1 2 3 4; do
+              echo "수집 ${attempt}/4회차"
+              python -u -m collector.collect \
+                --data-dir /tmp/shard-data \
+                --start-date "$day" \
+                --end-date "$day" \
+                --max-pages-per-day 20 \
+                --detail-workers 2 \
+                --request-delay 0.3 || true
+              actual=$(stored_count /tmp/shard-data "$day")
+              echo "현재 저장 ${actual}/${expected}건"
+              if (( actual >= expected )); then
+                success=true
+                break
+              fi
+              sleep $((attempt * 7))
+            done
+
+            if [[ "$success" == "true" ]]; then
+              stage_day "$day"
+              printf '{"date":"%s","expected":%s,"stored":%s,"status":"recovered"}\n' "$day" "$expected" "$actual" >> /tmp/check-lines.jsonl
+            else
+              echo "$day expected=$expected stored=$actual" >> "/tmp/artifact/unresolved/shard-${SHARD}.txt"
+              printf '{"date":"%s","expected":%s,"stored":%s,"status":"incomplete"}\n' "$day" "$expected" "$actual" >> /tmp/check-lines.jsonl
+            fi
+            echo "::endgroup::"
+            sleep 1
+          done < /tmp/shard_dates.txt
+
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          lines = []
+          source = Path('/tmp/check-lines.jsonl')
+          if source.exists():
+              for line in source.read_text(encoding='utf-8').splitlines():
+                  if line.strip():
+                      lines.append(json.loads(line))
+          target = Path('/tmp/artifact/checks') / f"shard-{os.environ['SHARD']}.json"
+          target.write_text(json.dumps(lines, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+
+      - name: shard 결과 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: recovery-shard-${{ matrix.shard }}
+          path: /tmp/artifact
+          if-no-files-found: error
+          retention-days: 2
+
+  merge:
+    name: 병합·Gemini 판정·배포
+    needs: collect
+    runs-on: ubuntu-latest
+    timeout-minutes: 220
+    steps:
+      - name: 최신 main 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: 패키지 설치
+        run: pip install -r requirements.txt
+
+      - name: shard 결과 내려받기
+        uses: actions/download-artifact@v4
+        with:
+          pattern: recovery-shard-*
+          path: /tmp/recovered
+          merge-multiple: true
+
+      - name: 수집 결과 검증·병합
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "shard별 미해결 내역:"
+          cat /tmp/recovered/unresolved/*.txt || true
+          if grep -Rqs '[^[:space:]]' /tmp/recovered/unresolved; then
+            echo "::error::원문 대비 미완전 날짜가 남았습니다."
+            exit 1
+          fi
+          if [[ -d /tmp/recovered/data ]]; then
+            rsync -a /tmp/recovered/data/ docs/data/
+          fi
+          python -m collector.build_indexes
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          results = []
+          for path in sorted(Path('/tmp/recovered/checks').glob('shard-*.json')):
+              results.extend(json.loads(path.read_text(encoding='utf-8')))
+          results.sort(key=lambda item: item['date'])
+          print(json.dumps(results, ensure_ascii=False, indent=2))
+          if len(results) != 84:
+              raise SystemExit(f'검증 날짜 수가 84일이 아닙니다: {len(results)}')
+          bad = [item for item in results if item.get('status') in {'source-query-failed', 'incomplete'}]
+          if bad:
+              raise SystemExit(f'미완전 날짜가 있습니다: {bad}')
+          Path('/tmp/date-check-results.json').write_text(
+              json.dumps(results, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
+          )
+          PY
+
+      - name: Gemini 전체 판정 및 실패 재시도
+        timeout-minutes: 170
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
+          GEMINI_MAX_ATTEMPTS: "8"
+          PYTHONUNBUFFERED: "1"
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$GEMINI_API_KEY" ]]; then
+            echo "::error::GEMINI_KEY 또는 GEMINI_API_KEY가 없습니다."
+            exit 1
+          fi
+
+          clear_fallback() {
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          changed = 0
+          for path in Path('docs/data').glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              dirty = False
+              for article in payload.get('articles', []):
+                  if article.get('ip_relevance', {}).get('method') == 'rules-fallback':
+                      article.pop('ip_relevance', None)
+                      dirty = True
+                      changed += 1
+              if dirty:
+                  path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          print(f'rules-fallback 초기화: {changed}건')
+          PY
+          }
+
+          count_fallback() {
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          count = 0
+          for path in Path('docs/data').glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              for article in json.loads(path.read_text(encoding='utf-8')).get('articles', []):
+                  if article.get('ip_relevance', {}).get('method') == 'rules-fallback':
+                      count += 1
+          print(count)
+          PY
+          }
+
+          for pass in 1 2 3 4; do
+            clear_fallback
+            python -u -m collector.classify_relevance_gemini \
+              --model "$GEMINI_MODEL" \
+              --batch-size 8 \
+              --max-articles 10000 \
+              --request-delay 8
+            python -m collector.build_indexes
+            remaining=$(count_fallback)
+            echo "Gemini ${pass}/4회차 후 rules-fallback: ${remaining}건"
+            [[ "$remaining" == "0" ]] && break
+            sleep 30
+          done
+
+      - name: 최종 통계·날짜 검증
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from collections import Counter
+          from datetime import date, timedelta
+          from pathlib import Path
+
+          checks = json.loads(Path('/tmp/date-check-results.json').read_text(encoding='utf-8'))
+          methods = Counter()
+          levels = Counter()
+          total = 0
+          for path in Path('docs/data').glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              articles = json.loads(path.read_text(encoding='utf-8')).get('articles', [])
+              total += len(articles)
+              for article in articles:
+                  record = article.get('ip_relevance', {})
+                  methods[record.get('method', 'unclassified')] += 1
+                  levels[record.get('level', 'unclassified')] += 1
+
+          missing_files = []
+          cursor = date.fromisoformat('2026-08-07')
+          end = date.fromisoformat('2026-10-29')
+          while cursor <= end:
+              path = Path('docs/data') / cursor.strftime('%Y/%m/%d') / 'articles.json'
+              if not path.exists():
+                  missing_files.append(cursor.isoformat())
+              cursor += timedelta(days=1)
+
+          manifest = json.loads(Path('docs/data/manifest.json').read_text(encoding='utf-8'))
+          print('날짜 검증:', len(checks))
+          print('파일 누락:', missing_files)
+          print('전체 기사:', total)
+          print('판정 방식:', dict(sorted(methods.items())))
+          print('중요도:', dict(sorted(levels.items())))
+          print('manifest:', json.dumps(manifest, ensure_ascii=False, indent=2))
+
+          Path(os.environ['GITHUB_STEP_SUMMARY']).write_text(
+              '## 전체 일정 병렬 복구 결과\n\n'
+              '- 실행 범위: 2026-08-07 ~ 2026-10-29\n'
+              f'- 원문 대조 날짜: {len(checks)}일\n'
+              f'- 날짜 파일 누락: {len(missing_files)}일\n'
+              f'- 전체 저장 기사: {total:,}건\n'
+              f'- 중요도: `{dict(sorted(levels.items()))}`\n'
+              f'- 판정 방식: `{dict(sorted(methods.items()))}`\n'
+              f'- 최종 데이터 날짜: {manifest.get("last_date")}\n',
+              encoding='utf-8'
+          )
+
+          if missing_files:
+              raise SystemExit(f'날짜 파일 누락: {missing_files}')
+          if manifest.get('last_date') != '2026-10-29':
+              raise SystemExit(f'최종 날짜 불일치: {manifest.get("last_date")}')
+          PY
+
+      - name: 데이터 커밋·push
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+          git add docs/data
+          if ! git diff --cached --quiet; then
+            git commit -m "data: 2026-08-07~2026-10-29 전체 일정 복구·Gemini 판정 [skip ci]"
+            for attempt in 1 2 3; do
+              git fetch origin main
+              if git rebase origin/main && git push origin HEAD:main; then
+                break
+              fi
+              git rebase --abort || true
+              sleep $((attempt * 5))
+            done
+          fi
+
+      - name: GitHub Pages 설정
+        uses: actions/configure-pages@v6
+
+      - name: Pages 배포 파일 업로드
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs
+
+  deploy:
+    name: GitHub Pages 배포
+    needs: merge
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: GitHub Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v5

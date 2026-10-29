@@ -1,0 +1,44 @@
+name: Gemini 판정 표시 수정본 Pages 배포
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/deploy-gemini-label-fix-once.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 최신 main 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: JavaScript 문법 검사
+        run: node --check docs/assets/app.js
+
+      - name: Pages 설정
+        uses: actions/configure-pages@v6
+
+      - name: Pages 파일 업로드
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs
+
+      - name: GitHub Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v5

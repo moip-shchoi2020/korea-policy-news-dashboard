@@ -7,8 +7,8 @@
   "relevance_counts": {
     "critical": 0,
     "important": 0,
-    "normal": 3,
-    "unrelated": 21,
+    "normal": 2,
+    "unrelated": 22,
     "unclassified": 0
   },
   "classified_count": 24,
@@ -30,18 +30,18 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.8,
-        "reason": "특정 부처의 해외 원조 사업으로 지식재산처의 직접적인 업무 연관성은 낮으나, AI 기술 교육 및 디지털 인프라 구축 사례로서 참고 가치가 있음.",
+        "confidence": 0.9,
+        "reason": "특정 부처의 해외 원조 사업으로 지식재산처의 업무나 정보화 정책에 직접적인 영향이 없음.",
         "signals": [
-          "AI 디지털 기술교육기관",
-          "EDCF",
-          "해외 원조 사업"
+          "대외경제협력기금",
+          "탄자니아",
+          "디지털 기술교육기관"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:31:07+09:00"
+        "classified_at": "2026-10-29T22:50:14+09:00"
       }
     },
     {
@@ -70,7 +70,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -87,21 +87,21 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156775190",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.9,
-        "reason": "특정 기관의 교육 플랫폼 활용 사례 공모전으로 지식재산처의 업무와 직접적인 관련이 없으며 일반적인 정보화 활용 사례임.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.95,
+        "reason": "특정 기관의 학습 플랫폼 활용 사례 공모전 개최 사실을 알리는 홍보성 자료로 지식재산처 업무와 무관함.",
         "signals": [
-          "STEP 플랫폼",
+          "STEP",
           "학습 우수사례 공모전",
-          "AI 활용 능력 향상"
+          "직업훈련 플랫폼"
         ],
-        "recommended_action": "참고",
+        "recommended_action": "제외",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:31:07+09:00"
+        "classified_at": "2026-10-29T22:50:14+09:00"
       }
     },
     {
@@ -131,7 +131,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -164,7 +164,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -195,7 +195,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -224,7 +224,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -251,7 +251,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -271,18 +271,18 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.9,
-        "reason": "농업 분야의 디지털 플랫폼 구축 및 운영 사례로 지식재산처의 정보화 사업에 직접적인 영향은 없으나 기술적 참고 사례임.",
+        "confidence": 0.85,
+        "reason": "농촌진흥청의 농업 디지털 플랫폼 기술 홍보 사례로 지식재산처의 정보화 정책에 직접적인 영향은 없음.",
         "signals": [
-          "디지털 플랫폼",
-          "농업기술",
-          "기후변화 대응"
+          "농업 디지털 플랫폼",
+          "와이즈",
+          "기후변화 협력"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:31:07+09:00"
+        "classified_at": "2026-10-29T22:50:14+09:00"
       }
     },
     {
@@ -309,7 +309,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -342,7 +342,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -373,7 +373,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -402,7 +402,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -435,7 +435,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -465,7 +465,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -497,7 +497,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -529,7 +529,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -561,7 +561,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -590,7 +590,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -617,7 +617,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -644,7 +644,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -671,7 +671,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     },
     {
@@ -692,16 +692,17 @@
         "label": "관계없음",
         "score": 1,
         "confidence": 0.95,
-        "reason": "교육부의 교육 데이터 통계 자료 발간으로 지식재산처의 업무나 AI·정보화 정책에 미치는 영향이 없음.",
+        "reason": "교육부의 교육 통계 자료 발간 사실을 알리는 단순 홍보성 자료임.",
         "signals": [
-          "교육 데이터",
-          "통계 자료 발간"
+          "데이터",
+          "교육 통계",
+          "재외교육기관"
         ],
         "recommended_action": "제외",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:31:07+09:00"
+        "classified_at": "2026-10-29T22:50:14+09:00"
       }
     },
     {
@@ -730,7 +731,7 @@
         "method": "rules",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-29T18:30:21+09:00"
+        "classified_at": "2026-10-29T22:50:12+09:00"
       }
     }
   ]

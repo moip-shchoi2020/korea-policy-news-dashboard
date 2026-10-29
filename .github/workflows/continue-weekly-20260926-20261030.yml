@@ -1,0 +1,288 @@
+name: 2026-09-26~2026-10-30 주간 재처리 후속 실행
+
+run-name: 0건 날짜 보완 후 2026-09-26~2026-10-30 순차 처리
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/continue-weekly-20260926-20261030.yml"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONUNBUFFERED: "1"
+
+concurrency:
+  group: backfill-weekly-20260808-20261030
+  cancel-in-progress: false
+
+jobs:
+  continue-backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 최신 main 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: 패키지·코드 검증
+        run: |
+          pip install -r requirements.txt
+          python -m unittest discover -s tests -v
+          python -m py_compile collector/*.py
+          node --check docs/assets/app.js
+
+      - name: Gemini 설정 확인
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "$GEMINI_API_KEY" ]] || { echo "::error::Gemini API 키가 없습니다."; exit 1; }
+
+      - name: 남은 주차 순차 수집·판정·반영
+        timeout-minutes: 270
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
+          GEMINI_MAX_ATTEMPTS: "5"
+          CONNECT_TIMEOUT_SECONDS: "15"
+          READ_TIMEOUT_SECONDS: "30"
+          HTTP_RETRY_TOTAL: "2"
+          HTTP_BACKOFF_FACTOR: "1.5"
+          KOREA_MOBILE_FALLBACK: "true"
+        shell: bash
+        run: |
+          set -euo pipefail
+          ranges=(
+            "2026-09-26 2026-10-02"
+            "2026-10-03 2026-10-09"
+            "2026-10-10 2026-10-16"
+            "2026-10-17 2026-10-23"
+            "2026-10-24 2026-10-30"
+          )
+
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+
+          for range in "${ranges[@]}"; do
+            read -r start_date end_date <<< "$range"
+            label="${start_date}~${end_date}"
+            echo "::group::${label} 재수집"
+
+            python -u -m collector.collect \
+              --start-date "$start_date" \
+              --end-date "$end_date" \
+              --continue-on-error \
+              --detail-workers 3 \
+              --max-pages-per-day 10
+
+            rm -rf /tmp/week-data /tmp/retry-data
+            python - "$start_date" "$end_date" <<'PY'
+          from datetime import date, timedelta
+          from pathlib import Path
+          import json, shutil, sys
+
+          start = date.fromisoformat(sys.argv[1])
+          end = date.fromisoformat(sys.argv[2])
+          current = start
+          total = 0
+          empty_dates = []
+          while current <= end:
+              rel = Path(f"{current:%Y/%m/%d}")
+              source = Path('docs/data') / rel / 'articles.json'
+              target = Path('/tmp/week-data') / rel / 'articles.json'
+              target.parent.mkdir(parents=True, exist_ok=True)
+              if source.exists():
+                  shutil.copy2(source, target)
+                  payload = json.loads(source.read_text(encoding='utf-8'))
+              else:
+                  payload = {
+                      'schema_version': 2,
+                      'date': current.isoformat(),
+                      'source': '대한민국 정책브리핑 보도자료 HTML',
+                      'articles': [],
+                  }
+                  target.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+                  empty_dates.append(current.isoformat())
+              total += len(payload.get('articles', []))
+              current += timedelta(days=1)
+          print(f'주간 작업본: {total}건')
+          print('0건 날짜:', ', '.join(empty_dates) if empty_dates else '없음')
+          PY
+
+            echo "::endgroup::"
+            echo "::group::${label} Gemini 재판정"
+            python -u -m collector.classify_relevance_gemini \
+              --data-dir /tmp/week-data \
+              --model "$GEMINI_MODEL" \
+              --batch-size 5 \
+              --max-articles 5000 \
+              --request-delay 6.5 \
+              --force
+            echo "::endgroup::"
+
+            for retry_round in 1 2; do
+              rm -rf /tmp/retry-data
+              fallback_count=$(python - <<'PY'
+          from pathlib import Path
+          import json
+          source_root = Path('/tmp/week-data')
+          retry_root = Path('/tmp/retry-data')
+          count = 0
+          for path in source_root.glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              fallback = []
+              for article in payload.get('articles', []):
+                  if article.get('ip_relevance', {}).get('method') == 'rules-fallback':
+                      copied = dict(article)
+                      copied.pop('ip_relevance', None)
+                      fallback.append(copied)
+              if fallback:
+                  target = retry_root / path.relative_to(source_root)
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  target.write_text(json.dumps({'schema_version': 2, 'date': payload.get('date'), 'articles': fallback}, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+                  count += len(fallback)
+          print(count)
+          PY
+              )
+              echo "${label} 추가 재시도 ${retry_round}/2: ${fallback_count}건"
+              [[ "$fallback_count" == "0" ]] && break
+              sleep $((retry_round * 20))
+              python -u -m collector.classify_relevance_gemini \
+                --data-dir /tmp/retry-data \
+                --model "$GEMINI_MODEL" \
+                --batch-size 3 \
+                --max-articles 5000 \
+                --request-delay 8 \
+                --force
+              python - <<'PY'
+          from pathlib import Path
+          import json
+          target_root = Path('/tmp/week-data')
+          retry_root = Path('/tmp/retry-data')
+          for retry_path in retry_root.glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              target_path = target_root / retry_path.relative_to(retry_root)
+              target_payload = json.loads(target_path.read_text(encoding='utf-8'))
+              retry_payload = json.loads(retry_path.read_text(encoding='utf-8'))
+              results = {str(a.get('id')): a.get('ip_relevance') for a in retry_payload.get('articles', [])}
+              for article in target_payload.get('articles', []):
+                  result = results.get(str(article.get('id')))
+                  if isinstance(result, dict):
+                      article['ip_relevance'] = result
+              target_path.write_text(json.dumps(target_payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+            done
+
+            python - <<'PY'
+          from pathlib import Path
+          import json, shutil
+          source_root = Path('/tmp/week-data')
+          target_root = Path('docs/data')
+          for source in source_root.glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              target = target_root / source.relative_to(source_root)
+              target.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copy2(source, target)
+          PY
+
+            python -m collector.build_indexes
+
+            python - "$start_date" "$end_date" <<'PY' | tee /tmp/week-summary.txt
+          from collections import Counter
+          from datetime import date, timedelta
+          from pathlib import Path
+          import json, sys
+          start = date.fromisoformat(sys.argv[1])
+          end = date.fromisoformat(sys.argv[2])
+          current = start
+          methods = Counter(); levels = Counter(); total = 0
+          while current <= end:
+              path = Path(f'docs/data/{current:%Y/%m/%d}/articles.json')
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              articles = payload.get('articles', [])
+              print(f'{current.isoformat()}: {len(articles)}건')
+              total += len(articles)
+              for article in articles:
+                  result = article.get('ip_relevance', {})
+                  methods[result.get('method', 'unclassified')] += 1
+                  levels[result.get('level', 'unclassified')] += 1
+              current += timedelta(days=1)
+          print(f'합계: {total}건')
+          print('판정 방식:', dict(sorted(methods.items())))
+          print('중요도:', dict(sorted(levels.items())))
+          print('rules-fallback 잔여:', methods['rules-fallback'])
+          if methods['rules-fallback']:
+              raise SystemExit('Gemini 실패 대체 건이 남았습니다.')
+          PY
+
+            git add docs/data
+            if ! git diff --cached --quiet; then
+              git commit -m "data: ${label} 주간 재수집 및 Gemini 재판정"
+              for attempt in 1 2 3; do
+                git fetch origin main
+                if ! git rebase origin/main; then
+                  git rebase --abort || true
+                  exit 1
+                fi
+                if git push origin HEAD:main; then
+                  break
+                fi
+                [[ "$attempt" == "3" ]] && exit 1
+                sleep $((attempt * 5))
+              done
+            fi
+
+            {
+              echo "### ${label}"
+              echo '```text'
+              cat /tmp/week-summary.txt
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          done
+
+      - name: 일회성 파일 정리
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+          rm -f \
+            .github/workflows/backfill-weekly-20260808-20261029.yml \
+            .github/workflows/backfill-weekly-20260808-20261030.yml \
+            .github/workflows/continue-weekly-20260926-20261030.yml \
+            .backfill-weekly-20260808-20261030.json
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: 주간 백필 완료 후 일회성 파일 정리"
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
+          fi
+
+      - name: Pages 설정
+        uses: actions/configure-pages@v6
+
+      - name: Pages 파일 업로드
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs
+
+      - name: GitHub Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v5

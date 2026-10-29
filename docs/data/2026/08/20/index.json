@@ -6,9 +6,9 @@
   "modified_count": 0,
   "relevance_counts": {
     "critical": 0,
-    "important": 2,
+    "important": 1,
     "normal": 2,
-    "unrelated": 16,
+    "unrelated": 17,
     "unclassified": 0
   },
   "classified_count": 20,
@@ -187,7 +187,7 @@
         "method": "rules-fallback",
         "model": null,
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:36:17+09:00"
+        "classified_at": "2026-10-29T18:23:03+09:00"
       }
     },
     {
@@ -264,18 +264,18 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.78,
-        "reason": "개별 기관의 AI·정보화 사업으로 직접 영향은 낮지만 사례 참고 가치가 있습니다.",
+        "confidence": 0.9,
+        "reason": "질병관리청의 연구 표준 마련 사례로, 데이터 분석 및 연구 표준화 측면에서 참고할 가치가 있음.",
         "signals": [
-          "AI",
-          "표준",
-          "과제"
+          "연구 표준",
+          "유전정보 분석",
+          "데이터 활용"
         ],
         "recommended_action": "참고",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:36:17+09:00"
+        "classified_at": "2026-10-29T18:23:03+09:00"
       }
     },
     {
@@ -352,20 +352,18 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.78,
-        "reason": "개별 기관의 AI·정보화 사업으로 직접 영향은 낮지만 사례 참고 가치가 있습니다.",
+        "confidence": 0.9,
+        "reason": "중소기업 대상 AI·디지털 전환 지원 사업으로, 타 부처의 디지털 전환 정책 사례임.",
         "signals": [
+          "중소기업",
           "AI",
-          "인공지능",
-          "디지털 전환",
-          "전환",
-          "개발"
+          "디지털 전환"
         ],
         "recommended_action": "참고",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:36:30+09:00"
+        "classified_at": "2026-10-29T18:23:03+09:00"
       }
     },
     {
@@ -525,19 +523,21 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156774885",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.84,
-        "reason": "지식재산·특허 업무와 직접 관련된 사안으로 후속 영향 검토가 필요합니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.95,
+        "reason": "특정 기관의 연구 성과 발표 및 특허 출원 사실을 알리는 내용으로, 지식재산처의 정책, 법령, 정보시스템 등에 직접적인 영향이나 제도적 변화를 수반하지 않음.",
         "signals": [
-          "특허"
+          "연구 성과 발표",
+          "특허 출원",
+          "천연물질 효능 확인"
         ],
-        "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "제외",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:36:30+09:00"
+        "classified_at": "2026-10-29T18:23:12+09:00"
       }
     },
     {

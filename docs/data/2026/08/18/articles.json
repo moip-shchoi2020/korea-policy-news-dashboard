@@ -27,18 +27,18 @@
         "level": "important",
         "label": "중요",
         "score": 3,
-        "confidence": 0.78,
-        "reason": "전 부처 정책을 담당하는 기관의 AI·정보화 조치로 확산 가능성을 확인할 필요가 있습니다.",
+        "confidence": 0.9,
+        "reason": "범정부 차원의 AI 프로젝트 참여 사업자 공모 결과로, 향후 지식재산처의 AI 도입 및 관련 정책 수립 시 참고할 수 있는 중요한 정보입니다.",
         "signals": [
-          "AI",
-          "사업",
-          "공모"
+          "AI 프로젝트",
+          "사업자 공모",
+          "범정부 AI"
         ],
         "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:34:32+09:00",
+        "classified_at": "2026-10-29T18:22:36+09:00",
         "source_hash": "8819046a1507937b0d49427b12d6927ad809827ea349a6782a99b3b5426cd39c"
       }
     },
@@ -170,19 +170,20 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.78,
-        "reason": "개별 기관의 AI·정보화 사업으로 직접 영향은 낮지만 사례 참고 가치가 있습니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 1.0,
+        "reason": "국가공무원 채용 시험 합격자 발표로, 지식재산처의 업무와 무관한 일반 행정 사항입니다.",
         "signals": [
-          "시스템"
+          "공무원 채용",
+          "시험 합격자"
         ],
-        "recommended_action": "참고",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "제외",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:34:32+09:00",
+        "classified_at": "2026-10-29T18:22:36+09:00",
         "source_hash": "ae78c3909646fffd3cd3c746b3099a6aa6b1cc821a6d0ccb7ee95eca6688d88f"
       }
     },
@@ -392,23 +393,22 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.78,
-        "reason": "개별 기관의 AI·정보화 사업으로 직접 영향은 낮지만 사례 참고 가치가 있습니다.",
+        "level": "important",
+        "label": "중요",
+        "score": 3,
+        "confidence": 0.8,
+        "reason": "AI와 플랫폼 경제 확산에 따른 노동 환경 변화 토론회로, AI 기술 도입이 지식재산 행정 및 관련 종사자에게 미칠 영향 등을 고려할 때 참고 가치가 있습니다.",
         "signals": [
           "AI",
-          "인공지능",
-          "플랫폼",
-          "확산",
-          "과제"
+          "플랫폼 경제",
+          "노동 환경",
+          "토론회"
         ],
-        "recommended_action": "참고",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "동향 추적",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:34:45+09:00",
+        "classified_at": "2026-10-29T18:22:36+09:00",
         "source_hash": "b4092e2360ac59e64b30e83b8a4a9b790f9b524202df3a0773eeddb80d9022a2"
       }
     },
@@ -663,21 +663,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.84,
-        "reason": "지식재산·특허 업무와 직접 관련된 사안으로 후속 영향 검토가 필요합니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.9,
+        "reason": "기후기술 관련 학술 토론회 개최 사실을 알리는 행사성 보도자료로 지식재산처 업무에 직접적인 영향이 없음.",
         "signals": [
-          "기술이전",
-          "대응",
-          "토론회"
+          "학술 토론회",
+          "기후기술",
+          "행사 개최"
         ],
-        "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "제외",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:34:45+09:00",
+        "classified_at": "2026-10-29T18:22:45+09:00",
         "source_hash": "ed94ac545fdce51807430e11d77e58edc44b80019d3ad930eda2052638dad469"
       }
     },
@@ -779,17 +779,17 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.82,
-        "reason": "AI·정보화 표현은 있으나 구체적인 제도·사업·조치 없이 행사 개최 사실 중심입니다.",
+        "confidence": 0.95,
+        "reason": "특정 산업 노조와의 간담회 개최 사실을 알리는 내용으로 지식재산처의 법령이나 정보화 사업과 무관함.",
         "signals": [
-          "데이터",
-          "간담회"
+          "간담회",
+          "현장 목소리 청취"
         ],
         "recommended_action": "제외",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:34:45+09:00",
+        "classified_at": "2026-10-29T18:22:45+09:00",
         "source_hash": "0f6782d94d308d02bd691602221c0e7bd568ecd593fa8a5ed8889a978b4d8c6e"
       }
     },
@@ -893,19 +893,20 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.84,
-        "reason": "지식재산·특허 업무와 직접 관련된 사안으로 후속 영향 검토가 필요합니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.9,
+        "reason": "외교부 장관의 공식 방한 및 회담 개최 사실을 알리는 외교적 행사로 지식재산처 업무에 직접적인 영향이 없음.",
         "signals": [
-          "심사"
+          "외교장관회담",
+          "공식 방한"
         ],
-        "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "제외",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:34:58+09:00",
+        "classified_at": "2026-10-29T18:22:45+09:00",
         "source_hash": "18ddf22d47246ce6cfee4b27d1bc79aa34583eb883220d320c7c7382ca5a0fab"
       }
     },
@@ -967,23 +968,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "critical",
-        "label": "매우 중요",
-        "score": 4,
-        "confidence": 0.92,
-        "reason": "지식재산 업무와 AI·정보화·규정 변화가 직접 연결되어 즉각적인 영향 가능성이 있습니다.",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.8,
+        "reason": "중대범죄수사청 조직 및 운영에 관한 법령 제정이나, 이는 타 부처의 조직 신설에 관한 것으로 지식재산처에 직접적인 의무를 부과하지 않음.",
         "signals": [
-          "심사",
-          "범정부",
-          "법률",
-          "법령",
-          "시행령"
+          "시행령",
+          "조직 및 운영",
+          "국무회의 의결"
         ],
-        "recommended_action": "즉시 검토",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "참고",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:34:58+09:00",
+        "classified_at": "2026-10-29T18:22:45+09:00",
         "source_hash": "6b282f5e01fbb9b355dea2a435b991d734cc688637b22c5cbea345e2475389b7"
       }
     },
@@ -1122,16 +1121,17 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.78,
-        "reason": "개별 기관의 AI·정보화 사업으로 직접 영향은 낮지만 사례 참고 가치가 있습니다.",
+        "confidence": 0.85,
+        "reason": "통계 작성 결과 발표로 지식재산처의 데이터 관리나 정보화 정책에 직접적인 영향이 없는 단순 정보 제공임.",
         "signals": [
-          "데이터"
+          "소득통계",
+          "실험적통계"
         ],
         "recommended_action": "참고",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:34:58+09:00",
+        "classified_at": "2026-10-29T18:22:45+09:00",
         "source_hash": "9d25a9186c8aabf1bd67a3cf41b4af412a8413243f13ceea1bec0dc7f0eb319a"
       }
     },
@@ -1237,19 +1237,18 @@
         "level": "important",
         "label": "중요",
         "score": 3,
-        "confidence": 0.78,
-        "reason": "전 부처 정책을 담당하는 기관의 AI·정보화 조치로 확산 가능성을 확인할 필요가 있습니다.",
+        "confidence": 0.85,
+        "reason": "범정부 차원의 AI 서비스 경진대회 및 사업화 지원 사업으로, 향후 지식재산처의 AI 도입 및 관련 정책 수립 시 참고할 가치가 있음.",
         "signals": [
-          "AI",
-          "인공지능",
-          "사업",
-          "실험실"
+          "AI 서비스",
+          "경진대회",
+          "사업화 지원"
         ],
         "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:35:11+09:00",
+        "classified_at": "2026-10-29T18:22:45+09:00",
         "source_hash": "f62534bb3ddf4aef018dfeddf95dfef4f2a38bad80091632a4adc15cd1243496"
       }
     },
@@ -1277,17 +1276,18 @@
         "level": "important",
         "label": "중요",
         "score": 3,
-        "confidence": 0.78,
-        "reason": "전 부처 정책을 담당하는 기관의 AI·정보화 조치로 확산 가능성을 확인할 필요가 있습니다.",
+        "confidence": 0.9,
+        "reason": "국가 차원의 AI 파운데이션 모델 개발 성과로, 향후 지식재산처의 AI 행정 도입 및 기술 활용 전략에 중요한 참고 사례가 됨.",
         "signals": [
-          "AI",
-          "개발"
+          "AI 파운데이션 모델",
+          "기술 개발",
+          "단계평가"
         ],
         "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:35:11+09:00",
+        "classified_at": "2026-10-29T18:22:45+09:00",
         "source_hash": "90af9f698b4f057314293ae231a672b81308823b1e6668c5c9a1785e35df6eb1"
       }
     },
@@ -1525,19 +1525,18 @@
         "level": "important",
         "label": "중요",
         "score": 3,
-        "confidence": 0.84,
-        "reason": "지식재산·특허 업무와 직접 관련된 사안으로 후속 영향 검토가 필요합니다.",
+        "confidence": 0.95,
+        "reason": "지식재산처의 특정 산업 분야 특허 경쟁력 분석 자료로, 향후 관련 산업의 지식재산 정책 수립 및 전략적 대응에 직접 활용됨.",
         "signals": [
-          "지식재산처",
-          "지식재산",
-          "특허",
-          "발명"
+          "특허 경쟁력",
+          "IP5",
+          "특허출원"
         ],
         "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:35:11+09:00",
+        "classified_at": "2026-10-29T18:22:45+09:00",
         "source_hash": "17afc623af6c0a2898e772f4c48ad62114e69f5be80191495a8bd815dd29553b"
       }
     },
@@ -1900,17 +1899,18 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.78,
-        "reason": "개별 기관의 AI·정보화 사업으로 직접 영향은 낮지만 사례 참고 가치가 있습니다.",
+        "confidence": 0.9,
+        "reason": "특정 기관의 AI 홍보대사 활동 사례로, 지식재산처의 업무나 정보화 정책에 직접적인 영향이 없는 일반적인 홍보성 사업입니다.",
         "signals": [
-          "AI",
-          "인공지능"
+          "AI 홍보대사",
+          "문화유산",
+          "디지털 외교"
         ],
         "recommended_action": "참고",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:35:24+09:00",
+        "classified_at": "2026-10-29T18:22:54+09:00",
         "source_hash": "c88ebe5312729bc9d9388c41b3d71ebc598f0d081c13ebf9916c5946170ffa43"
       }
     },
@@ -1938,18 +1938,19 @@
         "level": "important",
         "label": "중요",
         "score": 3,
-        "confidence": 0.78,
-        "reason": "전 부처 정책을 담당하는 기관의 AI·정보화 조치로 확산 가능성을 확인할 필요가 있습니다.",
+        "confidence": 0.85,
+        "reason": "조달청의 혁신제품 시범구매 사업은 공공부문 AI 도입 및 실증과 관련이 있어 향후 지식재산처의 관련 기술 도입 시 참고할 가치가 있습니다.",
         "signals": [
-          "AI",
-          "실증",
-          "선정"
+          "혁신제품",
+          "공공실증",
+          "AI 도입",
+          "시범구매"
         ],
         "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:35:24+09:00",
+        "classified_at": "2026-10-29T18:22:54+09:00",
         "source_hash": "471856dc2aa42da2a7dd39181a6b6618331962ac39a725230935fe8a99cc0a2a"
       }
     },
@@ -2056,20 +2057,18 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.78,
-        "reason": "개별 기관의 AI·정보화 사업으로 직접 영향은 낮지만 사례 참고 가치가 있습니다.",
+        "confidence": 0.9,
+        "reason": "공공기관의 개별적인 AI 서비스 도입 사례로, 타 부처의 업무 자동화 및 데이터 활용 사례로서 참고 가치가 있습니다.",
         "signals": [
-          "AI",
-          "인공지능",
           "생성형 AI",
           "공공데이터",
-          "데이터"
+          "MCP 서비스"
         ],
         "recommended_action": "참고",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:35:24+09:00",
+        "classified_at": "2026-10-29T18:22:54+09:00",
         "source_hash": "6ff26d5822404dd973e6762eb10027b4b28c66d289059ac289b44620d38ef7a1"
       }
     },
@@ -2097,20 +2096,18 @@
         "level": "important",
         "label": "중요",
         "score": 3,
-        "confidence": 0.78,
-        "reason": "전 부처 정책을 담당하는 기관의 AI·정보화 조치로 확산 가능성을 확인할 필요가 있습니다.",
+        "confidence": 0.8,
+        "reason": "범정부 차원의 재난안전통신망 연동 및 AI 기술 개발 과제로, 향후 공공부문 AI 인프라 및 보안 표준화와 연관될 가능성이 있습니다.",
         "signals": [
-          "AI",
-          "시스템",
-          "개발",
-          "사업",
-          "과제"
+          "재난안전통신망",
+          "AI 무전요약",
+          "공공 AI 연구"
         ],
         "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:35:37+09:00",
+        "classified_at": "2026-10-29T18:22:54+09:00",
         "source_hash": "728c8a41da0d39e459b73f7bdee8a1bf44b5cd3df04806cfcf094178a0fe1ec4"
       }
     },
@@ -2209,21 +2206,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "critical",
-        "label": "매우 중요",
-        "score": 4,
-        "confidence": 0.92,
-        "reason": "지식재산 업무와 AI·정보화·규정 변화가 직접 연결되어 즉각적인 영향 가능성이 있습니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.95,
+        "reason": "취약계층을 위한 행정심판 법률상담 서비스 도입으로, 지식재산처의 정보화 사업이나 AI 정책과는 직접적인 관련이 없습니다.",
         "signals": [
-          "심판",
-          "법률",
-          "도입"
+          "행정심판",
+          "법률상담",
+          "권리구제"
         ],
-        "recommended_action": "즉시 검토",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "제외",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:35:37+09:00",
+        "classified_at": "2026-10-29T18:22:54+09:00",
         "source_hash": "fca7cd44d36fe813967e84b4c96dd27c72c9653f04a73052b1c09628cbd7235e"
       }
     },
@@ -2471,20 +2468,18 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.78,
-        "reason": "개별 기관의 AI·정보화 사업으로 직접 영향은 낮지만 사례 참고 가치가 있습니다.",
+        "confidence": 0.8,
+        "reason": "AI 딥페이크 관련 법·제도 점검은 지식재산권 보호와 간접적 연관성이 있으나, 현재는 전문가 회의 단계로 직접적인 영향은 제한적입니다.",
         "signals": [
-          "AI",
-          "인공지능",
-          "법률",
-          "점검",
-          "대응"
+          "AI 딥페이크",
+          "디지털 성범죄",
+          "법제도 점검"
         ],
         "recommended_action": "참고",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:35:37+09:00",
+        "classified_at": "2026-10-29T18:22:54+09:00",
         "source_hash": "a9843780e9ed3eff864580d6c562dd5d789092d4b5a8e82d1ad8346dcbf205f1"
       }
     },
@@ -2567,11 +2562,10 @@
   "article_count": 68,
   "modified_count": 0,
   "classification_prompt_version": "ip-office-relevance-v1.0",
-  "classification_updated_at": "2026-08-20T10:36:30+09:00",
+  "classification_updated_at": "2026-10-29T18:23:12+09:00",
   "relevance_counts": {
-    "important": 8,
-    "unrelated": 52,
-    "normal": 6,
-    "critical": 2
+    "important": 7,
+    "unrelated": 56,
+    "normal": 5
   }
 }

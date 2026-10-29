@@ -6,8 +6,8 @@
   "modified_count": 0,
   "relevance_counts": {
     "critical": 1,
-    "important": 8,
-    "normal": 7,
+    "important": 6,
+    "normal": 9,
     "unrelated": 97,
     "unclassified": 0
   },
@@ -3042,20 +3042,21 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156772499",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.84,
-        "reason": "지식재산·특허 업무와 직접 관련된 사안으로 후속 영향 검토가 필요합니다.",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.9,
+        "reason": "타 부처의 국유 특허 기술이전 사례로, 지식재산처의 업무와 직접적인 연관성이 낮고 일반적인 기술 사업화 사례임.",
         "signals": [
-          "특허",
-          "기술이전"
+          "국유특허",
+          "기술이전",
+          "산업화"
         ],
-        "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "참고",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:26+09:00"
+        "classified_at": "2026-10-29T18:20:53+09:00"
       }
     },
     {
@@ -3130,23 +3131,21 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156772495",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.84,
-        "reason": "지식재산·특허 업무와 직접 관련된 사안으로 후속 영향 검토가 필요합니다.",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.9,
+        "reason": "소방청의 자체 개발 기술에 대한 특허 이전 및 사업화 사례로, 지식재산처의 정책이나 시스템에 미치는 영향은 없음.",
         "signals": [
-          "특허",
-          "발명",
-          "적용",
-          "개발",
-          "사업"
+          "국유특허",
+          "기술이전",
+          "사업화"
         ],
-        "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "참고",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:26+09:00"
+        "classified_at": "2026-10-29T18:20:53+09:00"
       }
     },
     {

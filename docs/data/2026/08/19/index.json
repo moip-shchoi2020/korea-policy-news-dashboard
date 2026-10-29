@@ -6,9 +6,9 @@
   "modified_count": 0,
   "relevance_counts": {
     "critical": 0,
-    "important": 3,
-    "normal": 3,
-    "unrelated": 68,
+    "important": 1,
+    "normal": 2,
+    "unrelated": 71,
     "unclassified": 0
   },
   "classified_count": 74,
@@ -27,19 +27,20 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156774882",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.84,
-        "reason": "지식재산·특허 업무와 직접 관련된 사안으로 후속 영향 검토가 필요합니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.95,
+        "reason": "외교부의 한중 외교장관 회담 결과 발표로, 지식재산처의 정보화 및 AI 정책과 무관한 외교 행사입니다.",
         "signals": [
-          "심사"
+          "외교장관 회담",
+          "한중관계"
         ],
-        "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "제외",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:35:50+09:00"
+        "classified_at": "2026-10-29T18:22:54+09:00"
       }
     },
     {
@@ -388,21 +389,20 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156774847",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.84,
-        "reason": "지식재산·특허 업무와 직접 관련된 사안으로 후속 영향 검토가 필요합니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.95,
+        "reason": "산림청의 가로수 관리 우수사례 선정 발표로, 지식재산처의 업무나 정보화 사업에 미치는 영향이 없습니다.",
         "signals": [
-          "심사",
-          "선정",
-          "공모"
+          "가로수 관리",
+          "우수사례 선정"
         ],
-        "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "제외",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:35:50+09:00"
+        "classified_at": "2026-10-29T18:22:54+09:00"
       }
     },
     {
@@ -505,17 +505,18 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.82,
-        "reason": "AI·정보화 표현은 있으나 구체적인 제도·사업·조치 없이 행사 개최 사실 중심입니다.",
+        "confidence": 1.0,
+        "reason": "특정 대학의 서비스 품질 모니터링단 발족 행사로 지식재산처의 업무나 정책에 직접적인 영향이 없음.",
         "signals": [
-          "시스템",
-          "발대식"
+          "서비스 품질",
+          "모니터링단",
+          "사용자 중심"
         ],
         "recommended_action": "제외",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:35:50+09:00"
+        "classified_at": "2026-10-29T18:23:03+09:00"
       }
     },
     {
@@ -888,17 +889,18 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.78,
-        "reason": "개별 기관의 AI·정보화 사업으로 직접 영향은 낮지만 사례 참고 가치가 있습니다.",
+        "confidence": 0.9,
+        "reason": "교육부의 AI 교육 서비스 도입 사례로, 타 부처의 AI 활용 사례로서 참고 가치가 있음.",
         "signals": [
+          "인공지능",
           "AI",
-          "인공지능"
+          "교육 서비스"
         ],
         "recommended_action": "참고",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:36:04+09:00"
+        "classified_at": "2026-10-29T18:23:03+09:00"
       }
     },
     {
@@ -915,19 +917,21 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156774824",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.78,
-        "reason": "개별 기관의 AI·정보화 사업으로 직접 영향은 낮지만 사례 참고 가치가 있습니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 1.0,
+        "reason": "지역 경제 동향에 관한 통계 발표로 지식재산처의 정보화나 AI 정책과 무관함.",
         "signals": [
-          "데이터"
+          "지역경제동향",
+          "통계",
+          "경제지표"
         ],
-        "recommended_action": "참고",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "제외",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:36:04+09:00"
+        "classified_at": "2026-10-29T18:23:03+09:00"
       }
     },
     {
@@ -947,20 +951,18 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.78,
-        "reason": "개별 기관의 AI·정보화 사업으로 직접 영향은 낮지만 사례 참고 가치가 있습니다.",
+        "confidence": 0.9,
+        "reason": "물산업 분야의 혁신 기술 및 아이디어 공모 사업으로, 타 부처의 기술 창업 지원 사례임.",
         "signals": [
-          "인공지능",
-          "전환",
-          "사업",
-          "공모",
-          "대응"
+          "혁신기술",
+          "창업대전",
+          "아이디어 발굴"
         ],
         "recommended_action": "참고",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:36:04+09:00"
+        "classified_at": "2026-10-29T18:23:03+09:00"
       }
     },
     {
@@ -1163,20 +1165,18 @@
         "level": "important",
         "label": "중요",
         "score": 3,
-        "confidence": 0.84,
-        "reason": "지식재산·특허 업무와 직접 관련된 사안으로 후속 영향 검토가 필요합니다.",
+        "confidence": 0.95,
+        "reason": "지식재산처 내부의 심사·심판 품질 관리 및 포상에 관한 내용으로, 기관의 핵심 업무 수행과 직결됨.",
         "signals": [
-          "지식재산처",
-          "지식재산",
-          "심사",
-          "심판",
-          "선정"
+          "심사품질",
+          "심판관",
+          "품질경연"
         ],
         "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:36:17+09:00"
+        "classified_at": "2026-10-29T18:23:03+09:00"
       }
     },
     {

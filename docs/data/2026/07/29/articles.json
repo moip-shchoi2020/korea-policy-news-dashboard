@@ -3847,20 +3847,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.84,
-        "reason": "지식재산·특허 업무와 직접 관련된 사안으로 후속 영향 검토가 필요합니다.",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.9,
+        "reason": "타 부처의 국유 특허 기술이전 사례로, 지식재산처의 업무와 직접적인 연관성이 낮고 일반적인 기술 사업화 사례임.",
         "signals": [
-          "특허",
-          "기술이전"
+          "국유특허",
+          "기술이전",
+          "산업화"
         ],
-        "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "참고",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:26+09:00",
+        "classified_at": "2026-10-29T18:20:53+09:00",
         "source_hash": "a8d4894a38b62427fc2e9fed50c49bf585f73d563635631116484cf484b2799f"
       }
     },
@@ -3959,23 +3960,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.84,
-        "reason": "지식재산·특허 업무와 직접 관련된 사안으로 후속 영향 검토가 필요합니다.",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.9,
+        "reason": "소방청의 자체 개발 기술에 대한 특허 이전 및 사업화 사례로, 지식재산처의 정책이나 시스템에 미치는 영향은 없음.",
         "signals": [
-          "특허",
-          "발명",
-          "적용",
-          "개발",
-          "사업"
+          "국유특허",
+          "기술이전",
+          "사업화"
         ],
-        "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "참고",
+        "method": "gemini-api",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-08-20T10:33:26+09:00",
+        "classified_at": "2026-10-29T18:20:53+09:00",
         "source_hash": "5f70ed2cb1bd3cb28cb11cc0ae65d3bf0aeed0a42cbe55490beb9ffd59183050"
       }
     },
@@ -4279,11 +4278,11 @@
   "article_count": 113,
   "modified_count": 0,
   "classification_prompt_version": "ip-office-relevance-v1.0",
-  "classification_updated_at": "2026-08-20T10:36:30+09:00",
+  "classification_updated_at": "2026-10-29T18:23:12+09:00",
   "relevance_counts": {
     "unrelated": 97,
-    "important": 8,
-    "normal": 7,
+    "important": 6,
+    "normal": 9,
     "critical": 1
   }
 }

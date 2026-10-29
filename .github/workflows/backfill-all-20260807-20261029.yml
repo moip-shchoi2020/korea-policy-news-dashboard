@@ -1,0 +1,283 @@
+name: 전체 누락기간 수집·Gemini 판정·배포
+
+run-name: 2026-08-07~2026-10-29 전체 백필
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/backfill-all-20260807-20261029.yml"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
+concurrency:
+  group: full-backfill-20260807-20261029
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: 저장소 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: 패키지 설치
+        run: pip install -r requirements.txt
+
+      - name: 기본 검증
+        run: |
+          python -m unittest discover -s tests -v
+          python -m py_compile collector/*.py
+          node --check docs/assets/app.js
+
+      - name: Gemini 키 확인
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$GEMINI_API_KEY" ]]; then
+            echo "::error::GEMINI_KEY 또는 GEMINI_API_KEY가 등록되어 있지 않습니다."
+            exit 1
+          fi
+          echo "Gemini API 키 확인 완료"
+
+      - name: 전체 기간 구간별 수집·판정·저장
+        timeout-minutes: 300
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
+          GEMINI_MAX_ATTEMPTS: "6"
+          CONNECT_TIMEOUT_SECONDS: "15"
+          READ_TIMEOUT_SECONDS: "30"
+          HTTP_RETRY_TOTAL: "2"
+          HTTP_BACKOFF_FACTOR: "1.5"
+          KOREA_MOBILE_FALLBACK: "true"
+          PYTHONUNBUFFERED: "1"
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+
+          ranges=(
+            "2026-08-07 2026-08-17"
+            "2026-08-18 2026-08-31"
+            "2026-09-01 2026-09-15"
+            "2026-09-16 2026-09-30"
+            "2026-10-01 2026-10-15"
+            "2026-10-16 2026-10-29"
+          )
+
+          commit_and_push() {
+            local label="$1"
+            git add docs/data
+            if git diff --cached --quiet; then
+              echo "${label}: 저장할 변경이 없습니다."
+              return 0
+            fi
+            git commit -m "data: ${label} 수집 및 Gemini 판정 [skip ci]"
+            for attempt in 1 2 3; do
+              git fetch origin main
+              if git rebase origin/main && git push origin HEAD:main; then
+                echo "${label}: 데이터 push 완료"
+                return 0
+              fi
+              git rebase --abort || true
+              sleep $((attempt * 4))
+            done
+            echo "::error::${label}: 데이터 push 실패"
+            return 1
+          }
+
+          for range in "${ranges[@]}"; do
+            read -r start_date end_date <<< "$range"
+            label="${start_date}~${end_date}"
+            echo "::group::${label} 수집"
+            python -u -m collector.collect \
+              --start-date "$start_date" \
+              --end-date "$end_date" \
+              --continue-on-error \
+              --detail-workers 3 \
+              --max-pages-per-day 10
+            echo "::endgroup::"
+
+            echo "::group::${label} Gemini 판정"
+            python -u -m collector.classify_relevance_gemini \
+              --model "$GEMINI_MODEL" \
+              --batch-size 8 \
+              --max-articles 5000 \
+              --request-delay 6
+            python -m collector.build_indexes
+            echo "::endgroup::"
+
+            commit_and_push "$label"
+          done
+
+      - name: rules-fallback 재시도
+        timeout-minutes: 90
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
+          GEMINI_MAX_ATTEMPTS: "6"
+          PYTHONUNBUFFERED: "1"
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+
+          count_fallback() {
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          count = 0
+          for path in Path('docs/data').glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              count += sum(1 for article in payload.get('articles', []) if article.get('ip_relevance', {}).get('method') == 'rules-fallback')
+          print(count)
+          PY
+          }
+
+          clear_fallback() {
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          changed = 0
+          for path in Path('docs/data').glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              dirty = False
+              for article in payload.get('articles', []):
+                  if article.get('ip_relevance', {}).get('method') == 'rules-fallback':
+                      article.pop('ip_relevance', None)
+                      dirty = True
+                      changed += 1
+              if dirty:
+                  path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          print(f'rules-fallback 초기화: {changed}건')
+          PY
+          }
+
+          for pass in 1 2 3; do
+            remaining=$(count_fallback)
+            echo "재시도 ${pass}/3 전 rules-fallback: ${remaining}건"
+            if [[ "$remaining" == "0" ]]; then
+              break
+            fi
+            clear_fallback
+            python -u -m collector.classify_relevance_gemini \
+              --model "$GEMINI_MODEL" \
+              --batch-size 6 \
+              --max-articles 5000 \
+              --request-delay 8
+            python -m collector.build_indexes
+            git add docs/data
+            if ! git diff --cached --quiet; then
+              git commit -m "data: Gemini 실패 판정 재시도 ${pass} [skip ci]"
+              git fetch origin main
+              git rebase origin/main
+              git push origin HEAD:main
+            fi
+            sleep 20
+          done
+
+          remaining=$(count_fallback)
+          echo "최종 rules-fallback: ${remaining}건"
+          echo "FINAL_FALLBACK_COUNT=${remaining}" >> "$GITHUB_ENV"
+
+      - name: 날짜 연속성 및 최종 통계 검증
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from collections import Counter
+          from datetime import date, timedelta
+          from pathlib import Path
+
+          start = date.fromisoformat('2026-08-07')
+          end = date.fromisoformat('2026-10-29')
+          missing = []
+          cursor = start
+          while cursor <= end:
+              path = Path('docs/data') / cursor.strftime('%Y/%m/%d') / 'articles.json'
+              if not path.exists():
+                  missing.append(cursor.isoformat())
+              cursor += timedelta(days=1)
+
+          methods = Counter()
+          total = 0
+          for path in Path('docs/data').glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              articles = payload.get('articles', [])
+              total += len(articles)
+              methods.update(article.get('ip_relevance', {}).get('method', 'unclassified') for article in articles)
+
+          manifest = json.loads(Path('docs/data/manifest.json').read_text(encoding='utf-8'))
+          print('누락 날짜:', missing)
+          print('전체 기사:', total)
+          print('판정 방식:', dict(sorted(methods.items())))
+          print('manifest:', json.dumps(manifest, ensure_ascii=False, indent=2))
+
+          summary = Path(__import__('os').environ['GITHUB_STEP_SUMMARY'])
+          summary.write_text(
+              '## 전체 백필 결과\n\n'
+              f'- 검증 기간: 2026-08-07 ~ 2026-10-29\n'
+              f'- 누락 날짜: {len(missing)}일\n'
+              f'- 전체 기사: {total:,}건\n'
+              f'- 판정 방식: `{dict(sorted(methods.items()))}`\n'
+              f'- 최종 데이터 날짜: {manifest.get("last_date")}\n',
+              encoding='utf-8'
+          )
+
+          if missing:
+              raise SystemExit(f'누락 날짜가 있습니다: {missing}')
+          if manifest.get('last_date') != '2026-10-29':
+              raise SystemExit(f'최종 날짜 불일치: {manifest.get("last_date")}')
+          PY
+
+      - name: 최종 AI 판정 상태 확인
+        shell: bash
+        run: |
+          if [[ "${FINAL_FALLBACK_COUNT:-0}" != "0" ]]; then
+            echo "::warning::Gemini 일시 장애로 rules-fallback ${FINAL_FALLBACK_COUNT}건이 남았습니다. 데이터 수집·날짜 연속성은 완료됐습니다."
+          else
+            echo "모든 AI 검토 대상이 Gemini 또는 확정 규칙으로 판정되었습니다."
+          fi
+
+      - name: GitHub Pages 설정
+        uses: actions/configure-pages@v6
+
+      - name: Pages 배포 파일 업로드
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs
+
+  deploy:
+    needs: backfill
+    if: success()
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: GitHub Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v5

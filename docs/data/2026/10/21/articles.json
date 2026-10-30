@@ -3444,18 +3444,19 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.95,
-        "reason": "본 보도자료는 수출 촉진을 위한 대규모 수출상담회 및 행사의 개최 사실을 알리는 내용으로 지식재산처의 법령, 정보시스템, AI 사업 등에 직접적인 영향을 미치지 않습니다.",
+        "confidence": 1.0,
+        "reason": "단순 수출 상담회 개최 및 지원 사업 홍보로 지식재산처의 업무와 직접적인 관련이 없음.",
         "signals": [
-          "수출 붐업코리아",
           "수출상담회",
-          "행사 개최"
+          "수출지원",
+          "지방기업",
+          "신성장산업"
         ],
         "recommended_action": "제외",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T18:49:07+09:00",
+        "classified_at": "2026-10-30T18:53:31+09:00",
         "source_hash": "7a80ccae43df3215af652ca337a8229c4ef54cff78c669b61132099b12c3b4b2"
       }
     },
@@ -3952,11 +3953,11 @@
   "article_count": 104,
   "modified_count": 0,
   "classification_prompt_version": "ip-office-relevance-v1.0",
-  "classification_updated_at": "2026-10-30T18:48:56+09:00",
+  "classification_updated_at": "2026-10-30T18:53:37+09:00",
   "relevance_counts": {
-    "unrelated": 93,
+    "unrelated": 94,
     "important": 4,
     "critical": 1,
-    "normal": 6
+    "normal": 5
   }
 }

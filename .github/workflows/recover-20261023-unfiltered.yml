@@ -1,0 +1,274 @@
+name: 2026-10-23 누락 자료 역추적 수집
+
+run-name: 10월 23일 일반목록 역추적·Gemini 분류·재배포
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/recover-20261023-unfiltered.yml"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONUNBUFFERED: "1"
+  GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
+  GEMINI_FALLBACK_MODEL: ${{ vars.GEMINI_FALLBACK_MODEL || 'gemini-3.5-flash-lite' }}
+  GEMINI_MAX_ATTEMPTS: "4"
+  CONNECT_TIMEOUT_SECONDS: "15"
+  READ_TIMEOUT_SECONDS: "30"
+  HTTP_RETRY_TOTAL: "2"
+  HTTP_BACKOFF_FACTOR: "1.5"
+  KOREA_MOBILE_FALLBACK: "true"
+
+concurrency:
+  group: recover-20261023-unfiltered
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 최신 main 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: 패키지·코드 검증
+        run: |
+          pip install -r requirements.txt
+          python -m unittest discover -s tests -v
+          python -m py_compile collector/*.py
+
+      - name: 일반 목록에서 2026-10-23 자료 역추적 수집
+        timeout-minutes: 50
+        shell: bash
+        run: |
+          python -u - <<'PY'
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+          from datetime import date
+          import time
+
+          from collector.collect import (
+              BASE_URL,
+              DEFAULT_LIST_URL,
+              create_session,
+              fetch_detail_article,
+              parse_list_page,
+              request_page,
+              upsert_article,
+          )
+          from pathlib import Path
+
+          target = date(2026, 10, 23)
+          session = create_session()
+          entries_by_id = {}
+          passed_target = False
+
+          for page_no in range(1, 81):
+              print(f'일반 목록 페이지 {page_no} 확인 중', flush=True)
+              content = request_page(
+                  session,
+                  DEFAULT_LIST_URL,
+                  params={
+                      'pageIndex': str(page_no),
+                      'period': '',
+                      'srchWord': '',
+                      'repCode': '',
+                      'repCodeType': '',
+                  },
+              )
+              parsed = parse_list_page(content, target)
+              seen_dates = [date.fromisoformat(value) for value in parsed.dates_seen]
+              if seen_dates:
+                  print('  화면 날짜:', ', '.join(value.isoformat() for value in sorted(set(seen_dates))), flush=True)
+              for entry in parsed.entries:
+                  entries_by_id[entry.article_id] = entry
+
+              if seen_dates and max(seen_dates) < target:
+                  passed_target = True
+                  break
+              time.sleep(0.2)
+
+          if not entries_by_id:
+              raise SystemExit('일반 목록 역추적에서도 2026-10-23 자료를 찾지 못했습니다.')
+          if not passed_target:
+              raise SystemExit('2026-10-23보다 과거 날짜까지 도달하지 못했습니다. 페이지 한도를 늘려야 합니다.')
+
+          entries = list(entries_by_id.values())
+          print(f'2026-10-23 목록 자료 {len(entries)}건 확인, 본문 수집 시작', flush=True)
+          articles = []
+          failures = 0
+          with ThreadPoolExecutor(max_workers=3) as executor:
+              futures = {
+                  executor.submit(fetch_detail_article, entry, request_delay=0.15): entry
+                  for entry in entries
+              }
+              completed = 0
+              for future in as_completed(futures):
+                  article, failed = future.result()
+                  articles.append(article)
+                  failures += int(failed)
+                  completed += 1
+                  if completed == 1 or completed % 10 == 0 or completed == len(entries):
+                      print(f'본문 진행 {completed}/{len(entries)} (실패 {failures})', flush=True)
+
+          data_dir = Path('docs/data')
+          outcomes = {'created': 0, 'updated': 0, 'normalized': 0, 'unchanged': 0}
+          for article in articles:
+              outcome = upsert_article(data_dir, article, save_history=True)
+              outcomes[outcome] = outcomes.get(outcome, 0) + 1
+          print('저장 결과:', outcomes, '본문 실패:', failures, flush=True)
+          PY
+
+      - name: 10월 23일 자료 Gemini 분류
+        timeout-minutes: 30
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
+        run: |
+          test -n "$GEMINI_API_KEY" || { echo "::error::Gemini 키가 없습니다."; exit 1; }
+          python -u -m collector.classify_relevance_gemini \
+            --data-dir docs/data \
+            --model "$GEMINI_MODEL" \
+            --batch-size 10 \
+            --max-articles 20000 \
+            --request-delay 3
+
+      - name: 실패 판정 대체 모델 보완
+        timeout-minutes: 20
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/retry-1023
+          count=$(python - <<'PY'
+          from pathlib import Path
+          import json
+
+          source = Path('docs/data/2026/10/23/articles.json')
+          payload = json.loads(source.read_text(encoding='utf-8'))
+          articles = []
+          for article in payload.get('articles', []):
+              if article.get('ip_relevance', {}).get('method') == 'rules-fallback':
+                  copied = dict(article)
+                  copied.pop('ip_relevance', None)
+                  articles.append(copied)
+          if articles:
+              target = Path('/tmp/retry-1023/2026/10/23/articles.json')
+              target.parent.mkdir(parents=True, exist_ok=True)
+              target.write_text(json.dumps({'schema_version': 2, 'date': '2026-10-23', 'articles': articles}, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          print(len(articles))
+          PY
+          )
+          echo "대체 모델 재시도 대상: ${count}건"
+          if [[ "$count" != "0" ]]; then
+            python -u -m collector.classify_relevance_gemini \
+              --data-dir /tmp/retry-1023 \
+              --model "$GEMINI_FALLBACK_MODEL" \
+              --batch-size 10 \
+              --max-articles 2000 \
+              --request-delay 3 \
+              --force
+            python - <<'PY'
+          from pathlib import Path
+          import json
+
+          source = Path('/tmp/retry-1023/2026/10/23/articles.json')
+          target = Path('docs/data/2026/10/23/articles.json')
+          source_payload = json.loads(source.read_text(encoding='utf-8'))
+          target_payload = json.loads(target.read_text(encoding='utf-8'))
+          results = {str(a.get('id')): a.get('ip_relevance') for a in source_payload.get('articles', [])}
+          updated = 0
+          for article in target_payload.get('articles', []):
+              result = results.get(str(article.get('id')))
+              if result and result.get('method') == 'gemini-api':
+                  article['ip_relevance'] = result
+                  updated += 1
+          target.write_text(json.dumps(target_payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          print(f'대체 결과 병합: {updated}건')
+          PY
+          fi
+
+      - name: 전체 색인 재생성·완전성 검증
+        run: |
+          python -m collector.build_indexes
+          python - <<'PY' | tee /tmp/recovery-status.txt
+          from collections import Counter
+          from pathlib import Path
+          import json
+
+          day = json.loads(Path('docs/data/2026/10/23/articles.json').read_text(encoding='utf-8'))
+          manifest = json.loads(Path('docs/data/manifest.json').read_text(encoding='utf-8'))
+          methods = Counter(a.get('ip_relevance', {}).get('method', 'unclassified') for a in day.get('articles', []))
+          print('2026-10-23 기사:', len(day.get('articles', [])))
+          print('2026-10-23 판정 방식:', dict(sorted(methods.items())))
+          print('전체 기사:', manifest.get('article_count'))
+          print('최종 기준일:', manifest.get('last_date'))
+          print('전체 미분류:', manifest.get('unclassified_count'))
+          if len(day.get('articles', [])) == 0:
+              raise SystemExit('2026-10-23 기사 수가 0건입니다.')
+          if methods['unclassified'] or methods['rules-fallback']:
+              raise SystemExit('2026-10-23에 미분류 또는 AI 실패 대체 건이 남았습니다.')
+          if manifest.get('last_date') != '2026-10-30' or int(manifest.get('unclassified_count') or 0):
+              raise SystemExit('전체 색인 검증에 실패했습니다.')
+          PY
+
+      - name: 브라우저 캐시 갱신
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          path = Path('docs/index.html')
+          text = path.read_text(encoding='utf-8')
+          text = re.sub(r'assets/app\.js(?:\?v=[^"\']*)?', 'assets/app.js?v=20261030-3', text)
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: main 반영
+        run: |
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+          git rm --ignore-unmatch .github/workflows/recover-20261023-unfiltered.yml
+          git add docs/data docs/index.html
+          git commit -m "data: 2026-10-23 누락 보도자료 역추적 복구"
+          git fetch origin main
+          git merge --no-edit -X ours origin/main
+          git push origin HEAD:main
+
+      - name: Pages 설정
+        uses: actions/configure-pages@v6
+
+      - name: Pages 파일 업로드
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs
+
+      - name: GitHub Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v5
+
+      - name: 결과 요약
+        if: always()
+        run: |
+          {
+            echo '### 2026-10-23 누락 복구 결과'
+            echo '```text'
+            if [[ -f /tmp/recovery-status.txt ]]; then cat /tmp/recovery-status.txt; else echo '결과 파일 미생성'; fi
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -11,20 +11,22 @@ on:
     branches: [main]
     paths:
       - "docs/**"
+      - "!docs/data/**"
       - "collector/**"
       - "tests/**"
       - "requirements.txt"
       - ".gitignore"
       - ".github/workflows/collect-and-deploy.yml"
   schedule:
-    # 2026-07-29 정상 동작 당시와 동일한 한국시간 예약 구조
-    - cron: "3 8 * * *"
+    # 한국시간 매일 08:17, 11:17, 16:17, 19:17 실행
+    # 정각 직후 혼잡을 피하기 위해 17분으로 분산한다.
+    - cron: "17 8 * * *"
       timezone: "Asia/Seoul"
-    - cron: "3 11 * * *"
+    - cron: "17 11 * * *"
       timezone: "Asia/Seoul"
-    - cron: "3 16 * * *"
+    - cron: "17 16 * * *"
       timezone: "Asia/Seoul"
-    - cron: "3 19 * * *"
+    - cron: "17 19 * * *"
       timezone: "Asia/Seoul"
   workflow_dispatch:
     inputs:
@@ -39,7 +41,7 @@ on:
       lookback_days:
         description: "날짜를 비운 경우 오늘 포함 재확인할 일수"
         required: false
-        default: "3"
+        default: "4"
         type: string
       skip_collection:
         description: "기존 데이터만 AI 분석하고 보도자료 수집은 생략"
@@ -52,7 +54,7 @@ on:
         default: false
         type: boolean
       require_ai:
-        description: "AI 키 누락·호출 실패 시 전체 실행을 실패 처리"
+        description: "AI 실패 대체 또는 미분류가 남으면 전체 실행을 실패 처리"
         required: false
         default: false
         type: boolean
@@ -69,77 +71,17 @@ permissions:
 
 env:
   PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONUNBUFFERED: "1"
 
+# 데이터 커밋이 다시 push 워크플로를 취소하지 않도록 이벤트 유형별로 분리한다.
 concurrency:
-  group: policy-dashboard-${{ github.ref }}
-  cancel-in-progress: true
+  group: policy-dashboard-${{ github.workflow }}-${{ github.event_name }}
+  cancel-in-progress: false
 
 jobs:
-  schedule_guard:
-    runs-on: ubuntu-latest
-    outputs:
-      allowed: ${{ steps.guard.outputs.allowed }}
-      expected_label: ${{ steps.guard.outputs.expected_label }}
-    steps:
-      - name: 한국시간 예약 실행 유효성 확인
-        id: guard
-        shell: bash
-        env:
-          SCHEDULE_EXPRESSION: ${{ github.event.schedule }}
-          MAX_SCHEDULE_DELAY_MINUTES: "120"
-        run: |
-          set -euo pipefail
-          allowed=true
-          expected_label="수동 또는 코드 변경 실행"
-
-          echo "GitHub event: $GITHUB_EVENT_NAME"
-          echo "UTC now: $(date -u '+%Y-%m-%d %H:%M:%S %Z')"
-          echo "KST now: $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S %Z')"
-
-          if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
-            case "$SCHEDULE_EXPRESSION" in
-              "3 8 * * *")  expected_hour=8;  expected_minute=3; expected_label="08:03 대시보드 갱신 + Telegram" ;;
-              "3 11 * * *") expected_hour=11; expected_minute=3; expected_label="11:03 대시보드 갱신" ;;
-              "3 16 * * *") expected_hour=16; expected_minute=3; expected_label="16:03 대시보드 갱신 + Telegram" ;;
-              "3 19 * * *") expected_hour=19; expected_minute=3; expected_label="19:03 대시보드 갱신" ;;
-              *)
-                echo "::error::허용되지 않은 예약 표현식입니다: $SCHEDULE_EXPRESSION"
-                allowed=false
-                expected_hour=0
-                expected_minute=0
-                expected_label="알 수 없는 예약"
-                ;;
-            esac
-
-            if [[ "$allowed" == "true" ]]; then
-              current_hour=$((10#$(TZ=Asia/Seoul date '+%H')))
-              current_minute=$((10#$(TZ=Asia/Seoul date '+%M')))
-              current_total=$((current_hour * 60 + current_minute))
-              expected_total=$((expected_hour * 60 + expected_minute))
-              delay=$((current_total - expected_total))
-              if (( delay < 0 )); then
-                delay=$((delay + 1440))
-              fi
-
-              echo "Trigger cron (Asia/Seoul): $SCHEDULE_EXPRESSION"
-              echo "예정 작업: $expected_label"
-              echo "예약 시각 대비 시작 지연: ${delay}분"
-
-              if (( delay > MAX_SCHEDULE_DELAY_MINUTES )); then
-                echo "::warning::예약 시각보다 ${delay}분 늦게 시작되어 이번 실행을 건너뜁니다."
-                allowed=false
-              fi
-            fi
-          fi
-
-          echo "allowed=$allowed" >> "$GITHUB_OUTPUT"
-          echo "expected_label=$expected_label" >> "$GITHUB_OUTPUT"
-
   build:
-    needs: schedule_guard
-    if: needs.schedule_guard.outputs.allowed == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - name: 저장소 가져오기
         uses: actions/checkout@v6
@@ -150,18 +92,24 @@ jobs:
       - name: 실행 유형 및 예약 시각 확인
         shell: bash
         env:
-          EXPECTED_SCHEDULE_LABEL: ${{ needs.schedule_guard.outputs.expected_label }}
           SCHEDULE_EXPRESSION: ${{ github.event.schedule }}
         run: |
+          set -euo pipefail
+          label="수동 또는 코드 변경 실행"
+          case "$SCHEDULE_EXPRESSION" in
+            "17 8 * * *")  label="08:17 대시보드 갱신 + Telegram" ;;
+            "17 11 * * *") label="11:17 대시보드 갱신" ;;
+            "17 16 * * *") label="16:17 대시보드 갱신 + Telegram" ;;
+            "17 19 * * *") label="19:17 대시보드 갱신" ;;
+          esac
           echo "GitHub event: $GITHUB_EVENT_NAME"
-          echo "예정 작업: $EXPECTED_SCHEDULE_LABEL"
-          if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
-            echo "Trigger cron (Asia/Seoul): $SCHEDULE_EXPRESSION"
-          fi
+          echo "예정 작업: $label"
           echo "UTC now: $(date -u '+%Y-%m-%d %H:%M:%S %Z')"
           echo "KST now: $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S %Z')"
-          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
-            echo "코드 업로드 실행이므로 수집과 AI 분석은 생략하고 기존 데이터만 배포합니다."
+          if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
+            echo "예약 실행이 지연되더라도 건너뛰지 않고 수집을 수행합니다."
+          elif [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            echo "코드 변경 실행이므로 수집과 AI 분석은 생략하고 기존 데이터만 배포합니다."
           fi
 
       - name: Python 설치
@@ -176,37 +124,118 @@ jobs:
       - name: Python 기본 테스트
         run: python -m unittest discover -s tests -v
 
-      - name: JavaScript 문법 검사
-        run: node --check docs/assets/app.js
+      - name: Python·JavaScript 문법 검사
+        run: |
+          python -m py_compile collector/*.py
+          node --check docs/assets/app.js
 
       - name: 보도자료 수집
+        id: collect
+        continue-on-error: true
         if: github.event_name != 'push' && (github.event_name != 'workflow_dispatch' || !inputs.skip_collection)
-        timeout-minutes: 20
+        timeout-minutes: 25
         env:
           START_DATE: ${{ inputs.start_date }}
           END_DATE: ${{ inputs.end_date }}
-          INPUT_LOOKBACK_DAYS: ${{ inputs.lookback_days || '3' }}
+          INPUT_LOOKBACK_DAYS: ${{ inputs.lookback_days || '4' }}
           CONNECT_TIMEOUT_SECONDS: "15"
           READ_TIMEOUT_SECONDS: "30"
           HTTP_RETRY_TOTAL: "2"
           HTTP_BACKOFF_FACTOR: "1.5"
           KOREA_MOBILE_FALLBACK: "true"
-          PYTHONUNBUFFERED: "1"
         shell: bash
         run: |
           set -euo pipefail
           LOOKBACK_DAYS="$INPUT_LOOKBACK_DAYS"
           if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
-            # 2026-07-29 정상 동작 당시와 같이 오늘과 전날을 재확인한다.
-            LOOKBACK_DAYS="2"
+            # 늦게 게시되거나 수정된 자료까지 다음 실행에서 다시 확인한다.
+            LOOKBACK_DAYS="4"
           fi
-          args=(--lookback-days "$LOOKBACK_DAYS" --continue-on-error --detail-workers 3 --max-pages-per-day 10)
+          args=(--lookback-days "$LOOKBACK_DAYS" --detail-workers 3 --max-pages-per-day 15)
           if [[ -n "$START_DATE" && -n "$END_DATE" ]]; then
             args+=(--start-date "$START_DATE" --end-date "$END_DATE")
           else
             args+=(--require-records)
           fi
           python -u -m collector.collect "${args[@]}"
+
+      - name: 날짜 검색 실패 시 일반 목록 역추적 복구
+        if: >-
+          ${{
+            always() &&
+            github.event_name != 'push' &&
+            (github.event_name != 'workflow_dispatch' || !inputs.skip_collection) &&
+            steps.collect.outcome == 'failure'
+          }}
+        timeout-minutes: 30
+        env:
+          START_DATE: ${{ inputs.start_date }}
+          END_DATE: ${{ inputs.end_date }}
+          INPUT_LOOKBACK_DAYS: ${{ inputs.lookback_days || '4' }}
+          CONNECT_TIMEOUT_SECONDS: "15"
+          READ_TIMEOUT_SECONDS: "30"
+          HTTP_RETRY_TOTAL: "2"
+          HTTP_BACKOFF_FACTOR: "1.5"
+          KOREA_MOBILE_FALLBACK: "true"
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "날짜별 검색이 실패하여 일반 목록 역추적 방식으로 복구합니다."
+          LOOKBACK_DAYS="$INPUT_LOOKBACK_DAYS"
+          [[ "$GITHUB_EVENT_NAME" == "schedule" ]] && LOOKBACK_DAYS="4"
+          args=(--lookback-days "$LOOKBACK_DAYS" --max-pages 120 --detail-workers 3)
+          if [[ -n "$START_DATE" && -n "$END_DATE" ]]; then
+            args+=(--start-date "$START_DATE" --end-date "$END_DATE")
+          fi
+          python -u -m collector.recover_recent "${args[@]}"
+
+      - name: 0건 날짜 파일 보완
+        if: success() && github.event_name != 'push' && (github.event_name != 'workflow_dispatch' || !inputs.skip_collection)
+        env:
+          START_DATE: ${{ inputs.start_date }}
+          END_DATE: ${{ inputs.end_date }}
+          INPUT_LOOKBACK_DAYS: ${{ inputs.lookback_days || '4' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - "$START_DATE" "$END_DATE" "$INPUT_LOOKBACK_DAYS" "$GITHUB_EVENT_NAME" <<'PY'
+          from datetime import date, datetime, timedelta
+          from pathlib import Path
+          from zoneinfo import ZoneInfo
+          import json, sys
+
+          start_text, end_text, lookback_text, event_name = sys.argv[1:]
+          if start_text and end_text:
+              start = date.fromisoformat(start_text)
+              end = date.fromisoformat(end_text)
+          else:
+              lookback = 4 if event_name == "schedule" else max(1, int(lookback_text or "4"))
+              end = datetime.now(ZoneInfo("Asia/Seoul")).date()
+              start = end - timedelta(days=lookback - 1)
+
+          created = []
+          current = start
+          while current <= end:
+              path = Path(f"docs/data/{current:%Y/%m/%d}/articles.json")
+              if not path.exists():
+                  path.parent.mkdir(parents=True, exist_ok=True)
+                  path.write_text(
+                      json.dumps(
+                          {
+                              "schema_version": 2,
+                              "date": current.isoformat(),
+                              "source": "대한민국 정책브리핑 보도자료 HTML",
+                              "articles": [],
+                          },
+                          ensure_ascii=False,
+                          indent=2,
+                      ) + "\n",
+                      encoding="utf-8",
+                  )
+                  created.append(current.isoformat())
+              current += timedelta(days=1)
+          print("0건 날짜 보완:", ", ".join(created) if created else "없음")
+          PY
 
       - name: AI 공급자 설정 확인
         if: success() && github.event_name != 'push'
@@ -222,28 +251,127 @@ jobs:
 
       - name: 지식재산처 AI 연관도 분석
         if: success() && github.event_name != 'push'
-        timeout-minutes: 20
+        timeout-minutes: 25
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
           FORCE_AI_RECLASSIFY: ${{ inputs.force_ai_reclassify || false }}
-          REQUIRE_AI: ${{ inputs.require_ai || false }}
-          PYTHONUNBUFFERED: "1"
         shell: bash
         run: |
           set -euo pipefail
-          args=(--model "$GEMINI_MODEL" --batch-size 3 --max-articles 300 --request-delay 4.1)
+          args=(--model "$GEMINI_MODEL" --batch-size 10 --max-articles 2000 --request-delay 3)
           if [[ "$FORCE_AI_RECLASSIFY" == "true" ]]; then
             args+=(--force)
           fi
-          if [[ "$REQUIRE_AI" == "true" ]]; then
-            args+=(--require-ai)
-          fi
           python -u -m collector.classify_relevance_gemini "${args[@]}"
 
-      - name: 색인 재생성
+      - name: Gemini 실패 건 대체 모델 재판정
+        if: success() && github.event_name != 'push'
+        timeout-minutes: 15
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
+          GEMINI_FALLBACK_MODEL: ${{ vars.GEMINI_FALLBACK_MODEL || 'gemini-3.5-flash-lite' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$GEMINI_API_KEY" ]]; then
+            echo "Gemini 키가 없어 대체 모델 재판정을 생략합니다."
+            exit 0
+          fi
+
+          rm -rf /tmp/gemini-fallback
+          fallback_count=$(python - <<'PY'
+          from pathlib import Path
+          import json
+
+          source_root = Path('docs/data')
+          target_root = Path('/tmp/gemini-fallback')
+          count = 0
+          for source in source_root.glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              payload = json.loads(source.read_text(encoding='utf-8'))
+              articles = []
+              for article in payload.get('articles', []):
+                  if article.get('ip_relevance', {}).get('method') == 'rules-fallback':
+                      copied = dict(article)
+                      copied.pop('ip_relevance', None)
+                      articles.append(copied)
+              if articles:
+                  target = target_root / source.relative_to(source_root)
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  target.write_text(
+                      json.dumps(
+                          {'schema_version': 2, 'date': payload.get('date'), 'articles': articles},
+                          ensure_ascii=False,
+                          indent=2,
+                      ) + '\n',
+                      encoding='utf-8',
+                  )
+                  count += len(articles)
+          print(count)
+          PY
+          )
+          echo "대체 모델 재판정 대상: ${fallback_count}건"
+          [[ "$fallback_count" == "0" ]] && exit 0
+
+          python -u -m collector.classify_relevance_gemini \
+            --data-dir /tmp/gemini-fallback \
+            --model "$GEMINI_FALLBACK_MODEL" \
+            --batch-size 10 \
+            --max-articles 2000 \
+            --request-delay 3 \
+            --force
+
+          python - <<'PY'
+          from pathlib import Path
+          import json
+
+          source_root = Path('/tmp/gemini-fallback')
+          target_root = Path('docs/data')
+          updated = 0
+          for source in source_root.glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              target = target_root / source.relative_to(source_root)
+              source_payload = json.loads(source.read_text(encoding='utf-8'))
+              target_payload = json.loads(target.read_text(encoding='utf-8'))
+              results = {
+                  str(article.get('id')): article.get('ip_relevance')
+                  for article in source_payload.get('articles', [])
+                  if isinstance(article.get('ip_relevance'), dict)
+              }
+              for article in target_payload.get('articles', []):
+                  result = results.get(str(article.get('id')))
+                  if result and result.get('method') == 'gemini-api':
+                      article['ip_relevance'] = result
+                      updated += 1
+              target.write_text(
+                  json.dumps(target_payload, ensure_ascii=False, indent=2) + '\n',
+                  encoding='utf-8',
+              )
+          print(f'대체 모델 정상 결과 병합: {updated}건')
+          PY
+
+      - name: 색인 재생성 및 AI 결과 검증
         if: success()
-        run: python -m collector.build_indexes
+        env:
+          REQUIRE_AI: ${{ inputs.require_ai || false }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m collector.build_indexes
+          python - "$REQUIRE_AI" <<'PY'
+          from collections import Counter
+          from pathlib import Path
+          import json, sys
+
+          require_ai = sys.argv[1].lower() == 'true'
+          methods = Counter()
+          for path in Path('docs/data').glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              for article in payload.get('articles', []):
+                  methods[article.get('ip_relevance', {}).get('method', 'unclassified')] += 1
+          print('판정 방식:', dict(sorted(methods.items())))
+          if require_ai and (methods['rules-fallback'] or methods['unclassified']):
+              raise SystemExit('AI 실패 대체 또는 미분류 자료가 남았습니다.')
+          PY
 
       - name: 수집·AI 분석 결과 진단
         if: always() && github.event_name != 'push'
@@ -260,10 +388,10 @@ jobs:
           from pathlib import Path
 
           counts = Counter()
-          for path in Path("docs/data").glob("[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json"):
-              payload = json.loads(path.read_text(encoding="utf-8"))
-              for article in payload.get("articles", []):
-                  counts[article.get("ip_relevance", {}).get("method", "unclassified")] += 1
+          for path in Path('docs/data').glob('[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/articles.json'):
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              for article in payload.get('articles', []):
+                  counts[article.get('ip_relevance', {}).get('method', 'unclassified')] += 1
           print(dict(sorted(counts.items())))
           PY
 
@@ -284,9 +412,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "data: 보도자료 및 지식재산처 AI 연관도 갱신"
-          git reset --hard HEAD
-          git clean -fd
+          git commit -m "data: 정기 보도자료 및 지식재산처 AI 연관도 갱신"
 
           for attempt in 1 2 3; do
             echo "원격 main 동기화 및 push 시도 ${attempt}/3"
@@ -329,17 +455,16 @@ jobs:
         uses: actions/deploy-pages@v5
 
   notify_telegram:
-    needs: [schedule_guard, build, deploy]
+    needs: [build, deploy]
     if: >-
       ${{
         always() &&
-        needs.schedule_guard.outputs.allowed == 'true' &&
         needs.build.result == 'success' &&
         needs.deploy.result == 'success' &&
         (
           (
             github.event_name == 'schedule' &&
-            (github.event.schedule == '3 8 * * *' || github.event.schedule == '3 16 * * *')
+            (github.event.schedule == '17 8 * * *' || github.event.schedule == '17 16 * * *')
           ) ||
           (github.event_name == 'workflow_dispatch' && inputs.send_telegram)
         )
@@ -361,23 +486,22 @@ jobs:
       - name: Telegram 전송 패키지 설치
         run: pip install requests
 
-      - name: Telegram 설정 사전 점검
+      - name: Telegram 설정 확인
+        id: telegram_config
         shell: bash
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          set -euo pipefail
-          if [[ -z "$TELEGRAM_BOT_TOKEN" ]]; then
-            echo "::error::Repository secret TELEGRAM_BOT_TOKEN이 없습니다."
-            exit 1
-          fi
-          if [[ -z "$TELEGRAM_CHAT_ID" ]]; then
-            echo "::error::Repository secret TELEGRAM_CHAT_ID가 없습니다."
-            exit 1
+          if [[ -n "$TELEGRAM_BOT_TOKEN" && -n "$TELEGRAM_CHAT_ID" ]]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Telegram 설정이 없어 브리핑 발송만 생략합니다."
           fi
 
       - name: Telegram 브리핑 발송
+        if: steps.telegram_config.outputs.configured == 'true'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -392,6 +516,6 @@ jobs:
           PIPELINE_BUILD_RESULT: ${{ needs.build.result }}
           PIPELINE_DEPLOY_RESULT: ${{ needs.deploy.result }}
           TRIGGER_SCHEDULE: ${{ github.event.schedule }}
-          TELEGRAM_REPORT_TITLE: ${{ github.event.schedule == '3 8 * * *' && '08시 브리핑' || github.event.schedule == '3 16 * * *' && '16시 브리핑' || '수동 시험 발송' }}
+          TELEGRAM_REPORT_TITLE: ${{ github.event.schedule == '17 8 * * *' && '08시 브리핑' || github.event.schedule == '17 16 * * *' && '16시 브리핑' || '수동 시험 발송' }}
           PYTHONUNBUFFERED: "1"
         run: python -u -m collector.send_telegram --require-config

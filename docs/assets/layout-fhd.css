@@ -1,0 +1,402 @@
+/*
+ * Desktop viewport layout
+ * Target: FHD display, Chrome bookmark bar visible, browser zoom 100%.
+ * The document itself stays within the viewport; long controls and article results
+ * scroll inside their own panels. Mobile/tablet layouts continue to use document scroll.
+ */
+
+@media (min-width: 961px) {
+  html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    overflow: hidden;
+  }
+
+  .header-inner {
+    padding: 14px 0 16px;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .site-header h1 {
+    font-size: clamp(1.45rem, 1.7vw, 2rem);
+  }
+
+  .eyebrow {
+    margin-bottom: 3px;
+  }
+
+  .header-description {
+    max-width: 920px;
+    margin-top: 5px;
+    font-size: 0.8rem;
+    line-height: 1.35;
+  }
+
+  .header-status {
+    min-width: 170px;
+    padding: 8px 11px;
+  }
+
+  .dashboard-shell {
+    width: min(1800px, calc(100% - 28px));
+    min-height: 0;
+    margin: 10px auto 8px;
+    align-self: stretch;
+    align-items: stretch;
+    grid-template-columns: clamp(360px, 24vw, 430px) minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .dashboard-sidebar,
+  .dashboard-workspace {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .control-panel {
+    position: static;
+    top: auto;
+    height: 100%;
+    max-height: none;
+    padding: 12px 14px;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
+
+  .compact-heading h2,
+  .calendar-toolbar h2,
+  .list-heading h2 {
+    font-size: 1.05rem;
+  }
+
+  .section-kicker,
+  .eyebrow {
+    font-size: 0.69rem;
+  }
+
+  .dataset-summary,
+  .month-summary,
+  .selected-date-summary {
+    font-size: 0.72rem;
+    line-height: 1.35;
+  }
+
+  .keyword-controls {
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .field-group label {
+    margin-bottom: 4px;
+    font-size: 0.79rem;
+  }
+
+  textarea {
+    min-height: 54px;
+    max-height: 68px;
+    resize: none;
+    padding: 7px 9px;
+    line-height: 1.35;
+  }
+
+  .help-text {
+    margin-top: 4px;
+    font-size: 0.68rem;
+    line-height: 1.3;
+  }
+
+  .button {
+    min-height: 32px;
+    padding: 5px 10px;
+    font-size: 0.78rem;
+  }
+
+  .button-small,
+  .icon-button {
+    min-height: 31px;
+    height: 31px;
+  }
+
+  .keyword-chips {
+    margin-top: 7px;
+  }
+
+  .chip,
+  .badge {
+    min-height: 21px;
+    padding: 1px 7px;
+    font-size: 0.67rem;
+  }
+
+  .relevance-policy {
+    margin-top: 8px;
+  }
+
+  .relevance-policy summary {
+    padding: 7px 9px;
+    font-size: 0.72rem;
+  }
+
+  .control-divider {
+    margin: 10px 0;
+  }
+
+  .month-title-row {
+    margin: 8px 0 6px;
+  }
+
+  .month-title-row h3 {
+    font-size: 1rem;
+  }
+
+  .calendar-weekdays span {
+    padding: 4px 2px;
+    font-size: 0.66rem;
+  }
+
+  .calendar-cell,
+  .calendar-cell-inner {
+    min-height: clamp(60px, 7.1dvh, 72px);
+  }
+
+  .calendar-cell-inner {
+    padding: 4px;
+    gap: 2px;
+  }
+
+  .calendar-day-number {
+    font-size: 0.7rem;
+  }
+
+  .calendar-relevance-grid {
+    gap: 1px 2px;
+  }
+
+  .calendar-relevance-count {
+    padding: 1px 2px;
+    font-size: 0.53rem;
+    line-height: 1.15;
+  }
+
+  .calendar-relevance-count strong {
+    font-size: 0.57rem;
+  }
+
+  .calendar-modified-count {
+    font-size: 0.48rem;
+  }
+
+  .relevance-legend {
+    gap: 3px 7px;
+    margin-top: 6px;
+    font-size: 0.61rem;
+  }
+
+  .legend-swatch {
+    width: 11px;
+    height: 11px;
+  }
+
+  .calendar-legend {
+    margin-top: 5px;
+    font-size: 0.63rem;
+    line-height: 1.3;
+  }
+
+  .dashboard-workspace {
+    height: 100%;
+    min-height: 0;
+    display: block;
+  }
+
+  .dashboard-workspace .list-panel {
+    height: 100%;
+    min-height: 0;
+    padding: 12px 14px;
+  }
+
+  .list-heading {
+    gap: 10px;
+  }
+
+  .list-instruction {
+    max-width: 900px;
+    margin-top: 3px;
+    overflow: hidden;
+    font-size: 0.7rem;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .article-list {
+    --visible-card-count: 3;
+    --article-card-gap: 8px;
+    flex: 1 1 auto;
+    min-height: 0;
+    margin-top: 8px;
+    gap: var(--article-card-gap);
+    grid-auto-rows: calc(
+      (100% - (var(--visible-card-count) - 1) * var(--article-card-gap)) /
+        var(--visible-card-count)
+    );
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
+
+  .article-card {
+    min-height: 0;
+    max-height: 100%;
+    align-content: start;
+    gap: 4px;
+    padding: 8px 10px;
+    overflow: hidden;
+  }
+
+  .article-card-relevance-row {
+    flex-wrap: nowrap;
+    gap: 5px;
+  }
+
+  .relevance-badge,
+  .relevance-action,
+  .relevance-method {
+    min-height: 20px;
+    padding: 1px 7px;
+    font-size: 0.63rem;
+    line-height: 1.2;
+  }
+
+  .relevance-action,
+  .relevance-method {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .relevance-method {
+    min-width: 0;
+  }
+
+  .article-card-topline {
+    overflow: hidden;
+    font-size: 0.66rem;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .article-card-title {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    font-size: 0.9rem;
+    line-height: 1.3;
+  }
+
+  .article-card-summary {
+    -webkit-line-clamp: 2;
+    font-size: 0.74rem;
+    line-height: 1.32;
+  }
+
+  .article-card-reason {
+    display: -webkit-box;
+    overflow: hidden;
+    padding: 5px 7px;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    font-size: 0.7rem;
+    line-height: 1.3;
+  }
+
+  .article-card-signals {
+    display: block;
+    overflow: hidden;
+    font-size: 0.64rem;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .article-card-footer {
+    min-height: 18px;
+    margin-top: auto;
+    gap: 8px;
+  }
+
+  .article-card-keywords,
+  .article-card-link-hint {
+    overflow: hidden;
+    font-size: 0.65rem;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .site-footer {
+    width: min(1800px, calc(100% - 28px));
+    min-height: 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 0 0 7px;
+    overflow: hidden;
+    font-size: 0.65rem;
+    line-height: 1.25;
+  }
+
+  .site-footer p {
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* Short desktop viewports still keep three cards visible by reducing secondary text. */
+@media (min-width: 961px) and (max-height: 820px) {
+  .header-inner {
+    padding-top: 10px;
+    padding-bottom: 12px;
+  }
+
+  .header-description,
+  .site-footer p:last-child {
+    display: none;
+  }
+
+  .calendar-cell,
+  .calendar-cell-inner {
+    min-height: 58px;
+  }
+
+  .article-card-summary,
+  .article-card-reason {
+    -webkit-line-clamp: 1;
+  }
+
+  .article-card-signals {
+    display: none;
+  }
+}
+
+/* At tablet and mobile widths the original stacked, document-scrolling layout is retained. */
+@media (max-width: 960px) {
+  html {
+    overflow: auto;
+  }
+}

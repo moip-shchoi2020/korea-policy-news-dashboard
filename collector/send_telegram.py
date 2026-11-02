@@ -21,6 +21,7 @@ DATA_DIR = Path("docs/data")
 CONFIG_PATH = DATA_DIR / "config.json"
 TELEGRAM_API_ROOT = "https://api.telegram.org"
 MAX_TELEGRAM_TEXT = 3800  # Bot API 한도 4096자보다 여유 있게 분할
+DEFAULT_TELEGRAM_LEVELS = ("critical", "important")
 
 LEVEL_ORDER = {
     "critical": 4,
@@ -98,6 +99,32 @@ def parse_keywords(value: str) -> list[str]:
     return result
 
 
+def parse_levels(value: str | None) -> list[str]:
+    raw_value = normalize_text(value or "")
+    if not raw_value:
+        return list(DEFAULT_TELEGRAM_LEVELS)
+
+    seen: set[str] = set()
+    levels: list[str] = []
+    for raw in re.split(r"[\s,;]+", raw_value):
+        level = raw.strip().casefold()
+        if level in LEVEL_ORDER and level not in seen:
+            seen.add(level)
+            levels.append(level)
+    return levels or list(DEFAULT_TELEGRAM_LEVELS)
+
+
+def configured_levels() -> list[str]:
+    return parse_levels(os.getenv("TELEGRAM_LEVELS", ""))
+
+
+def safe_bool_env(name: str, default: bool = False) -> bool:
+    raw = os.getenv(name)
+    if raw is None or not raw.strip():
+        return default
+    return raw.strip().casefold() in {"1", "true", "yes", "on", "y"}
+
+
 def keyword_matches(text: str, keyword: str) -> bool:
     normalized_text = normalize_text(text).casefold()
     normalized_keyword = normalize_text(keyword).casefold()
@@ -171,7 +198,9 @@ def select_articles(
     max_normal: int,
     max_unclassified: int,
     max_total: int,
+    included_levels: Iterable[str] | None = None,
 ) -> list[dict[str, Any]]:
+    allowed_levels = set(included_levels or DEFAULT_TELEGRAM_LEVELS)
     limits = {
         "critical": max_critical,
         "important": max_important,
@@ -191,7 +220,9 @@ def select_articles(
         reverse=True,
     ):
         level = article_level(article)
-        if used[level] >= limits[level]:
+        if level not in allowed_levels:
+            continue
+        if used[level] >= limits.get(level, 0):
             continue
         selected.append(article)
         used[level] += 1
@@ -216,16 +247,30 @@ def build_digest(report_date: str | None = None) -> DigestResult:
         defaults = config.get("default_keywords", []) if isinstance(config, dict) else []
         keywords = [normalize_text(item) for item in defaults if normalize_text(item)]
 
-    articles_path = DATA_DIR / parsed.strftime("%Y") / parsed.strftime("%m") / parsed.strftime("%d") / "articles.json"
+    included_levels = configured_levels()
+    require_keyword_match = safe_bool_env("TELEGRAM_REQUIRE_KEYWORD_MATCH", False)
+
+    articles_path = (
+        DATA_DIR
+        / parsed.strftime("%Y")
+        / parsed.strftime("%m")
+        / parsed.strftime("%d")
+        / "articles.json"
+    )
     payload = read_json(articles_path, {})
     raw_articles = payload.get("articles", []) if isinstance(payload, dict) else []
     articles = [item for item in raw_articles if isinstance(item, dict)]
 
     matched: list[dict[str, Any]] = []
     for article in articles:
-        hits = matched_keywords(article, keywords)
-        if keywords and not hits:
+        level = article_level(article)
+        if level not in included_levels:
             continue
+
+        hits = matched_keywords(article, keywords)
+        if require_keyword_match and keywords and not hits:
+            continue
+
         copied = dict(article)
         copied["_telegram_matched_keywords"] = hits
         matched.append(copied)
@@ -237,9 +282,10 @@ def build_digest(report_date: str | None = None) -> DigestResult:
         matched,
         max_critical=safe_int_env("TELEGRAM_MAX_CRITICAL", 20),
         max_important=safe_int_env("TELEGRAM_MAX_IMPORTANT", 20),
-        max_normal=safe_int_env("TELEGRAM_MAX_NORMAL", 5),
-        max_unclassified=safe_int_env("TELEGRAM_MAX_UNCLASSIFIED", 3),
+        max_normal=safe_int_env("TELEGRAM_MAX_NORMAL", 0),
+        max_unclassified=safe_int_env("TELEGRAM_MAX_UNCLASSIFIED", 0),
         max_total=safe_int_env("TELEGRAM_MAX_ARTICLES", 30, minimum=1),
+        included_levels=included_levels,
     )
 
     return DigestResult(
@@ -303,33 +349,39 @@ def pipeline_status_note() -> str:
     )
 
 
+def criteria_text() -> str:
+    return "·".join(LEVEL_META[level][1] for level in configured_levels())
+
+
 def header_block(result: DigestResult) -> str:
     counts = result.counts
-    keyword_text = ", ".join(result.keywords) if result.keywords else "전체 보도자료"
+    levels = configured_levels()
     lines = [
         f"<b>정부 보도자료 AI·정보화 동향 · {escape(report_slot())}</b>",
-        f"{escape(result.report_date)} · 키워드: {escape(keyword_text)}",
+        f"{escape(result.report_date)} · 전송 기준: {escape(criteria_text())}",
     ]
+    if safe_bool_env("TELEGRAM_REQUIRE_KEYWORD_MATCH", False):
+        keyword_text = ", ".join(result.keywords) if result.keywords else "전체 보도자료"
+        lines[-1] += f" · 키워드: {escape(keyword_text)}"
+
     status_note = pipeline_status_note()
     if status_note:
         lines.extend(["", escape(status_note)])
-    lines.extend([
-        "",
-        (
-            f"🔴 매우 중요 <b>{counts['critical']}</b> · "
-            f"🟠 중요 <b>{counts['important']}</b> · "
-            f"🔵 보통 <b>{counts['normal']}</b>"
-        ),
-        (
-            f"⚪ 관계없음 <b>{counts['unrelated']}</b> · "
-            f"◻️ 미분류 <b>{counts['unclassified']}</b> · "
-            f"키워드 일치 <b>{len(result.matched_articles)}</b>건"
-        ),
-    ])
+
+    count_text = " · ".join(
+        f"{LEVEL_META[level][0]} {escape(LEVEL_META[level][1])} <b>{counts[level]}</b>"
+        for level in levels
+    )
+    lines.extend(
+        [
+            "",
+            f"{count_text} · 발송 대상 <b>{len(result.matched_articles)}</b>건",
+        ]
+    )
     if not result.articles:
         lines.extend(["", "오늘 날짜 폴더에 수집된 보도자료가 아직 없습니다."])
     elif not result.matched_articles:
-        lines.extend(["", "현재 공유 키워드와 일치하는 보도자료가 없습니다."])
+        lines.extend(["", "전송 기준에 해당하는 보도자료가 없습니다."])
     return "\n".join(lines)
 
 
@@ -371,9 +423,14 @@ def build_message_chunks(result: DigestResult) -> list[str]:
         return chunks
 
     omitted = len(result.matched_articles) - len(result.selected_articles)
-    blocks = [article_block(index, article) for index, article in enumerate(result.selected_articles, 1)]
+    blocks = [
+        article_block(index, article)
+        for index, article in enumerate(result.selected_articles, 1)
+    ]
     if omitted > 0:
-        blocks.append(f"그 밖의 키워드 일치 자료 {omitted}건은 대시보드에서 확인할 수 있습니다.")
+        blocks.append(
+            f"그 밖의 전송 기준 해당 자료 {omitted}건은 대시보드에서 확인할 수 있습니다."
+        )
 
     current = ""
     for block in blocks:
@@ -439,17 +496,26 @@ def send_message(
     raise RuntimeError("Telegram sendMessage 재시도 횟수를 초과했습니다.")
 
 
-def append_step_summary(result: DigestResult, chunks: int, recipients: int) -> None:
+def append_step_summary(
+    result: DigestResult,
+    chunks: int,
+    recipients: int,
+    *,
+    skipped: bool = False,
+) -> None:
     summary_path = os.getenv("GITHUB_STEP_SUMMARY", "")
     if not summary_path:
         return
     with open(summary_path, "a", encoding="utf-8") as handle:
         handle.write("\n### 텔레그램 브리핑 발송\n")
         handle.write(f"- 기준일: `{result.report_date}`\n")
-        handle.write(f"- 키워드 일치: `{len(result.matched_articles)}건`\n")
+        handle.write(f"- 전송 기준: `{criteria_text()}`\n")
+        handle.write(f"- 기준 해당: `{len(result.matched_articles)}건`\n")
         handle.write(f"- 상세 포함: `{len(result.selected_articles)}건`\n")
         handle.write(f"- 수신 대상: `{recipients}`\n")
         handle.write(f"- 메시지 묶음: `{chunks}`\n")
+        if skipped:
+            handle.write("- 결과: `발송 대상 없음으로 생략`\n")
 
 
 def main(argv: Iterable[str] | None = None) -> int:
@@ -470,6 +536,14 @@ def main(argv: Iterable[str] | None = None) -> int:
         for index, chunk in enumerate(chunks, 1):
             print(f"--- message {index}/{len(chunks)} ---")
             print(chunk)
+        return 0
+
+    if safe_bool_env("TELEGRAM_SKIP_EMPTY", True) and not result.selected_articles:
+        append_step_summary(result, 0, 0, skipped=True)
+        print(
+            f"텔레그램 발송 생략: {result.report_date}, "
+            f"{criteria_text()} 판정 자료가 없습니다."
+        )
         return 0
 
     token = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
@@ -504,7 +578,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     append_step_summary(result, len(chunks), len(chat_ids))
     print(
         f"텔레그램 발송 완료: {result.report_date}, "
-        f"키워드 일치 {len(result.matched_articles)}건, "
+        f"{criteria_text()} {len(result.matched_articles)}건, "
         f"상세 {len(result.selected_articles)}건, "
         f"수신 대상 {len(chat_ids)}개, 메시지 {len(chunks)}개"
     )

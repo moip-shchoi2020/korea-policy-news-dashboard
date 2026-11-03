@@ -27,6 +27,19 @@ jobs:
           python-version: "3.13"
           cache: pip
 
+      - name: 패치 스크립트 문자열 보정
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('scripts/apply_relevance_policy_v11.py')
+          text = path.read_text(encoding='utf-8')
+          old = "    new_prompt = textwrap.dedent(\n        '''\n"
+          new = "    new_prompt = textwrap.dedent(\n        r'''\n"
+          if old not in text:
+              raise SystemExit('프롬프트 생성 블록을 찾지 못했습니다.')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+
       - name: 분류기준 적용
         run: python scripts/apply_relevance_policy_v11.py
 

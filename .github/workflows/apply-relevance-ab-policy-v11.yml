@@ -47,11 +47,14 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import textwrap
+
           path = Path('tests/test_gemini_relevance.py')
           text = path.read_text(encoding='utf-8')
           start = text.index('    def test_gemini_record_preserves_provider_and_model')
           end = text.index('\n\nif __name__ == "__main__":', start)
-          replacement = '''    def test_gemini_record_preserves_provider_and_model(self) -> None:
+          replacement = textwrap.dedent('''
+          def test_gemini_record_preserves_provider_and_model(self) -> None:
               record = finalize_gemini_record(
                   {
                       "level": "important",
@@ -126,12 +129,9 @@ jobs:
                       True,
                   )
               )
-          '''
-          import textwrap
-          replacement = textwrap.dedent(replacement)
-          # class method indentation restored after dedent
-          replacement = ''.join('    ' + line if line.strip() else line for line in replacement.splitlines(keepends=True))
-          path.write_text(text[:start] + replacement.rstrip() + text[end:], encoding='utf-8')
+          ''').strip()
+          replacement = textwrap.indent(replacement, '    ')
+          path.write_text(text[:start] + replacement + text[end:], encoding='utf-8')
           PY
 
       - name: 패키지 설치

@@ -12,19 +12,45 @@ from collector import send_telegram
 
 
 class SharedKeywordAliasTests(unittest.TestCase):
-    def test_ai_group_expands_requested_terms(self) -> None:
-        config = collector.load_keyword_config(
+    @staticmethod
+    def project_config() -> dict[str, object]:
+        return collector.load_keyword_config(
             Path(__file__).resolve().parents[1] / "docs" / "data" / "config.json"
         )
+
+    def test_ai_group_expands_requested_terms(self) -> None:
+        config = self.project_config()
         expanded = collector.expand_keyword_aliases(
             ["AI"],
-            config.get("keyword_aliases"),
+            config.get("keyword_aliases"),  # type: ignore[arg-type]
         )
 
         self.assertIn("AI", expanded)
         self.assertIn("인공지능", expanded)
         self.assertIn("LLM", expanded)
         self.assertIn("생성형 인공지능", expanded)
+        self.assertEqual(len(expanded), len({item.casefold() for item in expanded}))
+
+    def test_security_group_is_default_and_expands_related_terms(self) -> None:
+        config = self.project_config()
+        default_keywords = config.get("default_keywords")
+        self.assertIsInstance(default_keywords, list)
+        self.assertIn("보안", default_keywords)
+
+        expanded = collector.expand_keyword_aliases(
+            ["보안"],
+            config.get("keyword_aliases"),  # type: ignore[arg-type]
+        )
+        for term in (
+            "보안",
+            "정보보호",
+            "해킹",
+            "랜섬웨어",
+            "침해사고",
+            "개인정보 유출",
+            "제로트러스트",
+        ):
+            self.assertIn(term, expanded)
         self.assertEqual(len(expanded), len({item.casefold() for item in expanded}))
 
     def test_alias_input_resolves_to_same_group(self) -> None:

@@ -1,0 +1,56 @@
+name: Telegram 테스트 발송
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/telegram-test-send-20261103.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 저장소 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: 패키지 설치
+        run: pip install requests
+
+      - name: Telegram 설정 확인
+        shell: bash
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          set -euo pipefail
+          [[ -n "$TELEGRAM_BOT_TOKEN" ]] || { echo "TELEGRAM_BOT_TOKEN 누락"; exit 1; }
+          [[ -n "$TELEGRAM_CHAT_ID" ]] || { echo "TELEGRAM_CHAT_ID 누락"; exit 1; }
+
+      - name: Telegram 테스트 브리핑 발송
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_KEYWORDS: ${{ vars.TELEGRAM_KEYWORDS }}
+          TELEGRAM_LEVELS: "critical,important"
+          TELEGRAM_MAX_CRITICAL: "20"
+          TELEGRAM_MAX_IMPORTANT: "20"
+          TELEGRAM_MAX_NORMAL: "0"
+          TELEGRAM_MAX_UNCLASSIFIED: "0"
+          TELEGRAM_MAX_ARTICLES: "30"
+          TELEGRAM_SKIP_EMPTY: "false"
+          DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
+          TELEGRAM_REPORT_TITLE: "수동 테스트 발송"
+          PYTHONUNBUFFERED: "1"
+        run: python -u -m collector.send_telegram --date 2026-11-03 --require-config

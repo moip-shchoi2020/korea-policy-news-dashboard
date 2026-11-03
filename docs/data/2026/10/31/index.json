@@ -6,9 +6,9 @@
   "modified_count": 0,
   "relevance_counts": {
     "critical": 0,
-    "important": 1,
+    "important": 0,
     "normal": 0,
-    "unrelated": 4,
+    "unrelated": 5,
     "unclassified": 0
   },
   "classified_count": 5,
@@ -33,13 +33,14 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "전략"
+          "참석",
+          "회의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-31T22:42:40+09:00"
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:18:48+09:00"
       }
     },
     {
@@ -59,16 +60,18 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.93,
-        "reason": "구체적인 제도·사업·시스템 조치 없이 공청회·간담회·설명회 등 행사 사실을 알리는 자료입니다.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "컨퍼런스"
+          "참석",
+          "컨퍼런스",
+          "회의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-31T22:42:40+09:00"
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:18:48+09:00"
       }
     },
     {
@@ -90,12 +93,14 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [],
+        "signals": [
+          "논의"
+        ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-31T17:33:31+09:00"
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:18:48+09:00"
       }
     },
     {
@@ -112,22 +117,20 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156787393",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.85,
-        "reason": "군사 분야 AI에 대한 국제적 규범 및 가이드라인 형성에 관한 사안으로, 향후 AI 관련 법령 및 정책 수립 시 참고할 가치가 있는 범국가적 AI 거버넌스 이슈입니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 1.0,
+        "reason": "유엔 결의 채택이라는 국제적 외교 성과를 다루고 있으며, 구체적인 국내 정보화 사업이나 조치가 포함되어 있지 않음.",
         "signals": [
           "군사분야 AI",
-          "유엔 결의",
-          "국제 평화 및 안보",
-          "AI 거버넌스"
+          "유엔 결의"
         ],
-        "recommended_action": "동향 추적",
+        "recommended_action": "제외",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-31T11:29:30+09:00"
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:19:03+09:00"
       }
     },
     {
@@ -149,12 +152,16 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [],
+        "signals": [
+          "논의",
+          "참석",
+          "회의"
+        ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-31T11:28:57+09:00"
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:18:48+09:00"
       }
     }
   ]

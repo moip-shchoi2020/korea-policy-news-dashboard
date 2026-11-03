@@ -30,13 +30,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "통합"
+          "논의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T18:44:14+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:14:15+09:00",
         "source_hash": "7bd025b4a41ad0e7bf7bd6d8e6195f0a52e47c683839643c19137707c970e2be"
       }
     },
@@ -66,14 +66,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "개발"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T18:44:14+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:14:15+09:00",
         "source_hash": "0e64bd63f0816bf62d8369bcdff604059aa542b0942a039664dc9e227fb3bf95"
       }
     },
@@ -101,17 +99,18 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 1.0,
-        "reason": "농림축산식품부의 현장 소통 및 농지 DB 구축 관련 내용으로 지식재산처의 업무와 직접적인 관련이 없습니다.",
+        "confidence": 0.94,
+        "reason": "구체적인 시행·도입·의무 조치 없이 회의·포럼·논의·미래상 소개에 그치는 자료입니다.",
         "signals": [
-          "농정 소통",
-          "농지 DB"
+          "데이터",
+          "방문",
+          "간담회"
         ],
         "recommended_action": "제외",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T18:44:18+09:00",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:14:15+09:00",
         "source_hash": "1203f1c3d859d9ec27e1da0a238714418d44bf608901c393319fb10db836d458"
       }
     },
@@ -141,14 +140,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "구축"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T18:44:14+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:14:15+09:00",
         "source_hash": "bba53fa8453a28bb3f6aa342c72995bd4d2653aec7a332bae9d9fea56fd0a7e4"
       }
     },
@@ -178,14 +175,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "운영"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T18:44:14+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:14:15+09:00",
         "source_hash": "01fcc22d05bd259bcc5ab5e0da8684125525ff6e7dd446c211153eeeb461606d"
       }
     },
@@ -219,8 +214,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T18:44:14+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:14:15+09:00",
         "source_hash": "db269828e41fabf214d35b0e6144c86c5cf2efe47018ee580129585945d1f909"
       }
     }
@@ -228,8 +223,8 @@
   "generated_at": "2026-10-30T18:33:21+09:00",
   "article_count": 6,
   "modified_count": 0,
-  "classification_prompt_version": "ip-office-relevance-v1.0",
-  "classification_updated_at": "2026-10-30T18:48:56+09:00",
+  "classification_prompt_version": "ip-office-relevance-v1.1",
+  "classification_updated_at": "2026-11-03T17:16:39+09:00",
   "relevance_counts": {
     "unrelated": 6
   }

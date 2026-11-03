@@ -30,13 +30,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "점검"
+          "점검 실시"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "15f04e138133e026a0623793d9143a16884ad2c05b83ebfae708cc2617b3f4da"
       }
     },
@@ -68,14 +68,14 @@
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "각 부처",
-          "점검",
-          "간담회"
+          "간담회",
+          "회의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "2a962af6748934bfc0137d0681cc93fb4733d0e04ac6e6eb1f4a8cc672579d85"
       }
     },
@@ -100,21 +100,20 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.9,
-        "reason": "글로벌 AI 허브 입지 선정은 국가 AI 인프라 정책의 핵심으로, 향후 지식재산처의 AI 관련 인프라 및 정책 방향에 영향을 줄 가능성이 있습니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.94,
+        "reason": "구체적인 시행·도입·의무 조치 없이 회의·포럼·논의·미래상 소개에 그치는 자료입니다.",
         "signals": [
-          "글로벌 AI 허브",
-          "입지 선정",
+          "AI",
           "공청회"
         ],
-        "recommended_action": "동향 추적",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:01:38+09:00",
+        "recommended_action": "제외",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "f29926c74a3d64f85293c6eca1f540bdb19ea65633e809c854694933c75050da"
       }
     },
@@ -144,17 +143,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "운영",
-          "개편",
-          "통합",
-          "사업"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "9e4a4b8a990feefb2c54b23a59c3836bca3552dd77f40f1895aeb1ea6f803e45"
       }
     },
@@ -185,14 +179,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "운영",
-          "계획"
+          "회의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "abcad1b114c55f93c3b566bee242b19d187b0506ee446fb74c3ac25a885d4406"
       }
     },
@@ -220,16 +213,16 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.93,
-        "reason": "구체적인 제도·사업·시스템 조치 없이 공청회·간담회·설명회 등 행사 사실을 알리는 자료입니다.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "간담회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "43dbb472a71017f7db2cdfdfa609809177d6da1d555e9d18de1d320dcec1d6a3"
       }
     },
@@ -254,21 +247,20 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
         "confidence": 0.9,
-        "reason": "국가첨단전략산업 특화단지 지정 및 AI 로봇 보급 정책은 지식재산권과 밀접한 기술 분야를 포함하고 있어 향후 관련 정책 대응이 필요합니다.",
+        "reason": "국가첨단전략산업 특화단지 지정 및 AI 로봇 보급 계획 등 정책 방향성을 제시하고 있으나, 지식재산처의 직접적인 업무 수행이나 구체적인 정보화 조치가 명시되지 않았습니다.",
         "signals": [
-          "국가첨단전략산업",
-          "AI 로봇",
-          "특화단지"
+          "특화단지 지정",
+          "AI로봇 보급 계획"
         ],
-        "recommended_action": "동향 추적",
+        "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:01:38+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:13:12+09:00",
         "source_hash": "8f2aa1fd747f3e1a2f0b5a9d2d185013e54814ec50bbdaaff00210fbaae82a4b"
       }
     },
@@ -302,8 +294,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "46938d78927f5b939a14e618f4740b90524247e32be31921008709bbaccab9d5"
       }
     },
@@ -334,16 +326,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "개선",
-          "운영",
-          "과제",
-          "점검"
+          "방문"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "be55c83f2b8b98fb5a7d38fe771e45f416f6b62481b58fa247d4e5e4a5f8cc98"
       }
     },
@@ -374,16 +363,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "사업",
-          "점검",
-          "대응",
           "간담회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "641b88d7bce310ded827242371dc58dd392de40ae023fea4659ceec25bfb36a9"
       }
     },
@@ -411,16 +397,19 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.93,
-        "reason": "구체적인 제도·사업·시스템 조치 없이 공청회·간담회·설명회 등 행사 사실을 알리는 자료입니다.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
+          "논의",
+          "모색",
+          "공유",
           "토론회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "469ca21e72f294aa3208008ec7899bc885b6ffc57e8775d9956dd78ff864c69a"
       }
     },
@@ -450,15 +439,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "개발",
-          "실증"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "98718e2cfa181c6f5cc86e072f44294d7839aec3e78f4672fd8c0f5d19d2a7f0"
       }
     },
@@ -489,14 +475,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "적용",
-          "사업"
+          "방문"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "9ca4b6fc2dbed93528726fa67e64151a5072c1913228c32700d4ea2ebe3a793d"
       }
     },
@@ -527,15 +512,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "개선",
-          "운영",
-          "개발"
+          "발표"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "26e602b5691f703134d2ea28dea2f4af1a67e98df09b3c586774d291c7a7cf42"
       }
     },
@@ -566,14 +549,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "표준",
-          "점검"
+          "표준"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "3c92e8cd8b101dddb2b11b3b5cc60dc59d3f8334baa23f66862d87a43b277a16"
       }
     },
@@ -603,16 +585,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "운영",
-          "개발",
-          "연계"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "30717d01467b75c4f2d8e74cdff9d1cf8724e847bcb7f63267f9e66423bfed89"
       }
     },
@@ -642,14 +620,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "구축"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "0f27f37d14445ade806b682003a6c9a64fed99c8af2924d3586455dd47c27fb8"
       }
     },
@@ -680,16 +656,14 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "개발",
-          "사업",
-          "계획",
+          "참석",
           "공청회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "80dde00a4c38b3ee1416ccb1eae753aa0accb7b4a88f25f0543ee1fbac89b2f5"
       }
     },
@@ -719,15 +693,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "운영",
-          "선정"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "74d6184c2b44f169b73700ac88ddbf436a147074d1ed00028f273b45c72d4d6d"
       }
     },
@@ -758,14 +729,14 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "확산",
-          "공모"
+          "공모",
+          "공유"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "ead7ed2999f51c8a648a575d13362dd1157c1dac965ab6776a8e532a240648d7"
       }
     },
@@ -795,12 +766,14 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [],
+        "signals": [
+          "협력 강화"
+        ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "fff61305b3e622bb94cfd0b7e6da80afbd3ce4131c81b3c02caa23e958ac5cf3"
       }
     },
@@ -831,17 +804,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "구축",
-          "적용",
-          "개발",
-          "통합",
-          "과제"
+          "방문"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "3e5763f42961b996004346db4a863c57d13041441c6a0d626e8e83270ddc5204"
       }
     },
@@ -872,16 +841,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "적용",
-          "개발",
-          "사업",
-          "실증"
+          "방문"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "974bd4823302c366e5f5c65ac5ade59a941cf3184f86ed65e3f5eac5babd6788"
       }
     },
@@ -912,14 +878,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "구축",
           "면담"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "58e8f7cfca15661e240ad2d90db1123a85c3dff56e8601be48ff02d2f85a05f1"
       }
     },
@@ -953,8 +918,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "238dc4a08d64ea9303e91fce34f56aee5f0d094d68a7afcf27464222b916121a"
       }
     },
@@ -984,12 +949,14 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [],
+        "signals": [
+          "참석"
+        ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "a77d56178b94dd70eaec70f21b4cf4a53ceab040d49b51180c80296b2b856204"
       }
     },
@@ -1023,8 +990,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "8eda30183a39f15ae9268e91c97fe46db7e2d0158ecfec477a84d869f887ea94"
       }
     },
@@ -1054,16 +1021,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "개발",
-          "사업",
-          "계획"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "5102af5b90e846bca5089e5be6551c12fb79b02ffd637eb6f7e2a1a469b9d769"
       }
     },
@@ -1088,21 +1051,23 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.9,
-        "reason": "가명정보 활용 사례 발굴 및 제도 인식 확산은 지식재산 데이터의 안전한 활용 및 AI 학습 데이터 구축과 관련성이 높아 향후 정책 참고 및 도입 가능성이 있음.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.94,
+        "reason": "구체적인 시행·도입·의무 조치 없이 회의·포럼·논의·미래상 소개에 그치는 자료입니다.",
         "signals": [
-          "가명정보 활용",
-          "데이터 활용 사례",
-          "AI 시대 데이터 정책"
+          "인공지능",
+          "데이터",
+          "정보보호",
+          "개인정보",
+          "시상식"
         ],
-        "recommended_action": "동향 추적",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:02:23+09:00",
+        "recommended_action": "제외",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "cb569a8003d3ab2132297b59e89f698e50c920abd9059118bcce4b9621fa9998"
       }
     },
@@ -1130,16 +1095,16 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.93,
-        "reason": "구체적인 제도·사업·시스템 조치 없이 공청회·간담회·설명회 등 행사 사실을 알리는 자료입니다.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "간담회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "b9cec4f1b887834a0a4c18af40012a8c2d69b56f85b17d897600d2a49e672457"
       }
     },
@@ -1173,8 +1138,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "76bbf60fff439d85a8d5190ece4227123fc4b879bd2fa24d4b4339ab71c4ab92"
       }
     },
@@ -1208,14 +1173,14 @@
           "시행령",
           "개정",
           "시행",
-          "개선",
-          "사업"
+          "설명회",
+          "회의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "ce34feda0027502ec1d7b7519fabc8453bae5bd4faeeae49041906405e6d505b"
       }
     },
@@ -1246,15 +1211,15 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "개발",
-          "계획",
+          "소개",
+          "홍보",
           "박람회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "669adcb8fe0e95471c07dde90e74988dcae466bbd758ddd79a89c74301bc2da3"
       }
     },
@@ -1285,14 +1250,14 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "운영",
-          "사업"
+          "발표",
+          "회의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "018435446a2f143dc88e20f446617ee051ee0636d757228470536b6e8282b667"
       }
     },
@@ -1317,21 +1282,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.8,
-        "reason": "방송미디어통신위원회의 미디어 정책 비전 발표로, 지식재산처의 직접적인 업무와는 거리가 있으나 디지털 전환 사례로서 참고 가치가 있음.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.94,
+        "reason": "구체적인 시행·도입·의무 조치 없이 회의·포럼·논의·미래상 소개에 그치는 자료입니다.",
         "signals": [
-          "미디어 기본사회",
-          "디지털 전환",
-          "정책 과제"
+          "인공지능",
+          "발표",
+          "회의"
         ],
-        "recommended_action": "참고",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:02:23+09:00",
+        "recommended_action": "제외",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "c9cad3d4bf0ed9a337029f3e5bcbb36fa14745a099286c93b06359346ead5f7e"
       }
     },
@@ -1362,13 +1327,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "대응"
+          "회의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "6d9f4a65f9edca1ffae1ef9888d3abbbe3601705c24a1e5b9110f3ba6f744c33"
       }
     },
@@ -1396,17 +1361,18 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.95,
-        "reason": "한-영 인공지능 분야 협력 논의라는 행사성 사실만 전달하고 있어 지식재산처의 구체적인 업무나 제도에 미치는 영향이 없음.",
+        "confidence": 0.94,
+        "reason": "구체적인 시행·도입·의무 조치 없이 회의·포럼·논의·미래상 소개에 그치는 자료입니다.",
         "signals": [
-          "국제 협력",
-          "AI 분야 논의"
+          "인공지능",
+          "논의",
+          "협력 강화"
         ],
         "recommended_action": "제외",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:02:23+09:00",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "e6ae4b3b7b90a0ae5496cb0c3fbde27ea6bbc4c464d1f0d42ba498b6b853eb5e"
       }
     },
@@ -1431,21 +1397,20 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.85,
-        "reason": "국가첨단전략산업 특화단지 지정 및 AI 로봇 산업 육성은 지식재산권 창출 및 기술 보호와 밀접한 관련이 있어 정책적 대응이 필요함.",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.9,
+        "reason": "국가첨단전략산업 특화단지 지정 및 AI 로봇 보급 계획을 다루고 있으나, 지식재산처의 직접적인 업무 수행이나 구체적인 정보화 조치가 명시되지 않았습니다.",
         "signals": [
-          "국가첨단전략산업",
-          "AI 로봇 산업",
-          "특화단지 육성"
+          "특화단지 지정",
+          "AI로봇 보급 계획"
         ],
-        "recommended_action": "동향 추적",
+        "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:02:23+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:13:12+09:00",
         "source_hash": "754de1551e39010f174b7a1415e6e98acd428360b307e93d739ff9307857746f"
       }
     },
@@ -1476,15 +1441,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "사업",
-          "대응",
           "간담회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "c86822acccf309297023affe0b1d8805162d5eeaaf43991f8ddae083fbb5afd5"
       }
     },
@@ -1518,8 +1481,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "d33367c945b82b42e802cf13d815b78997252acd2be7483eaaccdb56db594370"
       }
     },
@@ -1550,15 +1513,14 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "운영",
-          "실증",
-          "점검"
+          "논의",
+          "방문"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "921c22038a5b4d947c3e2f8434c32879fa76f156819e70e53d674612f63ad467"
       }
     },
@@ -1589,16 +1551,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "운영",
-          "통합",
-          "과제",
-          "로드맵"
+          "논의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "1baba7db72460b4dc5f428388690cd46c6acb44ce914ddfa452e566a0fc2248a"
       }
     },
@@ -1628,12 +1587,14 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [],
+        "signals": [
+          "회의"
+        ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "527ac6662111c12ee313e1f89bc2f24932b3a03fa14f3b8b5c573a815fa777f1"
       }
     },
@@ -1662,16 +1623,16 @@
         "label": "관계없음",
         "score": 1,
         "confidence": 0.95,
-        "reason": "국가데이터처의 출범 1주년 기념 소통 행사 개최 사실만을 알리는 홍보성 보도자료로 실질적인 정책 변화나 의무 사항이 없음.",
+        "reason": "국가데이터처의 출범 1주년 기념 소통 행사로, 지식재산처의 업무나 정보화 정책과 관련된 구체적인 조치가 없습니다.",
         "signals": [
-          "기관 행사",
+          "출범 1주년",
           "소통 행사"
         ],
         "recommended_action": "제외",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:02:23+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:13:12+09:00",
         "source_hash": "01bf22fb227713f4c10a8ffd143c40877aa36eb9cd70df4948666941b9fba161"
       }
     },
@@ -1704,14 +1665,15 @@
         "signals": [
           "법률",
           "개정",
-          "사업",
-          "간담회"
+          "공포",
+          "간담회",
+          "회의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "3b6cb3a7b66dde6945046d774614fa1d3a001162ef509cf540f9e9802e8be67e"
       }
     },
@@ -1747,8 +1709,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "4c4d9b9ec248c4b07f209030cb875fce82e029396c7500bb949a25341cf5def1"
       }
     },
@@ -1773,22 +1735,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "critical",
-        "label": "매우 중요",
-        "score": 4,
-        "confidence": 1.0,
-        "reason": "지식재산처가 직접 보유한 데이터를 AI 학습용으로 가공하여 대규모로 개방하는 사업으로, 데이터 정책 및 정보화 업무에 직접적인 영향을 미침.",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.9,
+        "reason": "구체적 시행·도입·의무 조치(B)가 확인되지 않아 보통으로 조정했습니다. 원 모델 근거: 지식재산처가 인공지능 학습용 자료 3종을 KIPRISPlus를 통해 무료 개방하는 구체적인 정보화 사업을 시행하므로 중요 사안에 해당합니다.",
         "signals": [
-          "AI 학습용 데이터 개방",
-          "지식재산정보 활용서비스",
-          "데이터 정책",
-          "정보화 사업"
+          "데이터 개방",
+          "KIPRISPlus",
+          "AI 학습용 자료"
         ],
-        "recommended_action": "즉시 검토",
+        "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:02:34+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:13:12+09:00",
         "source_hash": "79e69f9c723aac665ec19e8a78ac68951cb8711556878063b152996442d1c225"
       }
     },
@@ -1816,19 +1777,18 @@
         "level": "critical",
         "label": "매우 중요",
         "score": 4,
-        "confidence": 1.0,
-        "reason": "지식재산처의 핵심 업무인 특허 행정에 AI 기반 R&D 모형을 도입하는 정책으로, 향후 관련 정보시스템 구축 및 업무 프로세스 변화가 예상됨.",
+        "confidence": 0.95,
+        "reason": "지식재산처가 AI×IP 기반 R&D 모형 도입을 추진하는 등 지식재산 행정에 직접적인 AI 정책을 시행하므로 매우 중요 사안입니다.",
         "signals": [
-          "AI 기반 R&D 모형",
-          "특허 행정 혁신",
-          "지식재산 전략",
-          "정보화 정책"
+          "AI×IP 기반 R&D",
+          "혁신 지원 방안",
+          "정책 시행"
         ],
         "recommended_action": "즉시 검토",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:02:34+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:13:12+09:00",
         "source_hash": "7754e1fbccc3c4f0d3e6d6c175dbbf79ea8574e069e9ee26806617303eb6cf4b"
       }
     },
@@ -1856,18 +1816,19 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.9,
-        "reason": "글로벌 혁신지수 순위 발표라는 통계적 사실을 알리는 홍보성 자료로, 지식재산처의 구체적인 법령 개정이나 정보화 사업 추진과는 직접적인 관련이 없음.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "글로벌 혁신지수",
-          "순위 발표",
-          "홍보성 자료"
+          "지식재산처",
+          "지식재산",
+          "특허",
+          "발표"
         ],
         "recommended_action": "제외",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:02:34+09:00",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "09e388b3fdd12c60fd256fc72aad00ad547ecdc2a96de287b5be81a605f8c9f8"
       }
     },
@@ -1897,14 +1858,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "개발"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "928256b8b6aa13c452710c298e9139e28a46bd4b479a2757b3928d9afea01e91"
       }
     },
@@ -1935,16 +1894,16 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "운영",
-          "선정",
           "공모",
-          "기념식"
+          "발표",
+          "기념식",
+          "사례 발표"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "aa999261dafe96acb651900f14384601f221eaf5a161db4ac86f41d236c890c7"
       }
     },
@@ -1975,16 +1934,14 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "운영",
-          "통합",
-          "과제",
+          "논의",
           "포럼"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "e8079abdcf2a03008e0a0af22f2809623acf9c9dd6f95693a4a905c08c78533c"
       }
     },
@@ -2020,8 +1977,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "5a807115856caeca97a5ddc5a6de951c6073e15c02651a07fb6a74950e62683f"
       }
     },
@@ -2049,18 +2006,19 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.95,
-        "reason": "타 부처(보건복지부)의 건강 정책 관련 포럼 개최 사실을 알리는 행사성 보도자료로, 지식재산처의 업무에 미치는 실질적인 영향이 없음.",
+        "confidence": 0.94,
+        "reason": "구체적인 시행·도입·의무 조치 없이 회의·포럼·논의·미래상 소개에 그치는 자료입니다.",
         "signals": [
-          "포럼 개최",
-          "타 부처 행사",
-          "행사성 보도자료"
+          "데이터",
+          "논의",
+          "모색",
+          "포럼"
         ],
         "recommended_action": "제외",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:02:34+09:00",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "d609c25b9ddd818800be1155a938e0747979677e087337f3eef75f9385d21b5c"
       }
     },
@@ -2090,14 +2048,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "개발"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "40805f8fd51af747501c6e008b044595a3a33ff8a89f990998b7c304ee087dcf"
       }
     },
@@ -2131,8 +2087,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "8d5dc207e2f0c375b1d4d8a6f14248dba543461520540abd3c2767a025cad510"
       }
     },
@@ -2160,18 +2116,18 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.85,
-        "reason": "타 부처의 AI 개발자 경진대회 개최 및 시상에 관한 내용으로, 지식재산처에 직접적인 영향은 없으나 AI 기술 트렌드 파악을 위한 참고 사례로 활용 가능함.",
+        "confidence": 0.9,
+        "reason": "AI·XR 서비스 개발자 경진대회 시상 및 후속 지원에 관한 내용으로, 지식재산처의 직접적인 업무와는 거리가 있습니다.",
         "signals": [
-          "AI 경진대회",
-          "타 부처 사업",
-          "기술 트렌드"
+          "경진대회",
+          "시상",
+          "후속 지원"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:02:34+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:13:12+09:00",
         "source_hash": "51510810635571af12729d56ae404961a4159acb079948d33b0d8b2756f66535"
       }
     },
@@ -2201,15 +2157,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "계획",
-          "대응"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "5eb962eb3ede2e22b9538865fd09eefc3bb83bded9eb16dc30bfb2022f83c9bf"
       }
     },
@@ -2239,14 +2192,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "대응"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "90845b534f1882489b51b94f9f297370c3fb53cb4f06a060a86a678575583859"
       }
     },
@@ -2277,16 +2228,15 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "연계",
-          "실증",
+          "논의",
           "포럼",
           "토론회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "4eb0fee611f79c28b5854ca8c7b78851b57d72c1ce2c0e869ad45e140867c033"
       }
     },
@@ -2314,16 +2264,17 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.93,
-        "reason": "구체적인 제도·사업·시스템 조치 없이 공청회·간담회·설명회 등 행사 사실을 알리는 자료입니다.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
+          "논의",
           "워크숍"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "630ac4791f17c5e83b946d0bc3508f08715b888518a04a05732dd02e912d4554"
       }
     },
@@ -2355,15 +2306,13 @@
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "개정",
-          "운영",
-          "개발",
-          "사업"
+          "논의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "6d88604c6e9a91ba1d397fdae783be6a95f4de9287de76c2dc35acd65a6f5599"
       }
     },
@@ -2388,22 +2337,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "critical",
-        "label": "매우 중요",
-        "score": 4,
-        "confidence": 1.0,
-        "reason": "정보통신망법 및 시행령 개정은 전 부처 정보시스템 보안 의무와 직결되며, 지식재산처의 정보보호 관리체계 및 보안 정책에 즉각적인 영향을 미침.",
+        "level": "important",
+        "label": "중요",
+        "score": 3,
+        "confidence": 0.95,
+        "reason": "정보통신망법 및 시행령 개정에 따른 정보보호 체계 강화는 전 부처 준수 의무가 있는 보안 기준의 시행으로 중요 사안입니다.",
         "signals": [
-          "정보통신망법 개정",
-          "사이버 침해사고 대응",
-          "정보보호 관리체계 강화",
-          "범부처 정보보호 의무"
+          "정보통신망법 시행",
+          "정보보호 강화",
+          "ISMS"
         ],
-        "recommended_action": "즉시 검토",
+        "recommended_action": "동향 추적",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:02:53+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:13:12+09:00",
         "source_hash": "1e344e8f5ed1932baf22baa9ce4783c029710383091941170cd3ddaa4bd120c2"
       }
     },
@@ -2431,16 +2379,17 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.93,
-        "reason": "구체적인 제도·사업·시스템 조치 없이 공청회·간담회·설명회 등 행사 사실을 알리는 자료입니다.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
+          "참석",
           "기념식"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "3131607162a7fd55e749377d6e98d9b13a0986b1f756425fb2b8b8096a002834"
       }
     },
@@ -2472,14 +2421,15 @@
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "기준",
-          "계획",
+          "논의",
+          "의견수렴",
           "간담회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "c5ada60d204c6a4ca8a4d5dfbf7ab13c644da0a4f5e73d0a25b545b0fe376c97"
       }
     },
@@ -2510,14 +2460,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "확산",
           "캠페인"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "ee5f99734c619b9f71211384b1628551a13c0c9de7c5d6828e3e4a6a30bac6ed"
       }
     },
@@ -2545,16 +2494,16 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.93,
-        "reason": "구체적인 제도·사업·시스템 조치 없이 공청회·간담회·설명회 등 행사 사실을 알리는 자료입니다.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "캠페인"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "a9ad53b9a31e55c03bc529bc58b3d9100df8b05f8ecb351ababe0c366af71865"
       }
     },
@@ -2588,8 +2537,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "0e73d2a7cfe9c6a9736a853c4a65919d95504f24cb83c2e7e836b1459dee37b6"
       }
     },
@@ -2623,8 +2572,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "6fd46d308a4883e596059eed7a9a283af9b85a922673cbbd27579c00141020b5"
       }
     },
@@ -2649,21 +2598,23 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.9,
-        "reason": "병무청 내부의 AI 활용 사례 공유 및 간담회 개최로, 타 부처의 업무 자동화 사례로서 참고 가치는 있으나 지식재산처에 직접적인 영향은 없음.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.94,
+        "reason": "구체적인 시행·도입·의무 조치 없이 회의·포럼·논의·미래상 소개에 그치는 자료입니다.",
         "signals": [
-          "AI 행정 혁신",
-          "업무 자동화",
-          "AI 역량 강화"
+          "AI",
+          "인공지능",
+          "공유",
+          "참석",
+          "간담회"
         ],
-        "recommended_action": "참고",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:02:53+09:00",
+        "recommended_action": "제외",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "0c16747a5c46bb1faaf5a962d2244fade9c02f8b4a7cac7b776057957654c0b0"
       }
     },
@@ -2691,16 +2642,16 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.93,
-        "reason": "구체적인 제도·사업·시스템 조치 없이 공청회·간담회·설명회 등 행사 사실을 알리는 자료입니다.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "기념식"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "e111df7cef4e6704ee125fe265bd01bb4aa78d4104e278c836600f629b135671"
       }
     },
@@ -2732,15 +2683,13 @@
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "범정부",
-          "연계",
-          "협약 체결",
           "업무협약식"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "17dbb94cf1e4931aff84b7e4fbd726e07aeb21df6ad7a9590c7502b391001d82"
       }
     },
@@ -2768,17 +2717,19 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 1.0,
-        "reason": "국민 삶의 질 측정 관련 포럼 개최 사실을 알리는 행사성 보도자료로, 지식재산처의 업무나 정보화 정책과 무관함.",
+        "confidence": 0.94,
+        "reason": "구체적인 시행·도입·의무 조치 없이 회의·포럼·논의·미래상 소개에 그치는 자료입니다.",
         "signals": [
-          "포럼 개최",
-          "삶의 질 측정"
+          "데이터",
+          "모색",
+          "공유",
+          "포럼"
         ],
         "recommended_action": "제외",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:02:53+09:00",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "d01995a1bedb70e3cbcfd22004fb377db29906388a95d94d9688f55d7122d924"
       }
     },
@@ -2810,14 +2761,13 @@
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "의무",
-          "예산",
-          "계획"
+          "논의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "478044fd2cb6998254d1a89bfd0e3a31acba5f25659d084e8853692edebf6068"
       }
     },
@@ -2847,16 +2797,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "개선",
-          "사업",
-          "점검"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "48a11a11091e07552dcb1942e9d0af2e9ef83100a0ea35249fae0e472951d173"
       }
     },
@@ -2887,13 +2833,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "점검"
+          "방문"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "be445d512f1b37809b0ee87e3ba09109b5c658bdb69c653ebf142d8e72b8a64c"
       }
     },
@@ -2923,12 +2869,14 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [],
+        "signals": [
+          "발표"
+        ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "f0f9e65abc2b606e8524340ae01a6b4376052b7b1f4224570bb44bdd5ebd1bf1"
       }
     },
@@ -2958,14 +2906,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "사업"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "f149eec71636aac30596ec97fe735c3c12d57fe5255e767f052c6c338538a5a9"
       }
     },
@@ -2999,8 +2945,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "9e03059752437c7929ba185225eb60d3b39c1b66848fd5968f7b6db3f5c930a1"
       }
     },
@@ -3028,18 +2974,18 @@
         "level": "important",
         "label": "중요",
         "score": 3,
-        "confidence": 0.9,
-        "reason": "국가정보자원관리원의 디지털 안전관리 체계 및 재해복구체계 구축은 범정부 정보시스템 인프라 정책으로, 향후 지식재산처의 시스템 운영 전략에 참고가 됨.",
+        "confidence": 0.95,
+        "reason": "국가정보자원관리원의 디지털 안전관리 체계 점검 및 재해복구체계 구축은 정보시스템 보안 및 운영과 관련된 구체적인 조치입니다.",
         "signals": [
           "디지털 안전관리",
           "재해복구체계",
-          "국가정보자원관리원"
+          "현장점검"
         ],
         "recommended_action": "동향 추적",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:02:53+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:13:12+09:00",
         "source_hash": "f7726a6a97206437e16ebc0be2512a27a020bf1fa8a916ae78e1ededcbec16c8"
       }
     },
@@ -3069,16 +3015,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "구축",
-          "전환",
-          "확산"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "a54b235e5c519d80b5dbcadb5be0f571fb51ef4bba7fc535bed48ce6ea41d97a"
       }
     },
@@ -3110,16 +3052,15 @@
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "시행",
-          "사업",
-          "시범사업",
-          "선정",
-          "공모"
+          "공모",
+          "방문",
+          "간담회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "ebde96aa4903b086fab6d5071eee0a8f560cd2a36496d40f0c8a2479a73e5509"
       }
     },
@@ -3149,15 +3090,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "개선",
-          "점검"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "5db7ff1a036ef6e9864349c681ad73bfe801150dc0a77da1c1d0c7bdfbef808b"
       }
     },
@@ -3187,15 +3125,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "확산",
-          "운영"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "6c51e3127cdf6bf8a3c95ba1cd19237008e991d9c58f13df0002d0cc39ad4a07"
       }
     },
@@ -3229,8 +3164,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "26356877ef9fc01f15c69275f2c9e16f37a7eded5b65a2335b0e1bae0e2ae8ee"
       }
     },
@@ -3261,15 +3196,15 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "예산",
+          "방문",
           "간담회",
           "현장방문"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "231870adf414fc5bed613ed454ff397ce404212d66a759951165b0064a5ccf9c"
       }
     },
@@ -3297,17 +3232,16 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 1.0,
-        "reason": "아동학대 전담의료기관 지원 및 가이드 배포에 관한 보건복지부의 정책으로, 지식재산처의 법령·업무·정보시스템과 관련성이 없음.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "아동학대 대응",
-          "의료기관 지원"
+          "심사"
         ],
         "recommended_action": "제외",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:02:53+09:00",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "895941e9cba893ae46738d087dbc3baf39e63bf7959f07af364d4a97d5301156"
       }
     },
@@ -3337,14 +3271,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "적용"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "1cf9df2f1f85437f079b8802cf9c59b01b21c342f4fd3442ec50312006bb51f4"
       }
     },
@@ -3375,13 +3307,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "확산"
+          "방문"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "5bcea3b253d607764ee9fa12bce41ed5605038285c7c2709427e86975085ca8a"
       }
     },
@@ -3412,16 +3344,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "개선",
-          "개발",
-          "선정",
           "공모"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "d1dc1bc9850498ea54ca2860167c7ba9d908d11c09314bde6f3d41491bd74039"
       }
     },
@@ -3452,14 +3381,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "계획",
           "공모"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "038a0d4680d161f78ea09965b935ca722ba91bf7c7d778d3ee59efd7386dc905"
       }
     },
@@ -3489,14 +3417,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "협약 체결"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "98aa6dc3d4804fa15d8e3260979d4c782b99779cac6cc12bb92437dd0149180c"
       }
     },
@@ -3530,8 +3456,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "9c86c89511c3c815122c881a7d9de08dfd499bda8370b88c795d36b5796d13a3"
       }
     },
@@ -3561,14 +3487,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "계획"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "9e353d3cb6b075ebcfd89ac3404d88a7947e206680c5310dda606437e74969f4"
       }
     },
@@ -3608,8 +3532,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "def1a4632eb53a61a1247aec1a0c7d8a57f979eba24f1c7033ca688c6707bc20"
       }
     },
@@ -3638,19 +3562,17 @@
         "label": "보통",
         "score": 2,
         "confidence": 0.9,
-        "reason": "기후에너지환경부의 특정 분야 녹색투자 플랫폼 구축 사업으로, 지식재산처의 업무와 직접적인 연관성이 낮아 사례 참고용으로 적합함.",
+        "reason": "녹색분류체계 적합성 판단 플랫폼 구축은 정보화 사업이나, 지식재산처의 업무와는 직접적인 관련이 없습니다.",
         "signals": [
-          "녹색분류체계",
           "플랫폼 구축",
           "녹색투자",
-          "디지털 전환",
-          "업무 자동화"
+          "디지털 전환"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:03:38+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:13:12+09:00",
         "source_hash": "f31646e2c7174c0ca87025adc4b6a204dfa62231c2c8bf091b47208dd492682b"
       }
     },
@@ -3681,17 +3603,15 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "개선",
-          "운영",
-          "사업",
-          "점검",
+          "논의",
+          "공유",
           "간담회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "85f0ae2e501ed1d550fba89536d37c6fcdfc29488ae07221a17fb8275dd8cd0d"
       }
     },
@@ -3723,14 +3643,13 @@
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "공공부문",
-          "중앙부처",
-          "개선"
+          "중앙부처"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "65fdf192d38c7209d65afe8ff2c5474a39bf53bcd20407776d55b9033d5cbfe4"
       }
     },
@@ -3755,23 +3674,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.95,
-        "reason": "국가 차원의 AI 안전 생태계 조성은 전 부처에 확산될 가능성이 높으며, 향후 지식재산처의 AI 도입 및 보안 정책 수립 시 가이드라인으로 활용될 수 있음.",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.9,
+        "reason": "국가 차원의 AI 안전 종합계획 수립을 위한 실무협의체 구성 및 계획 추진 단계로, 지식재산처에 직접적인 의무 조치가 명시되지 않아 참고 가치가 있음.",
         "signals": [
-          "국가 인공지능 안전",
+          "AI 안전",
           "종합계획",
-          "민관 실무협의체",
-          "AI 생태계",
-          "범정부 로드맵"
+          "민관 실무협의체"
         ],
-        "recommended_action": "동향 추적",
+        "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:03:38+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:13:17+09:00",
         "source_hash": "72e4cc252738d56e78fec1cc7867694fb2a530652097d99163a4c0ccbf11d313"
       }
     },
@@ -3796,23 +3713,23 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "critical",
-        "label": "매우 중요",
-        "score": 4,
-        "confidence": 0.95,
-        "reason": "R&D 성과의 표준특허 및 수익화 연계, AI 기반 과학기술 난제 해결 등 지식재산처의 핵심 업무인 특허 행정 및 기술 사업화와 직접적으로 연관됨.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.94,
+        "reason": "구체적인 시행·도입·의무 조치 없이 회의·포럼·논의·미래상 소개에 그치는 자료입니다.",
         "signals": [
-          "R&D 혁신",
+          "특허",
           "표준특허",
-          "수익화",
-          "AI 기반 과학기술",
-          "연구생태계"
+          "AI",
+          "범정부",
+          "표준"
         ],
-        "recommended_action": "즉시 검토",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:03:38+09:00",
+        "recommended_action": "제외",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "92e739e597471271fd07b3ecf1f1b6dfce90a5ea8577b64ce61df63e6cbdff85"
       }
     },
@@ -3840,20 +3757,18 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.9,
-        "reason": "특정 기업 간의 기업결합 시정조치 이행 여부에 관한 개별 사건 심의로, 지식재산처의 법령이나 정보화 정책에 미치는 영향이 없음.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "기업결합",
-          "시정조치",
-          "심의 절차",
-          "공정거래",
-          "위반 혐의"
+          "심사",
+          "의무",
+          "회의"
         ],
         "recommended_action": "제외",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:03:38+09:00",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "4fa9f7a61b0554154535b6a2a12c64f8681fe6eede75cc5d320261e0e8251688"
       }
     },
@@ -3881,20 +3796,17 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.9,
-        "reason": "특정 기업집단의 부당지원행위에 대한 공정위의 조사 및 심의 절차 개시 건으로, 지식재산처의 업무와 무관함.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "부당지원행위",
-          "심의 절차",
-          "공정거래법",
-          "심사보고서",
-          "기업집단"
+          "심사",
+          "회의"
         ],
         "recommended_action": "제외",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:03:38+09:00",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "354e678fd18ac9f10804bb0983e982493f42b2a3ca7f53920ee229198d498d4d"
       }
     },
@@ -3928,8 +3840,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "d5fdbeba021d1c0529226a05df0d68767c19f8953fa9a40ddac27ef0db6f30ff"
       }
     },
@@ -3962,15 +3874,13 @@
         "signals": [
           "지침",
           "기준",
-          "계획",
-          "점검",
-          "대응"
+          "회의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "f0245f3addecd8f9a343e0f98af6b8caa8a039576ff9091a96299abfac2f8a2e"
       }
     },
@@ -4001,16 +3911,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "전환",
-          "사업",
-          "선정",
           "공모"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "20bffed4e87107c71238e39ab5fc3bca2818075a00b3133cea376ea95e2b44e0"
       }
     },
@@ -4038,16 +3945,18 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.93,
-        "reason": "구체적인 제도·사업·시스템 조치 없이 공청회·간담회·설명회 등 행사 사실을 알리는 자료입니다.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "회의 개최"
+          "논의",
+          "회의 개최",
+          "회의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "fc35b7d0af6f834c2c63816ee8436aedb4341953ff4152ee9b642db4969705dc"
       }
     },
@@ -4081,8 +3990,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "47da576687301b89ef7554c50aa240113529bd1509967ae7266c0840c050105f"
       }
     },
@@ -4112,15 +4021,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "사업",
-          "선정"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "81a79087c4aaf4343e326970d1d637dc6e5268020f8cf0ea32a4315886915bbf"
       }
     },
@@ -4154,8 +4060,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "457198001264532bfe922ee8c65cb3e1526c9b134b1fa7711c931b215dcac963"
       }
     },
@@ -4185,16 +4091,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "확산",
-          "과제",
-          "대응"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "1ff7dbc1d5044ae04d3208e8ca51a5cf14290ac49f6acc0df7bec46af981ed43"
       }
     },
@@ -4227,14 +4129,13 @@
         "signals": [
           "시행규칙",
           "개정",
-          "시행",
-          "전환"
+          "시행"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "56d1821958c4c1de2618002e5402de1ac622cd9ca365cf4bf1e383a70885f412"
       }
     },
@@ -4266,16 +4167,13 @@
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "지침",
-          "기준",
-          "계획",
-          "점검",
-          "대응"
+          "기준"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "5733ff09d45789988e5e203b3694468b6cfd4d698a970b02009dbd13fc8f4825"
       }
     },
@@ -4309,8 +4207,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "c838a0f49d05e90441a90d1992f1dc1ffd5fbcecf001119efa6cb7c754d1b870"
       }
     },
@@ -4344,8 +4242,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "883eeec92868c4a7da530c18d3c79a3725d98d87a89fdfeb16ace36126996661"
       }
     },
@@ -4375,14 +4273,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "운영"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "63a376565d5ef44e450758668b56c15402eac598d4d11798f35576a83c4aac4c"
       }
     },
@@ -4412,14 +4308,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "선정"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "9b630e99953eeb011d6df283804b9577bb6ff46068af13c2a8609d313bffb2d9"
       }
     },
@@ -4447,18 +4341,18 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.95,
-        "reason": "지방의회 역량 강화를 위한 교육 행사로, 지식재산처의 업무나 정보화 정책에 직접적인 영향이 없는 단순 행사성 보도자료입니다.",
+        "confidence": 0.94,
+        "reason": "구체적인 시행·도입·의무 조치 없이 회의·포럼·논의·미래상 소개에 그치는 자료입니다.",
         "signals": [
-          "지방의회 아카데미",
-          "행사 개최",
-          "역량 제고"
+          "인공지능",
+          "모색",
+          "협력 강화"
         ],
         "recommended_action": "제외",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:04:06+09:00",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "4f80214e226f6bfa27a39d0b7553f36e8e464e47fdec1284c3a287fd4fa3150d"
       }
     },
@@ -4489,14 +4383,15 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "사업",
+          "참석",
+          "방문",
           "현장방문"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "384dd994e0dc18e7130ed088ab10ec021feceac589dd1d0a17030c9b952a1c18"
       }
     },
@@ -4528,13 +4423,13 @@
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "제정",
-          "통합"
+          "논의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "464b2834b6ba172ec2a92dc8ea7d0fa3dca93beb4a90488cb7816893a6c64174"
       }
     },
@@ -4562,18 +4457,20 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.9,
-        "reason": "개인정보 보호의 날 기념식 개최 사실을 알리는 행사성 보도자료로, 지식재산처에 적용되는 구체적인 제도나 의무 사항이 포함되어 있지 않습니다.",
+        "confidence": 0.94,
+        "reason": "구체적인 시행·도입·의무 조치 없이 회의·포럼·논의·미래상 소개에 그치는 자료입니다.",
         "signals": [
-          "개인정보 보호의 날",
+          "인공지능",
+          "정보보호",
+          "개인정보",
           "기념식",
-          "유공 포상"
+          "회의"
         ],
         "recommended_action": "제외",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:04:06+09:00",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "25858af64de13b59b8f39af65ae7355651018053a619fedd90a0113a2a368979"
       }
     },
@@ -4601,18 +4498,19 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.9,
-        "reason": "개인정보 보호·활용 기술 대상 시상식에 관한 내용으로, 특정 기업에 대한 포상 사실을 알리는 행사성 보도자료입니다.",
+        "confidence": 0.94,
+        "reason": "구체적인 시행·도입·의무 조치 없이 회의·포럼·논의·미래상 소개에 그치는 자료입니다.",
         "signals": [
-          "기술 대상",
-          "시상",
-          "개인정보 보호 기술"
+          "정보보호",
+          "개인정보",
+          "기념식",
+          "회의"
         ],
         "recommended_action": "제외",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:04:06+09:00",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "59d81513e2ef5fbcce8d808675fcdf140c19d6e4fa81dda80b5cefa741748c2d"
       }
     },
@@ -4642,17 +4540,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "운영",
-          "사업",
-          "시범사업",
-          "점검"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "127ac03338ead0a1cc8c319ec2d8a41459608a06073ebbfefca2fc8eba2595ea"
       }
     },
@@ -4680,18 +4573,18 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.85,
-        "reason": "질병관리청의 백신 관리 시스템 고도화 및 전주기 관리 강화 사례로, 타 부처의 정보화 사업 사례로서 참고 가치가 있습니다.",
+        "confidence": 0.9,
+        "reason": "질병관리청의 백신 관리 시스템 고도화 및 안전관리 강화 방안으로, 타 부처의 정보화 사업 사례에 해당함.",
         "signals": [
           "시스템 관리",
-          "전주기 관리",
-          "안전관리 강화"
+          "안전관리 강화",
+          "전주기 관리"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:04:06+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:13:17+09:00",
         "source_hash": "7c19016e199acae6422e77971419a22c3c6923b234166c48021a8b878d9b84da"
       }
     },
@@ -4719,18 +4612,20 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.95,
-        "reason": "국제 정보통신기술 지도력 토론회 개최 사실을 알리는 행사성 보도자료로, 지식재산처 업무와 직접적인 관련이 없습니다.",
+        "confidence": 0.94,
+        "reason": "구체적인 시행·도입·의무 조치 없이 회의·포럼·논의·미래상 소개에 그치는 자료입니다.",
         "signals": [
-          "글로벌 ICT 리더십 포럼",
-          "국제 토론회",
-          "행사 개최"
+          "AI",
+          "인공지능",
+          "모색",
+          "포럼",
+          "토론회"
         ],
         "recommended_action": "제외",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:04:06+09:00",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "fa3ce2addb6dc78d19157cdd7b76a7106c33116c03700ce4609c78535432332a"
       }
     },
@@ -4760,14 +4655,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "선정"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "cd99d95eda99ce168e7d4eaa11f867f5abc25ddf712384631586253a538867d1"
       }
     },
@@ -4797,14 +4690,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "선정"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "47da12a1fa047350ac304ef235068c4cf569d45cf72a0d78dfdfad365bc0d3c2"
       }
     },
@@ -4832,18 +4723,17 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.95,
-        "reason": "산업통상부의 미래차 생태계 구축 및 MOU 체결에 관한 행사성 보도자료로, 지식재산처의 업무와 직접적인 관련이 없습니다.",
+        "confidence": 0.94,
+        "reason": "구체적인 시행·도입·의무 조치 없이 회의·포럼·논의·미래상 소개에 그치는 자료입니다.",
         "signals": [
-          "미래차 생태계",
-          "MOU 체결",
-          "자율주행 기술"
+          "AX",
+          "업무협약식"
         ],
         "recommended_action": "제외",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:04:30+09:00",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "b902d372f35655cd86a3f954922e2c7b29fb080509f5a7a6e21c699dcb8ce5b9"
       }
     },
@@ -4874,14 +4764,15 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "사업",
-          "설명회"
+          "소개",
+          "설명회",
+          "사례 소개"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "0cce445fdfd0a0e7df489c2f323ac8b6c03cb3b2a21d8f52644e40de32751081"
       }
     },
@@ -4912,15 +4803,14 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "개선",
-          "사업",
+          "소개",
           "설명회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "a2cc6f46e0a6738f5601efbad37617b4bd0603cf97849c24d32b77983c5e3813"
       }
     },
@@ -4948,16 +4838,17 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.93,
-        "reason": "구체적인 제도·사업·시스템 조치 없이 공청회·간담회·설명회 등 행사 사실을 알리는 자료입니다.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
+          "참석",
           "기념식"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "0e739c92a8e384647706cd6bf41ffca3b9464d530c3c1155c2df4a4d6fac8fd8"
       }
     },
@@ -4990,13 +4881,14 @@
         "signals": [
           "개정",
           "시행",
-          "대응"
+          "참석",
+          "회의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "245728b77eb7718a067093ed0457958fd081fcb834877da4742bd76a943d2dfb"
       }
     },
@@ -5026,14 +4918,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "사업"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "84ef94b1bbcbbbcd63ea406136ba4f9e6314421be72775170d3bc98c70810b3f"
       }
     },
@@ -5063,15 +4953,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "구축",
-          "대응"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "28cb2f294ca5159ebd45a753cb31b60ed9f45f5da97b10ac993b5d2e744f40d5"
       }
     },
@@ -5105,8 +4992,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "795ff439655f5cc3f506cf6af00ff616c485a4cc32f812d69036fbb95cc0e2e4"
       }
     },
@@ -5140,8 +5027,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "551d2d839e0367de359107da049c122c3cb655fbdf5473d0628ef56f4f0b651c"
       }
     },
@@ -5172,17 +5059,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "구축",
-          "통합",
-          "사업",
-          "선정",
           "공모"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "568008f02e78d4c4bfa870f0edd9fd1f7f6fb208bfe9df5efc52da940e783e10"
       }
     },
@@ -5213,16 +5096,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "운영",
-          "연계",
-          "사업",
           "박람회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "34d47d4e2fa2ac94f1a3d66701d8b9ad4c1a68d1f6451eb3448cb8dea7755db4"
       }
     },
@@ -5254,14 +5134,13 @@
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "감사",
-          "개선",
-          "점검"
+          "회의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "da222aa3016f9bbb56e9c33357f5639f95fc212e2da37ae3e5cbfea885891d7c"
       }
     },
@@ -5292,15 +5171,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "구축",
-          "사업",
           "입찰"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "982383302758ffd71cd304cc2a6f58088da6f4c3395620546fd17397fec467d3"
       }
     },
@@ -5331,14 +5208,14 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "예산",
+          "참석",
           "간담회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "7818c5bd9fa5f9f370addc391492f1246df2e7a48ffdef0bdcc04416c67050a3"
       }
     },
@@ -5369,16 +5246,14 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "대책",
-          "전략",
-          "대응",
-          "회의 개최"
+          "회의 개최",
+          "회의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "aa0dd8b133b94d7f20a716d01fdc81086ffc7bbad1c235fde1ced74e05aa0487"
       }
     },
@@ -5412,8 +5287,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "123b2decbffe13f965db1e5436796e9ca499081aeb67fe00b4c0d59d1dae318c"
       }
     },
@@ -5447,8 +5322,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "36b9d2823febd5d940ad1831b94f1bc6ba2f2df470ad3ab71ee146954282ac4b"
       }
     },
@@ -5488,8 +5363,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "eaa00387e4a49e1e155bbf1c9611c587ff26026b78940b975a52cedd4e15c3c6"
       }
     },
@@ -5526,8 +5401,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "bb8e3765ecdbd1481d36199e0e3aeb86709f1c23a91f5967791533eef64e32f0"
       }
     },
@@ -5557,16 +5432,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "전환",
-          "확산",
-          "운영"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "838810c8f23ec15d2a323781ebeaaa8694ab01875d6990deec3826eef79fe64b"
       }
     },
@@ -5596,12 +5467,15 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [],
+        "signals": [
+          "소개",
+          "방문"
+        ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "4ccf451ce61320e441bc25ec63dc8eed79a56c0d7943257355704139ccf8e2f0"
       }
     },
@@ -5633,14 +5507,14 @@
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "준수",
-          "사업",
+          "참석",
           "캠페인"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "d16ff8c56aeef1e76132954af9d5fa3145c2f729e2d8f1aaffef77e7bfe58afe"
       }
     },
@@ -5668,16 +5542,17 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.93,
-        "reason": "구체적인 제도·사업·시스템 조치 없이 공청회·간담회·설명회 등 행사 사실을 알리는 자료입니다.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
+          "참석",
           "기념식"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "e28ce6d69f212ca3c36af1e945118eaa09d714a1202654856cd00827d500217e"
       }
     },
@@ -5708,14 +5583,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "개선",
-          "대응"
+          "공유"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "015672e3edb184df08d9836f8c288cda7c9b75e6276aa485fb956a9d15289cf4"
       }
     },
@@ -5744,17 +5618,17 @@
         "label": "보통",
         "score": 2,
         "confidence": 0.9,
-        "reason": "특정 산업 분야의 제조공정 디지털 전환 사례로, 지식재산처가 향후 유사한 산업재산권 관련 디지털 전환 사업을 추진할 때 참고할 수 있는 사례입니다.",
+        "reason": "산업통상부의 특정 산업 분야 디지털 전환 및 실증센터 개소 사례로, 지식재산처와 직접적인 관련이 없는 타 부처의 사업임.",
         "signals": [
           "디지털트윈",
-          "제조공정 AI 전환",
-          "디지털 전환"
+          "인공지능 전환",
+          "실증센터"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:04:30+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:13:17+09:00",
         "source_hash": "559cbd96b7f73952f379943b06603ccc2b28d4dbbd713516c7882b5af8c0fb0e"
       }
     },
@@ -5784,15 +5658,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "사업",
-          "계획"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "44c9b6724655bcfead44f8c9fa431220bdb23581e1692d15ace626017486bce5"
       }
     },
@@ -5824,15 +5695,14 @@
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "규제",
-          "개발",
-          "사업",
+          "논의",
           "면담"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "dec7e6daee49a38e51c90d8971c53705bc0aacb1f9ab8ea33bb31915db0a8323"
       }
     },
@@ -5863,14 +5733,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "운영",
-          "개편"
+          "회의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "1d3913ba2e9e10953abbbb927f1590b1b40088681863f42e2ebc42ef52be7702"
       }
     },
@@ -5898,16 +5767,18 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.93,
-        "reason": "구체적인 제도·사업·시스템 조치 없이 공청회·간담회·설명회 등 행사 사실을 알리는 자료입니다.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "간담회"
+          "모색",
+          "간담회",
+          "회의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "8b70d75c5298757e09804ab9225cd6c1aa2625c4b3f56c80f03fffceb6161e4c"
       }
     },
@@ -5937,12 +5808,16 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [],
+        "signals": [
+          "모색",
+          "방문",
+          "회의"
+        ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "8dc5fe370fd7edc09325419630b2eae221d2f4f2153a4f030ded875a35603cac"
       }
     },
@@ -5967,21 +5842,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.85,
-        "reason": "공공데이터 가명결합 및 합성데이터 생성·개방 사례로, 지식재산 데이터의 활용 및 보안 정책 수립 시 참고 및 벤치마킹 대상이 될 수 있습니다.",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.9,
+        "reason": "산림청의 공공데이터 개방 사례로, 데이터 활용 및 가명결합 기술 동향을 파악하는 참고 자료임.",
         "signals": [
-          "합성데이터",
+          "AI 합성데이터",
           "공공데이터 개방",
           "가명결합"
         ],
-        "recommended_action": "동향 추적",
+        "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:04:30+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:13:17+09:00",
         "source_hash": "370c15f635e7815c87ab5154d6919b101173d9bcb8bad534531022b1824d16cb"
       }
     },
@@ -6015,8 +5890,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "33c550aebd5e38223db28b63c9b60460e0d9d57b71f2347ade174b9363948e6b"
       }
     },
@@ -6044,16 +5919,17 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.93,
-        "reason": "구체적인 제도·사업·시스템 조치 없이 공청회·간담회·설명회 등 행사 사실을 알리는 자료입니다.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
+          "방문",
           "박람회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "f25b750e743a389437f205dacbb95eef9a7d7342f9de2dbbedad07951c227090"
       }
     },
@@ -6081,16 +5957,16 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.93,
-        "reason": "구체적인 제도·사업·시스템 조치 없이 공청회·간담회·설명회 등 행사 사실을 알리는 자료입니다.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "간담회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "6c6a378ce975fb91ea27ff34a5e8634db84844f8eeffc9fec244cb12c7dbce29"
       }
     },
@@ -6118,17 +5994,17 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.95,
-        "reason": "국가 산업활동동향에 관한 통계 발표로, 지식재산처의 정보화 정책이나 업무에 직접적인 영향을 미치지 않습니다.",
+        "confidence": 1.0,
+        "reason": "국가 산업활동동향에 관한 통계 자료로, AI 및 정보화 정책과 직접적인 관련이 없음.",
         "signals": [
           "산업활동동향",
-          "통계 발표"
+          "통계"
         ],
         "recommended_action": "제외",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:04:30+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:13:17+09:00",
         "source_hash": "606b4f69b57637114a8f1971f712b8e0647bd101750a9cbb497034ad41a30014"
       }
     },
@@ -6153,21 +6029,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
         "confidence": 0.9,
-        "reason": "디지털 의료기기 소프트웨어 허가심사 가이드라인 마련은 AI 기반 기술의 지식재산권 보호 및 심사 기준 수립과 관련성이 높아 정책적 참고가 필요합니다.",
+        "reason": "디지털의료기기 소프트웨어 허가심사 가이드라인 마련은 특정 분야의 규제 및 기술 표준 사례로, 지식재산처 업무와 직접적인 연관성은 낮음.",
         "signals": [
           "디지털의료기기",
-          "소프트웨어 허가심사",
-          "가이드라인"
+          "소프트웨어",
+          "허가심사 가이드라인"
         ],
-        "recommended_action": "동향 추적",
+        "recommended_action": "참고",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:04:30+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:13:17+09:00",
         "source_hash": "030712a4829cae3c39a676a47c3ce13efb8ab7c794bf6bc617477b3501dfc9d8"
       }
     },
@@ -6198,14 +6074,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "규제",
-          "개선"
+          "규제"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "6e04ffa3183a5bde73f2c946b8e130cc6af744cb26310fe08c3e50123dbe7031"
       }
     },
@@ -6236,15 +6111,16 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "고도화",
-          "운영",
+          "논의",
+          "공유",
+          "참석",
           "워크숍"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "f5e39d621b6d538b576989bc55101a57afdc9f68c1e6c5630a66ac2edbdf3700"
       }
     },
@@ -6275,14 +6151,14 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "개선",
+          "논의",
           "협의회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "ed9ba5fb5b01afe9c9ddd1e8bc06cbeace1ded933c9109c53c18d5080df02fa7"
       }
     },
@@ -6316,8 +6192,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "f925547b13090bae973dc4d16138fac57016cef64155d52e0efeb0b7bc510152"
       }
     },
@@ -6347,15 +6223,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "사업",
-          "대응"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "ca184bdff908775f53668fbdf3f2e127df9d18498961b86a0d58efaf5e9fa272"
       }
     },
@@ -6389,8 +6262,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "e22b6b25f0e78cf6f2c85c21d42a9ad71a316f592bf8f0621ca2c4cee73b6259"
       }
     },
@@ -6424,8 +6297,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "1f78523cf59923bc8f84ad69dee317cd00109b699096af147bf9e98d607ca875"
       }
     },
@@ -6455,15 +6328,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "운영",
-          "사업"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "fbb9bcdc7fc88f786f514bf226b18f07dd1480ae4820784e5925ca2abc9dcdf9"
       }
     },
@@ -6494,15 +6364,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "확산",
-          "연계",
           "공모"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "f684ef268b14971c4be81ffead2e4db5b637e282e789ab551f9b494b53298a66"
       }
     },
@@ -6532,17 +6400,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "구축",
-          "개발",
-          "사업",
-          "실증"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "00ca610d876079ce5e1a79ffb18c3f607a19724768110c69092ebf03d72dcef8"
       }
     },
@@ -6573,13 +6436,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "개선"
+          "발표"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "4711db365c684aa14e14b3992df4f8712f73c86d69271ed59edd759366f4b52a"
       }
     },
@@ -6609,15 +6472,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "운영",
-          "예산"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "727a9a230660dde334a895330155eadcbedde5e77b16212bf2a5f9c764c850be"
       }
     },
@@ -6647,12 +6507,14 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [],
+        "signals": [
+          "회의"
+        ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "56611653eb6de36f474a7d8f86806c7254ef80690ad0b12eeea812057701e789"
       }
     },
@@ -6687,13 +6549,13 @@
           "개정",
           "시행",
           "규제",
-          "도입"
+          "의견수렴"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "fe1b99c6b099258fc77a3735fe1c12071cc9d96def30b992b93bb5442068d5a0"
       }
     },
@@ -6721,18 +6583,20 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.95,
-        "reason": "인구전략위원회의 노인요양시설 현장 방문 및 돌봄 인력 확충에 관한 내용으로, 지식재산처의 업무와 직접적인 관련이 없습니다.",
+        "confidence": 0.94,
+        "reason": "구체적인 시행·도입·의무 조치 없이 회의·포럼·논의·미래상 소개에 그치는 자료입니다.",
         "signals": [
+          "AI",
+          "모색",
+          "방문",
           "현장 방문",
-          "돌봄 인력",
-          "인구전략위원회"
+          "회의"
         ],
         "recommended_action": "제외",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:04:38+09:00",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "197e8b2fe2eaf1d887e2ec76c53b3ee557f9c8f1d530448b9230ab9c7caad234"
       }
     },
@@ -6760,16 +6624,18 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.93,
-        "reason": "구체적인 제도·사업·시스템 조치 없이 공청회·간담회·설명회 등 행사 사실을 알리는 자료입니다.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "간담회"
+          "참석",
+          "간담회",
+          "회의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "c845d0433779acb6620b10af339fec9f0b0ff01e8c82d6b4ba520e26cebf3240"
       }
     },
@@ -6797,18 +6663,17 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.9,
-        "reason": "금융위원회의 청년미래적금 가입 절차 안내로, 지식재산처의 법령이나 정보화 사업에 영향을 미치지 않는 일반적인 금융 정책입니다.",
+        "confidence": 0.91,
+        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "청년미래적금",
-          "금융위원회",
-          "가입 절차"
+          "심사",
+          "회의"
         ],
         "recommended_action": "제외",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:04:38+09:00",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "bff24fa86c2054337d7f8e7143d7ec0ffc1b5dae68181305f7a19aeeded1571e"
       }
     },
@@ -6838,15 +6703,12 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [
-          "점검",
-          "대응"
-        ],
+        "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "1cf5c33a444511da6b195e175dddf86ddd5a601b9ec8ab9cd8da12bf32e7f3ea"
       }
     },
@@ -6877,17 +6739,13 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "표준",
-          "도입",
-          "적용",
-          "사업",
-          "점검"
+          "표준"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "35d40b9eb484306d4371abe81357f9b20c34d8fdfa66a5efc677b98cb20b1512"
       }
     },
@@ -6918,13 +6776,14 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "점검"
+          "방문",
+          "회의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "751d0e21ed296e9084027eefda2fc2d82e4d390f5285727b457fb693a468e027"
       }
     },
@@ -6949,21 +6808,22 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.85,
-        "reason": "실손보험 청구 전산화 시스템의 연계율 제고 사례로, 타 부처의 정보시스템 고도화 사례로서 참고 가치가 있습니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.94,
+        "reason": "구체적인 시행·도입·의무 조치 없이 회의·포럼·논의·미래상 소개에 그치는 자료입니다.",
         "signals": [
-          "실손24",
-          "청구전산화",
-          "시스템 연계"
+          "플랫폼",
+          "기준",
+          "시행",
+          "회의"
         ],
-        "recommended_action": "참고",
-        "method": "gemini-api",
-        "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T01:04:38+09:00",
+        "recommended_action": "제외",
+        "method": "rules",
+        "model": null,
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "1c37d1194e583b02c948cd86ba29d8d7e8997256c24f278cc846864e1b491e1e"
       }
     },
@@ -6993,12 +6853,14 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [],
+        "signals": [
+          "발표"
+        ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "415fb71efb608080c17a00bf3009ac3bf44b4b27dfe5087ea208210c28559fa1"
       }
     },
@@ -7030,14 +6892,14 @@
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "제정",
-          "예산",
+          "참석",
           "간담회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "98e7fbe75f50aba3996fb1cee469e9ae0f7b260c38bf049698a6440a614c3974"
       }
     },
@@ -7068,14 +6930,15 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "과제",
-          "면담"
+          "공유",
+          "면담",
+          "회의"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "2f77f04c3e80681b5890d704144372ed8f32f9fde0cf84f3911b71487b90c214"
       }
     },
@@ -7105,12 +6968,14 @@
         "score": 1,
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [],
+        "signals": [
+          "전망"
+        ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "cbe679253c8a72d13254d2aaa836d09f470d8f74b16710c9494ee3f197d99e28"
       }
     },
@@ -7146,8 +7011,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "2762afdcf8a88a61340b387050e2de22970adedfc4f8e7ed59594d434b477357"
       }
     },
@@ -7178,16 +7043,14 @@
         "confidence": 0.91,
         "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "개선",
-          "사업",
-          "시범사업",
+          "논의",
           "간담회"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.0",
-        "classified_at": "2026-10-30T00:58:08+09:00",
+        "prompt_version": "ip-office-relevance-v1.1",
+        "classified_at": "2026-11-03T17:12:52+09:00",
         "source_hash": "84f31cb2c79a7e87e6489b9b1ef369096c8bcb78acb5d9866b369ed6b33eeb26"
       }
     }
@@ -7195,12 +7058,12 @@
   "generated_at": "2026-10-30T00:55:06+09:00",
   "article_count": 189,
   "modified_count": 0,
-  "classification_prompt_version": "ip-office-relevance-v1.0",
-  "classification_updated_at": "2026-10-30T01:07:56+09:00",
+  "classification_prompt_version": "ip-office-relevance-v1.1",
+  "classification_updated_at": "2026-11-03T17:13:17+09:00",
   "relevance_counts": {
-    "unrelated": 170,
-    "important": 8,
-    "normal": 7,
-    "critical": 4
+    "unrelated": 176,
+    "normal": 10,
+    "critical": 1,
+    "important": 2
   }
 }

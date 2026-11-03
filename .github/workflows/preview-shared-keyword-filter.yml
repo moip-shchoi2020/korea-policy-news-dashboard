@@ -1,0 +1,56 @@
+name: 공용 키워드 Telegram 미리보기
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/preview-shared-keyword-filter.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 저장소 가져오기
+        uses: actions/checkout@v6
+
+      - name: Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: 패키지 설치
+        run: pip install requests
+
+      - name: 공용 키워드 확장 확인
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          import collector
+
+          keywords = collector.parse_keyword_list(os.environ.get('TELEGRAM_KEYWORDS', ''))
+          required = os.environ.get('TELEGRAM_REQUIRE_KEYWORD_MATCH')
+          print('확장 키워드 수:', len(keywords))
+          print('확장 키워드:', ', '.join(keywords))
+          print('키워드 일치 필수:', required)
+          assert 'AI' in keywords
+          assert '인공지능' in keywords
+          assert 'LLM' in keywords
+          assert '생성형 인공지능' in keywords
+          assert required == 'true'
+          PY
+
+      - name: 현재 운영 데이터 Telegram 미리보기
+        env:
+          TELEGRAM_LEVELS: "critical,important"
+          TELEGRAM_MAX_CRITICAL: "20"
+          TELEGRAM_MAX_IMPORTANT: "20"
+          TELEGRAM_MAX_ARTICLES: "30"
+          TELEGRAM_SKIP_EMPTY: "true"
+          REPORT_DATE: "2026-11-03"
+          TELEGRAM_REPORT_TITLE: "공용 기준 검증"
+        run: python -u -m collector.send_telegram --date 2026-11-03 --preview

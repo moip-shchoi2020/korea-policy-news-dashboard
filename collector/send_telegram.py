@@ -361,8 +361,11 @@ def header_block(result: DigestResult) -> str:
         f"{escape(result.report_date)} · 전송 기준: {escape(criteria_text())}",
     ]
     if safe_bool_env("TELEGRAM_REQUIRE_KEYWORD_MATCH", False):
-        keyword_text = ", ".join(result.keywords) if result.keywords else "전체 보도자료"
-        lines[-1] += f" · 키워드: {escape(keyword_text)}"
+        display_keywords = parse_keywords(os.getenv("TELEGRAM_DISPLAY_KEYWORDS", ""))
+        keyword_values = display_keywords or result.keywords
+        keyword_text = ", ".join(keyword_values) if keyword_values else "전체 보도자료"
+        alias_note = " (유사어 포함)" if display_keywords else ""
+        lines[-1] += f" · 키워드: {escape(keyword_text)}{alias_note}"
 
     status_note = pipeline_status_note()
     if status_note:

@@ -101,6 +101,8 @@ def configure_telegram_keyword_environment(
     else:
         expanded = expand_keyword_aliases(base_keywords, config.get("keyword_aliases"))
 
+    if base_keywords:
+        os.environ["TELEGRAM_DISPLAY_KEYWORDS"] = ",".join(base_keywords)
     if expanded:
         os.environ["TELEGRAM_KEYWORDS"] = ",".join(expanded)
 

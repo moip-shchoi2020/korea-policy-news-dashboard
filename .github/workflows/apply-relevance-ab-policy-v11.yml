@@ -43,6 +43,97 @@ jobs:
       - name: 분류기준 적용
         run: python scripts/apply_relevance_policy_v11.py
 
+      - name: 정책 버전 캐시 테스트 조정
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('tests/test_gemini_relevance.py')
+          text = path.read_text(encoding='utf-8')
+          start = text.index('    def test_gemini_record_preserves_provider_and_model')
+          end = text.index('\n\nif __name__ == "__main__":', start)
+          replacement = '''    def test_gemini_record_preserves_provider_and_model(self) -> None:
+              record = finalize_gemini_record(
+                  {
+                      "level": "important",
+                      "confidence": 0.9,
+                      "reason": "정책 영향이 있습니다.",
+                      "signals": ["AI"],
+                  },
+                  source_hash="source-hash",
+                  policy=self.policy,
+                  model="gemini-3.1-flash-lite",
+                  method="gemini-api",
+              )
+
+              self.assertEqual(record["method"], "gemini-api")
+              self.assertEqual(record["model"], "google/gemini-3.1-flash-lite")
+              self.assertEqual(record["prompt_version"], self.policy["prompt_version"])
+
+          def test_legacy_result_is_invalidated_when_policy_changes(self) -> None:
+              article: dict[str, Any] = {
+                  "id": "legacy-1",
+                  "title": "AI 기본법 개정",
+                  "summary": "전 부처 기준",
+                  "content_text": "전 부처에 적용되는 기준을 개정한다.",
+                  "ministry": "과학기술정보통신부",
+              }
+              article["ip_relevance"] = {
+                  "level": "critical",
+                  "method": "github-models",
+                  "model": "openai/gpt-4.1-mini",
+                  "prompt_version": "ip-office-relevance-v1.0",
+                  "source_hash": article_source_hash(article),
+              }
+
+              self.assertFalse(
+                  gemini_classification_is_current(
+                      article,
+                      self.policy,
+                      "google/gemini-3.1-flash-lite",
+                      True,
+                  )
+              )
+
+          def test_gemini_model_change_invalidates_gemini_cache(self) -> None:
+              article: dict[str, Any] = {
+                  "id": "gemini-1",
+                  "title": "AI 공통기준",
+                  "summary": "공통기준",
+                  "content_text": "행정기관 공통기준을 시행한다.",
+                  "ministry": "행정안전부",
+              }
+              article["ip_relevance"] = {
+                  "level": "important",
+                  "method": "gemini-api",
+                  "model": "google/gemini-3.1-flash-lite",
+                  "prompt_version": self.policy["prompt_version"],
+                  "source_hash": article_source_hash(article),
+              }
+
+              self.assertTrue(
+                  gemini_classification_is_current(
+                      article,
+                      self.policy,
+                      "google/gemini-3.1-flash-lite",
+                      True,
+                  )
+              )
+              self.assertFalse(
+                  gemini_classification_is_current(
+                      article,
+                      self.policy,
+                      "google/gemini-3.5-flash-lite",
+                      True,
+                  )
+              )
+          '''
+          import textwrap
+          replacement = textwrap.dedent(replacement)
+          # class method indentation restored after dedent
+          replacement = ''.join('    ' + line if line.strip() else line for line in replacement.splitlines(keepends=True))
+          path.write_text(text[:start] + replacement.rstrip() + text[end:], encoding='utf-8')
+          PY
+
       - name: 패키지 설치
         run: pip install -r requirements.txt
 
@@ -78,6 +169,6 @@ jobs:
           rm -f scripts/apply_relevance_policy_v11.py
           git config user.name "policy-dashboard-bot"
           git config user.email "policy-dashboard-bot@users.noreply.github.com"
-          git add collector/relevance_policy.json collector/classify_relevance.py collector/classify_relevance_gemini.py tests/test_relevance.py .github/workflows/apply-relevance-ab-policy-v11.yml scripts/apply_relevance_policy_v11.py
+          git add collector/relevance_policy.json collector/classify_relevance.py collector/classify_relevance_gemini.py tests/test_relevance.py tests/test_gemini_relevance.py .github/workflows/apply-relevance-ab-policy-v11.yml scripts/apply_relevance_policy_v11.py
           git commit -m "feat: A/B 조건과 행사·논의 상한을 분류 기준에 적용"
           git push origin HEAD:fix/relevance-ab-policy-v11

@@ -1,0 +1,186 @@
+name: v1.1 기준 당일 재분류 및 Telegram 테스트
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/reclassify-v11-and-telegram-test.yml"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: policy-dashboard-v11-test
+  cancel-in-progress: false
+
+jobs:
+  reclassify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: 저장소 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: 패키지 설치
+        run: pip install -r requirements.txt
+
+      - name: 2026-11-03 자료 격리 복사
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/reclass-data
+          mkdir -p /tmp/reclass-data/2026/11/03
+          cp docs/data/2026/11/03/articles.json /tmp/reclass-data/2026/11/03/articles.json
+
+      - name: Gemini로 v1.1 기준 강제 재분류
+        timeout-minutes: 20
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY || secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
+          GEMINI_MAX_ATTEMPTS: "5"
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python -u -m collector.classify_relevance_gemini \
+            --data-dir /tmp/reclass-data \
+            --model "$GEMINI_MODEL" \
+            --batch-size 5 \
+            --max-articles 500 \
+            --request-delay 4.1 \
+            --force \
+            --require-ai
+
+      - name: 재분류 결과를 운영 데이터에 병합
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          source_path = Path('/tmp/reclass-data/2026/11/03/articles.json')
+          target_path = Path('docs/data/2026/11/03/articles.json')
+          source = json.loads(source_path.read_text(encoding='utf-8'))
+          target = json.loads(target_path.read_text(encoding='utf-8'))
+          by_id = {
+              str(article.get('id')): article.get('ip_relevance')
+              for article in source.get('articles', [])
+              if isinstance(article, dict) and isinstance(article.get('ip_relevance'), dict)
+          }
+          updated = 0
+          for article in target.get('articles', []):
+              result = by_id.get(str(article.get('id')))
+              if result:
+                  article['ip_relevance'] = result
+                  updated += 1
+          target['classification_prompt_version'] = 'ip-office-relevance-v1.1'
+          target['classification_updated_at'] = source.get('classification_updated_at')
+          target_path.write_text(
+              json.dumps(target, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          print(f'운영 데이터 병합: {updated}건')
+          if updated != len(target.get('articles', [])):
+              raise SystemExit('당일 기사 전체에 재분류 결과가 병합되지 않았습니다.')
+          PY
+
+      - name: 색인 재생성 및 새 기준 검증
+        run: |
+          python -m collector.build_indexes
+          python - <<'PY'
+          import json
+          from collections import Counter
+          from pathlib import Path
+          from collector.send_telegram import build_digest
+
+          path = Path('docs/data/2026/11/03/articles.json')
+          payload = json.loads(path.read_text(encoding='utf-8'))
+          articles = payload.get('articles', [])
+          levels = Counter()
+          methods = Counter()
+          versions = Counter()
+          target = None
+          for article in articles:
+              relevance = article.get('ip_relevance', {})
+              levels[relevance.get('level', 'unclassified')] += 1
+              methods[relevance.get('method', 'unclassified')] += 1
+              versions[relevance.get('prompt_version', 'missing')] += 1
+              if '동아시아 기록관리 전문가' in str(article.get('title', '')):
+                  target = article
+
+          print('당일 중요도:', dict(levels))
+          print('당일 판정 방식:', dict(methods))
+          print('당일 정책 버전:', dict(versions))
+          if target is None:
+              raise SystemExit('검증 대상 기사를 찾지 못했습니다.')
+          target_level = target.get('ip_relevance', {}).get('level')
+          print('기록관리 기사 새 판정:', target_level, target.get('ip_relevance', {}).get('reason'))
+          if target_level != 'unrelated':
+              raise SystemExit(f'기록관리 기사가 관계없음으로 조정되지 않았습니다: {target_level}')
+          if set(versions) != {'ip-office-relevance-v1.1'}:
+              raise SystemExit(f'v1.1 이외 판정이 남았습니다: {dict(versions)}')
+          if methods.get('rules-fallback') or methods.get('unclassified'):
+              raise SystemExit(f'AI 실패 대체 또는 미분류가 남았습니다: {dict(methods)}')
+
+          digest = build_digest('2026-11-03')
+          selected_titles = [str(item.get('title', '')) for item in digest.selected_articles]
+          print('Telegram 발송 대상:', selected_titles)
+          if any('동아시아 기록관리 전문가' in title for title in selected_titles):
+              raise SystemExit('기록관리 기사가 Telegram 발송 대상에 남아 있습니다.')
+          PY
+
+      - name: 변경 데이터와 일회성 워크플로 정리·반영
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/reclassify-v11-and-telegram-test.yml
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+          git add docs/data .github/workflows/reclassify-v11-and-telegram-test.yml
+          git commit -m "data: v1.1 기준 2026-11-03 재분류"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
+
+      - name: Telegram 실제 테스트 발송
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_KEYWORDS: ${{ vars.TELEGRAM_KEYWORDS }}
+          TELEGRAM_LEVELS: "critical,important"
+          TELEGRAM_MAX_CRITICAL: "20"
+          TELEGRAM_MAX_IMPORTANT: "20"
+          TELEGRAM_MAX_NORMAL: "0"
+          TELEGRAM_MAX_UNCLASSIFIED: "0"
+          TELEGRAM_MAX_ARTICLES: "30"
+          TELEGRAM_SKIP_EMPTY: "false"
+          DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
+          TELEGRAM_REPORT_TITLE: "A/B 기준 테스트 발송"
+          PYTHONUNBUFFERED: "1"
+        run: python -u -m collector.send_telegram --date 2026-11-03 --require-config
+
+      - name: GitHub Pages 설정
+        uses: actions/configure-pages@v6
+
+      - name: Pages 배포 파일 업로드
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs
+
+  deploy:
+    needs: reclassify
+    if: success()
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: GitHub Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v5

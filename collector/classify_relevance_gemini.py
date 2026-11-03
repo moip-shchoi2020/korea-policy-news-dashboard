@@ -21,6 +21,7 @@ from collector.classify_relevance import (
     build_system_prompt,
     chunks,
     classification_is_current,
+    constrain_model_result,
     finalize_record,
     iter_article_files,
     load_policy,
@@ -40,7 +41,7 @@ DEFAULT_MAX_ATTEMPTS = 5
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="저장된 보도자료를 2026-07-29 기준으로 Gemini API를 이용해 분류합니다."
+        description="저장된 보도자료를 A/B 정책 기준으로 Gemini API를 이용해 분류합니다."
     )
     parser.add_argument("--data-dir", default="docs/data")
     parser.add_argument("--policy", default=str(DEFAULT_POLICY_PATH))
@@ -361,7 +362,7 @@ def main() -> int:
                     method = "rules-fallback"
                     ai_failed = True
                 else:
-                    base_record = model_record
+                    base_record = constrain_model_result(item.article, model_record, policy)
                     method = "gemini-api"
                 records.append(
                     (

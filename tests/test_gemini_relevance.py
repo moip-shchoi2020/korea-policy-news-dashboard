@@ -197,9 +197,9 @@ class GeminiRelevanceTests(unittest.TestCase):
 
         self.assertEqual(record["method"], "gemini-api")
         self.assertEqual(record["model"], "google/gemini-3.1-flash-lite")
-        self.assertEqual(record["prompt_version"], "ip-office-relevance-v1.0")
+        self.assertEqual(record["prompt_version"], self.policy["prompt_version"])
 
-    def test_legacy_github_models_result_is_preserved(self) -> None:
+    def test_legacy_result_is_invalidated_when_policy_changes(self) -> None:
         article: dict[str, Any] = {
             "id": "legacy-1",
             "title": "AI 기본법 개정",
@@ -215,7 +215,7 @@ class GeminiRelevanceTests(unittest.TestCase):
             "source_hash": article_source_hash(article),
         }
 
-        self.assertTrue(
+        self.assertFalse(
             gemini_classification_is_current(
                 article,
                 self.policy,
@@ -236,7 +236,7 @@ class GeminiRelevanceTests(unittest.TestCase):
             "level": "important",
             "method": "gemini-api",
             "model": "google/gemini-3.1-flash-lite",
-            "prompt_version": "ip-office-relevance-v1.0",
+            "prompt_version": self.policy["prompt_version"],
             "source_hash": article_source_hash(article),
         }
 
@@ -256,7 +256,6 @@ class GeminiRelevanceTests(unittest.TestCase):
                 True,
             )
         )
-
 
 if __name__ == "__main__":
     unittest.main()

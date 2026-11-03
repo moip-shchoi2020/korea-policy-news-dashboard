@@ -442,21 +442,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.9,
-        "reason": "기관 내부의 단순 인사 발령 사항으로 구체적인 정보화 사업이나 정책 시행 조치가 없음.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 1.0,
+        "reason": "기관 내 인사 발령에 관한 내용으로, 지식재산처의 AI·정보화 정책과 직접적인 관련이 없습니다.",
         "signals": [
           "인사",
-          "승진",
-          "전보"
+          "전보",
+          "승진"
         ],
-        "recommended_action": "참고",
+        "recommended_action": "제외",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:06:24+09:00",
+        "classified_at": "2026-11-04T02:57:12+09:00",
         "source_hash": "cfb00d0bb8c04c7f603930c50811f045134a9010061b610200bf797b6ea75b30"
       }
     },
@@ -1963,17 +1963,17 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.85,
-        "reason": "청년사업단 대상 역량 강화 교육 및 AI 활용 교육 제공 사례를 소개하는 내용임.",
+        "confidence": 0.9,
+        "reason": "청년 대상 AI 활용 교육을 실시하는 사례로, 정보화 관련성이 있으나 구체적인 시스템 구축이나 정책 시행은 아닙니다.",
         "signals": [
-          "역량 강화 교육",
-          "AI 활용 교육"
+          "AI 활용 교육",
+          "역량 강화"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:06:24+09:00",
+        "classified_at": "2026-11-04T02:57:12+09:00",
         "source_hash": "3b7b5666a9d01ae5357fe529ca37d2f86cfbe824e5d3d6e7d2922c18186aff06"
       }
     },
@@ -2157,18 +2157,18 @@
         "level": "important",
         "label": "중요",
         "score": 3,
-        "confidence": 0.85,
-        "reason": "AI 기반 수상로봇 통합관제 시스템 등 공공데이터 기반 비즈니스 공모전 수상작 선정 사업 조치가 포함됨.",
+        "confidence": 0.9,
+        "reason": "AI 기반 시스템 공모전 수상작 선정 및 공공데이터 활용 모델 발굴 등 구체적인 사업 조치가 포함되어 있습니다.",
         "signals": [
-          "AI 기반",
-          "통합관제 시스템",
-          "공모전 수상작 선정"
+          "AI 기반 시스템",
+          "공공데이터",
+          "비즈니스 모델 발굴"
         ],
         "recommended_action": "동향 추적",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:06:24+09:00",
+        "classified_at": "2026-11-04T02:57:12+09:00",
         "source_hash": "9452dc40d23600c522667949f8fdafb0c2ee897fa02dad03d9be95fae5d384c4"
       }
     },
@@ -2196,17 +2196,18 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.85,
-        "reason": "구체적 시행·도입·의무 조치(B)가 확인되지 않아 보통으로 조정했습니다. 원 모델 근거: 국방표준종합정보시스템 개선 등 시스템 수정 및 제도개선 조치가 포함되어 있음.",
+        "confidence": 0.9,
+        "reason": "구체적 시행·도입·의무 조치(B)가 확인되지 않아 보통으로 조정했습니다. 원 모델 근거: 국방표준종합정보시스템 개선이라는 구체적인 정보화 조치가 포함되어 있습니다.",
         "signals": [
-          "국방표준종합정보시스템 개선",
-          "제도개선"
+          "정보시스템 개선",
+          "규제 개선",
+          "행정 부담 완화"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:06:24+09:00",
+        "classified_at": "2026-11-04T02:57:12+09:00",
         "source_hash": "5c46bbd8211cf56de643bbff7d13b4f57736082c3f8b5984e56b0a35afd05891"
       }
     },
@@ -3119,21 +3120,20 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.9,
-        "reason": "월간 산업활동동향 통계 데이터 발표로 참고 가치만 있는 사안임.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 1.0,
+        "reason": "산업활동동향 통계 자료로, AI·정보화 정책과 무관한 경제 지표 발표입니다.",
         "signals": [
           "산업활동동향",
-          "생산",
           "통계"
         ],
-        "recommended_action": "참고",
+        "recommended_action": "제외",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:06:24+09:00",
+        "classified_at": "2026-11-04T02:57:12+09:00",
         "source_hash": "7b5535617a0f3617b3d9131859215f65fba2dcb5372617306ddb76f29b03082c"
       }
     },
@@ -3845,10 +3845,10 @@
   "article_count": 103,
   "modified_count": 0,
   "classification_prompt_version": "ip-office-relevance-v1.1",
-  "classification_updated_at": "2026-11-03T17:06:31+09:00",
+  "classification_updated_at": "2026-11-04T02:57:35+09:00",
   "relevance_counts": {
-    "unrelated": 98,
-    "normal": 4,
+    "unrelated": 100,
+    "normal": 2,
     "important": 1
   }
 }

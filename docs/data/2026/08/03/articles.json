@@ -61,21 +61,20 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "unrelated",
-        "label": "관계없음",
-        "score": 1,
-        "confidence": 0.9,
-        "reason": "외교부의 국가 간 영사협의회 개최 및 논의 사항으로 지식재산처의 정보화·AI 업무와 직접적 연관이 없음.",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.8,
+        "reason": "영사협의회 및 안전담당영사회의에서 비상 대피계획 점검 등을 논의했으나, 지식재산처와 직접 관련이 없는 외교 현안입니다.",
         "signals": [
-          "영사협의회",
-          "외교",
-          "회의 개최"
+          "비상 대피계획 점검",
+          "협조 체계 구축"
         ],
-        "recommended_action": "제외",
+        "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:06:24+09:00",
+        "classified_at": "2026-11-04T02:57:12+09:00",
         "source_hash": "5eb1f877ea9af7db8acebbdd6f351b80dd1d04d3e995b94643aac32a4e1fc1bd"
       }
     },
@@ -584,17 +583,16 @@
         "label": "보통",
         "score": 2,
         "confidence": 0.9,
-        "reason": "기상청과 WMO의 AI 활용 역량 강화 과정 개최 소식으로, AI 관련성이 있으나 지식재산처 직접 연결 및 구체적 시행 조치가 없어 normal로 판정함.",
+        "reason": "기상-AI 활용 역량 강화 교육 과정 개최로, 기술 공유 및 사례 소개에 해당합니다.",
         "signals": [
-          "기상청",
-          "인공지능",
+          "기상-AI",
           "역량 강화 과정"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:06:31+09:00",
+        "classified_at": "2026-11-04T02:57:12+09:00",
         "source_hash": "c7d4338b01f23d110d923060f03ae220ab4d153955fa31ab42b61b9f9cb95363"
       }
     },
@@ -663,17 +661,17 @@
         "label": "보통",
         "score": 2,
         "confidence": 0.9,
-        "reason": "구체적 시행·도입·의무 조치(B)가 확인되지 않아 보통으로 조정했습니다. 원 모델 근거: 국가 인공지능 컴퓨팅센터 착공식 개최 등 구체적인 AI 인프라 구축 사업 착수 조치가 포함되어 있으므로 important로 판정함.",
+        "reason": "구체적 시행·도입·의무 조치(B)가 확인되지 않아 보통으로 조정했습니다. 원 모델 근거: 국가 인공지능 컴퓨팅센터 구축 착공식 등 구체적인 정보화 인프라 구축 사업이 명시되어 있습니다.",
         "signals": [
-          "과학기술정보통신부",
           "인공지능 컴퓨팅센터",
-          "착공식"
+          "인프라 구축",
+          "착공"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:06:31+09:00",
+        "classified_at": "2026-11-04T02:57:12+09:00",
         "source_hash": "667fc10d7c8ff727ca7502d313798c8ddf2d4899830c23ceda505cd44e21c47e"
       }
     },
@@ -805,21 +803,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "unrelated",
-        "label": "관계없음",
-        "score": 1,
+        "level": "important",
+        "label": "중요",
+        "score": 3,
         "confidence": 0.9,
-        "reason": "우주부품 실증 지원 사업 착수이나 AI·정보화와 직접적인 관련이 없어 unrelated로 판정함.",
+        "reason": "우주기술 상용화 실증 지원 사업 착수 등 구체적인 기술 실증 사업이 포함되어 있습니다.",
         "signals": [
-          "우주항공청",
-          "우주기술 상용화",
-          "실증 지원"
+          "우주기술 실증",
+          "사업 착수",
+          "상용화"
         ],
-        "recommended_action": "제외",
+        "recommended_action": "동향 추적",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:06:31+09:00",
+        "classified_at": "2026-11-04T02:57:12+09:00",
         "source_hash": "46a2fb8e8f9dd8893c5e584b7268031e2a529d0100927531ed580f5972f0151a"
       }
     },
@@ -919,18 +917,17 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.95,
-        "reason": "온라인쇼핑 동향 통계 발표 자료로 AI 및 정보화 정책 모니터링 대상인 시스템, 보안, AI 사업과 무관함.",
+        "confidence": 1.0,
+        "reason": "온라인쇼핑 동향 통계 자료로, AI·정보화 정책과 무관한 경제 지표 발표입니다.",
         "signals": [
-          "국가데이터처",
-          "온라인쇼핑동향",
-          "통계발표"
+          "온라인쇼핑 동향",
+          "통계"
         ],
         "recommended_action": "제외",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:06:31+09:00",
+        "classified_at": "2026-11-04T02:57:12+09:00",
         "source_hash": "38f09e594c2b2f25e193a398f26481b47dc168c9b3e8f8a1fc468d5f6adf5761"
       }
     },
@@ -1327,17 +1324,17 @@
         "label": "보통",
         "score": 2,
         "confidence": 0.9,
-        "reason": "AI 공간분석 및 공간정보산업 동향 소개이나 구체적인 실행 조치가 원문에 명시되지 않아 normal로 판정함.",
+        "reason": "공간정보산업의 AI 기술 도입 및 활용에 관한 동향을 소개하고 있으나, 지식재산처에 직접적인 의무나 구체적인 사업 조치가 포함되어 있지 않습니다.",
         "signals": [
-          "국토교통부",
           "AI 공간분석",
-          "공간정보산업"
+          "공간정보산업",
+          "기술동향"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:06:31+09:00",
+        "classified_at": "2026-11-04T02:57:19+09:00",
         "source_hash": "ce44435fe92862dc3f7fc43e8c902d6ecde0edf62695b752f907d36a5558466f"
       }
     },
@@ -1362,21 +1359,20 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "unrelated",
-        "label": "관계없음",
-        "score": 1,
-        "confidence": 0.95,
-        "reason": "해적사건 동향 및 안전 운항 당부 관련 내용으로 AI·정보화와 관련이 없음.",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.9,
+        "reason": "해양안전종합정보시스템(GICOMS)을 통한 정보 공개는 해당 기관의 운영 사항이며, 지식재산처와 직접적인 관련이 없습니다.",
         "signals": [
-          "해양수산부",
-          "해적사건 동향",
-          "해양안전종합정보시스템"
+          "해양안전종합정보시스템",
+          "정보공개"
         ],
-        "recommended_action": "제외",
+        "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:06:31+09:00",
+        "classified_at": "2026-11-04T02:57:19+09:00",
         "source_hash": "34ed21c0dbb510951d8b3acab5b192784d2d28cabe97eaf26d64229cd044b791"
       }
     },
@@ -1665,17 +1661,17 @@
         "label": "보통",
         "score": 2,
         "confidence": 0.9,
-        "reason": "구체적 시행·도입·의무 조치(B)가 확인되지 않아 보통으로 조정했습니다. 원 모델 근거: 모두의 인공지능 성장사다리 사업의 배움터, 실험실 등 합동 개소식 및 인프라 구축 등 구체적 사업 조치가 포함되어 important로 판정함.",
+        "reason": "전 국민 대상 AI 역량 강화 사업으로, 지식재산처의 업무나 시스템에 직접적인 영향을 미치는 구체적인 조치가 없습니다.",
         "signals": [
-          "과학기술정보통신부",
-          "인공지능 성장사다리 사업",
-          "개소식"
+          "AI 성장사다리",
+          "AI 배움터",
+          "AI 실험실"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:06:31+09:00",
+        "classified_at": "2026-11-04T02:57:19+09:00",
         "source_hash": "bdc289c96bd839beac3d42daf43ea8e8809eb1be89cad0ff31e2d47c4c3a9356"
       }
     },
@@ -1745,17 +1741,16 @@
         "label": "관계없음",
         "score": 1,
         "confidence": 0.95,
-        "reason": "교사 대상 공정거래 교육 실시 건으로 AI·정보화 맥락과 무관함.",
+        "reason": "교사 대상 공정거래 교육 연수 실시로, AI나 정보화 정책과는 무관한 교육 사업입니다.",
         "signals": [
-          "공정거래위원회",
-          "교사 대상",
-          "공정거래 교육"
+          "공정거래 교육",
+          "교사 연수"
         ],
         "recommended_action": "제외",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:06:31+09:00",
+        "classified_at": "2026-11-04T02:57:19+09:00",
         "source_hash": "bc8aaacdd3a117f3c9098f85ab65b6c85670edc7c1587309836ef78468013af0"
       }
     },
@@ -2274,17 +2269,16 @@
         "label": "보통",
         "score": 2,
         "confidence": 0.9,
-        "reason": "국가기록원의 오만 대상 AI 활용 디지털 아카이빙 교육 개최 사례 소개로, 구체적 자체 정보화 구축 조치가 없어 normal로 판정함.",
+        "reason": "국가기록원의 AI 활용 디지털 아카이빙 교육 사례를 소개하고 있으나, 지식재산처에 적용되는 구체적인 조치는 없습니다.",
         "signals": [
-          "행정안전부",
-          "국가기록원",
-          "디지털 아카이빙"
+          "AI 디지털 아카이빙",
+          "기록관리"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:06:31+09:00",
+        "classified_at": "2026-11-04T02:57:19+09:00",
         "source_hash": "bd0370ba57f72fabefa2334e8c1e08afba6da93c332d53390058391a0b419f92"
       }
     },
@@ -2313,17 +2307,16 @@
         "label": "관계없음",
         "score": 1,
         "confidence": 0.95,
-        "reason": "재난배상책임보험 의무가입 대상 확대 등 재난안전법령 개정 추진 사안으로 AI·정보화 사업과 무관함.",
+        "reason": "재난배상책임보험 의무가입 대상 확대에 관한 법령 개정으로, AI나 정보화 정책과는 무관합니다.",
         "signals": [
-          "행정안전부",
           "재난배상책임보험",
           "법령 개정"
         ],
         "recommended_action": "제외",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:06:31+09:00",
+        "classified_at": "2026-11-04T02:57:19+09:00",
         "source_hash": "20448e7eb4b8719d82b1141d3e2ce990ace0eee4e6030da173409f64da108962"
       }
     },
@@ -3199,10 +3192,10 @@
   "article_count": 85,
   "modified_count": 1,
   "classification_prompt_version": "ip-office-relevance-v1.1",
-  "classification_updated_at": "2026-11-03T17:06:31+09:00",
+  "classification_updated_at": "2026-11-04T02:57:35+09:00",
   "relevance_counts": {
-    "unrelated": 79,
-    "normal": 5,
-    "important": 1
+    "unrelated": 76,
+    "normal": 7,
+    "important": 2
   }
 }

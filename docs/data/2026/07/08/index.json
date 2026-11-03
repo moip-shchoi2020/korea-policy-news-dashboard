@@ -6,9 +6,9 @@
   "modified_count": 0,
   "relevance_counts": {
     "critical": 0,
-    "important": 7,
+    "important": 6,
     "normal": 4,
-    "unrelated": 108,
+    "unrelated": 109,
     "unclassified": 0
   },
   "classified_count": 119,
@@ -27,21 +27,21 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156770100",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
         "confidence": 0.9,
-        "reason": "OECD와 협력하여 AI 시대 인재양성 정책 방향을 담은 보고서 발간 및 사례 공유 내용입니다.",
+        "reason": "AI 인재양성 정책 방향을 담은 보고서 발간으로, 구체적인 시행 조치가 없는 정보 공유 성격의 자료입니다.",
         "signals": [
-          "인재양성",
-          "보고서 발간",
-          "디지털 전환"
+          "보고서발간",
+          "정책방향",
+          "인재양성"
         ],
-        "recommended_action": "참고",
+        "recommended_action": "제외",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-04T00:27:17+09:00"
+        "classified_at": "2026-11-04T02:56:23+09:00"
       }
     },
     {
@@ -209,18 +209,18 @@
         "level": "important",
         "label": "중요",
         "score": 3,
-        "confidence": 0.95,
-        "reason": "국정자원 전산실 화재 이후 행정정보시스템 안전관리 현장 점검 및 재해복구체계 구축 점검 조치를 포함합니다.",
+        "confidence": 0.9,
+        "reason": "행정정보시스템의 안전관리 및 재해복구체계 점검을 수행하여 정보시스템 운영 안정성 확보 조치를 포함합니다.",
         "signals": [
+          "현장점검",
           "행정정보시스템",
-          "안전관리",
-          "현장 점검"
+          "재해복구체계"
         ],
         "recommended_action": "동향 추적",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-04T00:27:17+09:00"
+        "classified_at": "2026-11-04T02:56:23+09:00"
       }
     },
     {
@@ -539,21 +539,21 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156770057",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.95,
-        "reason": "정보통신망법 개정에 따른 신규 제도 이해를 돕기 위한 해설서 성격의 가이드라인 발표 등 후속 조치를 다룹니다.",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.9,
+        "reason": "법령 시행에 따른 가이드라인 발표로, 제도에 대한 이해를 돕는 홍보성 성격이 강합니다.",
         "signals": [
           "가이드라인",
-          "정보통신망법",
-          "제도 도입"
+          "해설서",
+          "법령시행"
         ],
-        "recommended_action": "동향 추적",
+        "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-04T00:27:17+09:00"
+        "classified_at": "2026-11-04T02:56:23+09:00"
       }
     },
     {
@@ -844,17 +844,17 @@
         "label": "보통",
         "score": 2,
         "confidence": 0.9,
-        "reason": "새만금 국가산단 내 해저광케이블 육양국 건립을 위한 투자협약 체결로 인프라 구축의 초기 단계입니다.",
+        "reason": "데이터센터 허브 조성을 위한 투자협약으로, 인프라 구축의 기반을 마련하는 단계입니다.",
         "signals": [
           "투자협약",
-          "육양국",
-          "AI데이터센터"
+          "데이터센터",
+          "인프라"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-04T00:27:17+09:00"
+        "classified_at": "2026-11-04T02:56:23+09:00"
       }
     },
     {
@@ -1405,18 +1405,18 @@
         "level": "important",
         "label": "중요",
         "score": 3,
-        "confidence": 0.95,
-        "reason": "사회보장 전산관리번호 개편 및 시스템 기능 강화 시행을 통해 복지행정 전산 시스템에 직접 적용되는 조치입니다.",
+        "confidence": 0.9,
+        "reason": "사회보장 전산관리번호 체계 개편 및 시스템 기능 강화가 명시되어 정보시스템 운영에 직접적인 변화를 줍니다.",
         "signals": [
+          "시스템개편",
           "전산관리번호",
-          "개편·시행",
-          "시스템 기능 강화"
+          "기능강화"
         ],
         "recommended_action": "동향 추적",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-04T00:27:17+09:00"
+        "classified_at": "2026-11-04T02:56:23+09:00"
       }
     },
     {
@@ -1550,18 +1550,18 @@
         "level": "important",
         "label": "중요",
         "score": 3,
-        "confidence": 0.95,
-        "reason": "국가통계포털(KOSIS) 내 생성형 AI 기반 맞춤형 통계표 생성 시범서비스를 개발하여 개시한 구체적 정보화 사업입니다.",
+        "confidence": 0.9,
+        "reason": "생성형 AI 기반의 신규 서비스 개발 및 시범서비스 개시라는 구체적인 정보화 사업 조치가 포함되어 있습니다.",
         "signals": [
-          "생성형 인공지능",
-          "시범서비스 개시",
-          "국가통계포털"
+          "시범서비스",
+          "생성형AI",
+          "시스템개발"
         ],
         "recommended_action": "동향 추적",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-04T00:27:17+09:00"
+        "classified_at": "2026-11-04T02:56:23+09:00"
       }
     },
     {
@@ -3430,18 +3430,17 @@
         "level": "important",
         "label": "중요",
         "score": 3,
-        "confidence": 0.95,
-        "reason": "금융위원회의 AI 시장감시 체계 구축 등 정보화·AI 관련 구체적인 사업 및 조치 계획이 포함되어 있어 important로 판정함.",
+        "confidence": 0.9,
+        "reason": "금융위원회의 AI 시장감시 체계 구축 등 구체적인 정보화 사업 추진 내용을 포함하고 있어 중요 사안으로 판단함.",
         "signals": [
           "AI 시장감시 체계 구축",
-          "조사제재 권한 강화",
-          "운영성과 점검"
+          "대응체계 강화"
         ],
         "recommended_action": "동향 추적",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-04T00:27:40+09:00"
+        "classified_at": "2026-11-04T02:56:29+09:00"
       }
     },
     {

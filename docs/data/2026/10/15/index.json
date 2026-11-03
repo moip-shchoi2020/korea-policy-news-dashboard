@@ -6,9 +6,9 @@
   "modified_count": 0,
   "relevance_counts": {
     "critical": 0,
-    "important": 1,
+    "important": 2,
     "normal": 9,
-    "unrelated": 88,
+    "unrelated": 87,
     "unclassified": 0
   },
   "classified_count": 98,
@@ -652,21 +652,21 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156785330",
       "ip_relevance": {
-        "level": "unrelated",
-        "label": "관계없음",
-        "score": 1,
-        "confidence": 0.95,
-        "reason": "조달청의 일반 용역 입찰 동향 및 타 기관(국세청 등)의 사업 안내로, 지식재산처의 AI 및 정보화 정책에 직접적인 영향을 미치는 구체적 조치나 관련성이 없습니다.",
+        "level": "important",
+        "label": "중요",
+        "score": 3,
+        "confidence": 0.9,
+        "reason": "조달청의 정보화 용역 입찰 집행 계획을 포함하고 있어, 정보화 사업 착수 및 발주라는 구체적인 조치를 담고 있습니다.",
         "signals": [
-          "입찰동향",
-          "정보화용역",
-          "조달청보도자료"
+          "정보화 용역",
+          "입찰 집행",
+          "사업 발주"
         ],
-        "recommended_action": "제외",
+        "recommended_action": "동향 추적",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:16:41+09:00"
+        "classified_at": "2026-11-04T02:57:30+09:00"
       }
     },
     {

@@ -128,11 +128,15 @@ def make_rule_record(
     }
 
 
-def rule_classify(article: dict[str, Any], policy: dict[str, Any]) -> tuple[dict[str, Any], bool]:
-    """규칙 기반 사전 판정과 AI 검토 필요 여부를 반환합니다.
+def classification_evidence(
+    article: dict[str, Any], policy: dict[str, Any]
+) -> dict[str, Any]:
+    """A/B 조건과 행사·논의 상한을 판단하기 위한 근거를 계산합니다.
 
-    명백히 무관한 자료는 비용과 호출량을 줄이기 위해 규칙으로 확정합니다.
-    AI·정보화·지식재산 신호가 있는 자료는 AI가 본문 맥락을 다시 판정합니다.
+    A: 지식재산처 직접 연결. 지식재산·특허행정 직접 언급 또는
+       전 부처 준수 의무·공통 기준이 명시된 경우입니다.
+    B: 구체적 조치. 제정·개정·시행·의무화·도입·구축·착수·개통·
+       발주·공모·점검·복구 등 실행 조치가 원문에 명시된 경우입니다.
     """
 
     title = normalize_for_match(article.get("title"))
@@ -148,84 +152,173 @@ def rule_classify(article: dict[str, Any], policy: dict[str, Any]) -> tuple[dict
     foundational = contains_any(text, policy.get("foundational_regulation_terms", []))
     regulatory = contains_any(text, policy.get("regulatory_terms", []))
     incident = contains_any(text, policy.get("security_incident_terms", []))
-    substantive = contains_any(text, policy.get("substantive_action_terms", []))
+    mandatory = contains_any(text, policy.get("mandatory_application_terms", []))
+    strong = contains_any(text, policy.get("strong_action_terms", []))
+    weak = contains_any(text, policy.get("weak_action_terms", []))
     event = contains_any(title_summary, policy.get("event_terms", []))
+    discussion = contains_any(text, policy.get("discussion_terms", []))
+    case_reference = contains_any(text, policy.get("case_reference_terms", []))
     priority_ministry = contains_any(ministry, policy.get("priority_ministries", []))
 
-    signals = direct_ip + ai_it + broad + foundational + regulatory + incident + substantive + event
+    condition_a = bool(ai_it) and (bool(direct_ip) or bool(broad and mandatory))
+    condition_b = bool(ai_it) and bool(strong or incident)
+    event_discussion_only = bool(ai_it) and bool(event or discussion) and not condition_b
+    case_reference_only = (
+        bool(ai_it)
+        and bool(case_reference)
+        and not condition_b
+        and not event_discussion_only
+    )
 
-    if (foundational and ai_it) or (incident and ai_it):
+    signals = (
+        direct_ip
+        + ai_it
+        + broad
+        + foundational
+        + regulatory
+        + incident
+        + mandatory
+        + strong
+        + weak
+        + event
+        + discussion
+        + case_reference
+    )
+    return {
+        "direct_ip": direct_ip,
+        "ai_it": ai_it,
+        "broad": broad,
+        "foundational": foundational,
+        "regulatory": regulatory,
+        "incident": incident,
+        "mandatory": mandatory,
+        "strong": strong,
+        "weak": weak,
+        "event": event,
+        "discussion": discussion,
+        "case_reference": case_reference,
+        "priority_ministry": priority_ministry,
+        "condition_a": condition_a,
+        "condition_b": condition_b,
+        "event_discussion_only": event_discussion_only,
+        "case_reference_only": case_reference_only,
+        "signals": signals,
+    }
+
+
+def _guard_reason(target_level: str, evidence: dict[str, Any]) -> str:
+    if evidence["event_discussion_only"]:
+        return "구체적 시행·도입 조치 없이 회의·논의·미래상 소개 중심이므로 관계없음으로 조정했습니다."
+    if target_level == "important":
+        return "구체적 조치(B)는 확인되지만 지식재산처 직접 연결(A)이 없어 중요으로 조정했습니다."
+    if target_level == "normal":
+        return "구체적 시행·도입·의무 조치(B)가 확인되지 않아 보통으로 조정했습니다."
+    return "AI·정보화 관련성과 구체적 조치가 확인되지 않아 관계없음으로 조정했습니다."
+
+
+def constrain_model_result(
+    article: dict[str, Any],
+    model_result: dict[str, Any],
+    policy: dict[str, Any],
+) -> dict[str, Any]:
+    """모델 결과가 A/B 조건과 행사·논의 상한을 넘지 못하게 강제합니다."""
+
+    result = dict(model_result)
+    original_level = str(result.get("level") or "unrelated")
+    if original_level not in VALID_LEVELS:
+        original_level = "unrelated"
+    target_level = original_level
+    evidence = classification_evidence(article, policy)
+
+    if evidence["event_discussion_only"]:
+        target_level = "unrelated"
+    elif evidence["case_reference_only"] and original_level in {"critical", "important"}:
+        target_level = "normal"
+    elif original_level == "critical" and not (
+        evidence["condition_a"] and evidence["condition_b"]
+    ):
+        if evidence["condition_b"]:
+            target_level = "important"
+        elif evidence["ai_it"]:
+            target_level = "normal"
+        else:
+            target_level = "unrelated"
+    elif original_level == "important" and not evidence["condition_b"]:
+        target_level = "normal" if evidence["ai_it"] else "unrelated"
+
+    if target_level != original_level:
+        original_reason = normalize_plain_text(str(result.get("reason") or ""))
+        reason = _guard_reason(target_level, evidence)
+        if original_reason:
+            reason = f"{reason} 원 모델 근거: {original_reason}"
+        result["reason"] = reason[:220]
+        try:
+            result["confidence"] = min(float(result.get("confidence", 0.8)), 0.9)
+        except (TypeError, ValueError):
+            result["confidence"] = 0.8
+    result["level"] = target_level
+    return result
+
+
+def rule_classify(article: dict[str, Any], policy: dict[str, Any]) -> tuple[dict[str, Any], bool]:
+    """A/B 조건과 행사·논의 상한에 따른 규칙 사전판정을 반환합니다."""
+
+    evidence = classification_evidence(article, policy)
+    signals = evidence["signals"]
+
+    if evidence["event_discussion_only"]:
+        return (
+            make_rule_record(
+                "unrelated",
+                "구체적인 시행·도입·의무 조치 없이 회의·포럼·논의·미래상 소개에 그치는 자료입니다.",
+                signals,
+                0.94,
+            ),
+            False,
+        )
+
+    if evidence["condition_a"] and evidence["condition_b"]:
         return (
             make_rule_record(
                 "critical",
-                "AI 관련 기본 법·규정 또는 보안사고 신호가 있어 지식재산처의 즉시 검토 대상입니다.",
+                "지식재산처 직접 연결(A)과 구체적 실행조치(B)를 모두 충족해 즉시 검토가 필요합니다.",
                 signals,
                 0.94,
             ),
             True,
         )
 
-    if direct_ip and (ai_it or regulatory or incident):
+    if evidence["condition_b"]:
         return (
             make_rule_record(
-                "critical",
-                "지식재산 업무와 AI·정보화·규정 변화가 직접 연결되어 즉각적인 영향 가능성이 있습니다.",
+                "important",
+                "AI·정보화 분야의 구체적 시행·도입·구축·대응조치(B)가 확인되어 동향 추적이 필요합니다.",
                 signals,
-                0.92,
+                0.88,
             ),
             True,
         )
 
-    if ai_it and broad:
+    if evidence["case_reference_only"]:
         return (
             make_rule_record(
-                "important",
-                "AI·정보화 사안이 전 부처 또는 공공부문 확산을 전제로 해 향후 지식재산처 영향 가능성이 높습니다.",
-                signals,
-                0.86,
-            ),
-            True,
-        )
-
-    if direct_ip:
-        return (
-            make_rule_record(
-                "important",
-                "지식재산·특허 업무와 직접 관련된 사안으로 후속 영향 검토가 필요합니다.",
+                "normal",
+                "구체적 조치 없이 사례·체계·기술동향을 소개하는 자료로 참고 가치가 있습니다.",
                 signals,
                 0.84,
             ),
             True,
         )
 
-    if ai_it:
-        if event and not substantive and not regulatory and not incident:
-            return (
-                make_rule_record(
-                    "unrelated",
-                    "AI·정보화 표현은 있으나 구체적인 제도·사업·조치 없이 행사 개최 사실 중심입니다.",
-                    signals,
-                    0.82,
-                ),
-                True,
-            )
-        level = "important" if priority_ministry and (regulatory or substantive) else "normal"
-        reason = (
-            "전 부처 정책을 담당하는 기관의 AI·정보화 조치로 확산 가능성을 확인할 필요가 있습니다."
-            if level == "important"
-            else "개별 기관의 AI·정보화 사업으로 직접 영향은 낮지만 사례 참고 가치가 있습니다."
-        )
-        return make_rule_record(level, reason, signals, 0.78, method="rules"), True
-
-    if event and not substantive:
+    if evidence["ai_it"]:
         return (
             make_rule_record(
-                "unrelated",
-                "구체적인 제도·사업·시스템 조치 없이 공청회·간담회·설명회 등 행사 사실을 알리는 자료입니다.",
+                "normal",
+                "AI·정보화 관련성은 있으나 구체적 시행·도입·의무 조치(B)는 확인되지 않았습니다.",
                 signals,
-                0.93,
+                0.8,
             ),
-            False,
+            True,
         )
 
     return (
@@ -237,7 +330,6 @@ def rule_classify(article: dict[str, Any], policy: dict[str, Any]) -> tuple[dict
         ),
         False,
     )
-
 
 def classification_is_current(
     article: dict[str, Any], policy: dict[str, Any], model: str, token_available: bool
@@ -297,16 +389,20 @@ def build_system_prompt(policy: dict[str, Any]) -> str:
             *level_lines,
             "판정 원칙:",
             "1. 제목의 단어만 보지 말고 기관·요약·본문 발췌의 실질적 조치와 적용 범위를 함께 판단합니다.",
-            "2. 법·시행령·고시·정부 공통 기준의 제정·개정, 전 부처 즉시 적용, AI 보안사고는 critical을 우선 검토합니다.",
-            "3. 행정안전부·과학기술정보통신부 등의 전 부처 시범·공통플랫폼·행정효율화 사업은 당장 의무가 아니면 important입니다.",
-            "4. 특정 기관만의 AI·정보화 구축·개선은 대체로 normal입니다.",
-            "5. 공청회·간담회·설명회라는 단어가 있어도 구체적인 제도 개정·사업 도입·사고 대응을 발표하면 unrelated로 낮추지 않습니다.",
-            "6. 반대로 구체적인 후속 조치 없이 행사 개최 사실만 알리면 unrelated입니다.",
-            "7. 추측을 최소화하고 확인 가능한 내용만 근거로 1~2문장 이유를 작성합니다.",
+            "2. A는 지식재산처 직접 연결입니다. 지식재산·특허행정 직접 언급 또는 전 부처 준수 의무·공통기준의 명시가 필요합니다.",
+            "3. B는 구체적 조치입니다. 제정·개정·시행·의무화·도입·구축·착수·개통·발주·공모·점검·복구 등 실행이 원문에 명시되어야 합니다.",
+            "4. critical은 A와 B를 모두 충족할 때만 선택합니다.",
+            "5. important는 AI·정보화 맥락에서 B를 충족하면 선택할 수 있으며 A는 필수조건이 아닙니다.",
+            "6. B가 없으면 critical 또는 important를 선택하지 않습니다.",
+            "7. 회의·포럼·국제행사·논의·모색·미래상 소개만 있고 B가 없으면 unrelated로 판정합니다.",
+            "8. 사례·체계·기술동향 소개만 있고 B가 없으면 최대 normal입니다.",
+            "9. 행정안전부·과학기술정보통신부 등 우선기관 자료라는 이유만으로 등급을 높이지 않습니다.",
+            "10. 제정·개정·시행·도입·구축·착수 등 강한 조치와 논의·모색·소개·공유·전망 등 약한 표현을 구분합니다.",
+            "11. 행사 형식이라도 실제 제도 개정·사업 도입·사고 대응이 명시되면 B 충족 여부에 따라 판정합니다.",
+            "12. 추측을 최소화하고 원문에서 확인 가능한 내용만 근거로 1~2문장 이유를 작성합니다.",
             "출력은 요청된 JSON 스키마만 따릅니다.",
         ]
     )
-
 
 def response_schema() -> dict[str, Any]:
     return {
@@ -659,7 +755,7 @@ def main() -> int:
                     base = dict(item.rule_result)
                     method = "rules-fallback"
                 else:
-                    base = model_record
+                    base = constrain_model_result(item.article, model_record, policy)
                     method = "github-models"
                 records.append(
                     (

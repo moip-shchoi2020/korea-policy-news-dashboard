@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 from collector.build_indexes import build_indexes
-from collector.classify_relevance import load_policy, rule_classify
+from collector.classify_relevance import constrain_model_result, load_policy, rule_classify
 from collector.common import read_json, write_json
 
 
@@ -18,16 +18,16 @@ class RelevanceRuleTests(unittest.TestCase):
         return {
             "id": title,
             "title": title,
-            "summary": content[:120],
+            "summary": content[:160],
             "content_text": content,
             "ministry": ministry,
         }
 
-    def test_foundational_ai_law_is_critical(self) -> None:
+    def test_foundational_ai_law_is_critical_when_a_and_b_pass(self) -> None:
         result, needs_model = rule_classify(
             self.article(
                 "인공지능 기본법 시행령 개정안 발표",
-                "전 부처가 준수할 인공지능 안전·투명성 기준을 개정하고 즉시 시행한다.",
+                "전 부처가 준수할 인공지능 안전·투명성 정부 공통 기준을 개정하고 즉시 시행한다.",
                 "과학기술정보통신부",
             ),
             self.policy,
@@ -35,11 +35,11 @@ class RelevanceRuleTests(unittest.TestCase):
         self.assertEqual(result["level"], "critical")
         self.assertTrue(needs_model)
 
-    def test_government_wide_ai_lab_is_important(self) -> None:
+    def test_government_wide_ai_lab_is_important_with_b_only(self) -> None:
         result, needs_model = rule_classify(
             self.article(
                 "전 부처 대상 AI 실험실 시범사업 추진",
-                "행정안전부가 중앙부처 공통 생성형 AI 실험실을 내부 테스트 단계로 구축한다.",
+                "행정안전부가 중앙부처 공통 생성형 AI 실험실 구축을 추진한다.",
                 "행정안전부",
             ),
             self.policy,
@@ -47,29 +47,88 @@ class RelevanceRuleTests(unittest.TestCase):
         self.assertEqual(result["level"], "important")
         self.assertTrue(needs_model)
 
-    def test_agency_specific_ai_project_is_normal(self) -> None:
+    def test_agency_specific_ai_deployment_is_important_with_b(self) -> None:
         result, needs_model = rule_classify(
             self.article(
-                "민원 상담 AI 챗봇 구축",
-                "해당 기관이 자체 민원 상담 업무를 자동화하기 위한 AI 챗봇을 도입한다.",
+                "민원 상담 AI 챗봇 도입 추진",
+                "해당 기관이 자체 민원 상담 업무에 AI 챗봇을 도입한다.",
                 "해양수산부",
             ),
             self.policy,
         )
-        self.assertEqual(result["level"], "normal")
+        self.assertEqual(result["level"], "important")
         self.assertTrue(needs_model)
 
     def test_event_only_ai_hearing_is_unrelated(self) -> None:
         result, needs_model = rule_classify(
             self.article(
                 "AI 정책 공청회 개최",
-                "전문가와 국민 의견을 듣기 위한 공청회를 개최했다.",
-                "기관",
+                "전문가와 국민 의견을 듣기 위한 공청회를 개최하고 미래 방향을 논의했다.",
             ),
             self.policy,
         )
         self.assertEqual(result["level"], "unrelated")
+        self.assertFalse(needs_model)
+
+    def test_record_management_conference_is_unrelated(self) -> None:
+        result, needs_model = rule_classify(
+            self.article(
+                "동아시아 기록관리 전문가, 한 자리에 모여 기록관리의 미래를 논하다",
+                "국가기록원이 국제 협의회에서 인공지능 네이티브 기록관 미래상과 전자기록 통합 관리 체계를 소개하고 논의한다.",
+                "행정안전부",
+            ),
+            self.policy,
+        )
+        self.assertEqual(result["level"], "unrelated")
+        self.assertFalse(needs_model)
+
+    def test_priority_ministry_does_not_raise_discussion(self) -> None:
+        result, _ = rule_classify(
+            self.article(
+                "공공 AI 미래 포럼 개최",
+                "공공부문 인공지능의 미래상을 논의하고 해외 사례를 공유한다.",
+                "행정안전부",
+            ),
+            self.policy,
+        )
+        self.assertEqual(result["level"], "unrelated")
+
+    def test_case_introduction_is_at_most_normal(self) -> None:
+        result, needs_model = rule_classify(
+            self.article(
+                "생성형 AI 업무자동화 사례 소개",
+                "한 공공기관이 생성형 AI 업무자동화 사례와 기술동향을 소개한다.",
+            ),
+            self.policy,
+        )
+        self.assertEqual(result["level"], "normal")
         self.assertTrue(needs_model)
+
+    def test_model_critical_without_a_is_demoted_to_important(self) -> None:
+        article = self.article(
+            "AI 민원시스템 구축 추진",
+            "개별 기관이 AI 민원시스템 구축을 추진한다.",
+            "해양수산부",
+        )
+        result = constrain_model_result(
+            article,
+            {"level": "critical", "confidence": 0.96, "reason": "중요 사업", "signals": ["AI"]},
+            self.policy,
+        )
+        self.assertEqual(result["level"], "important")
+
+    def test_model_important_without_b_is_demoted(self) -> None:
+        article = self.article(
+            "AI 정책 미래상 논의",
+            "행정안전부가 인공지능 정책의 미래상을 포럼에서 논의한다.",
+            "행정안전부",
+        )
+        result = constrain_model_result(
+            article,
+            {"level": "important", "confidence": 0.9, "reason": "향후 영향", "signals": ["AI"]},
+            self.policy,
+        )
+        self.assertEqual(result["level"], "unrelated")
 
 
 class RelevanceIndexTests(unittest.TestCase):
@@ -97,9 +156,9 @@ class RelevanceIndexTests(unittest.TestCase):
                         "reason": "즉시 영향",
                         "signals": ["AI 기본법"],
                         "recommended_action": "즉시 검토",
-                        "method": "github-models",
-                        "model": "openai/gpt-4.1-mini",
-                        "prompt_version": "ip-office-relevance-v1.0",
+                        "method": "gemini-api",
+                        "model": "google/gemini-3.1-flash-lite",
+                        "prompt_version": "ip-office-relevance-v1.1",
                     },
                 },
                 {
@@ -122,24 +181,15 @@ class RelevanceIndexTests(unittest.TestCase):
                         "signals": ["간담회"],
                         "recommended_action": "제외",
                         "method": "rules",
-                        "prompt_version": "ip-office-relevance-v1.0",
+                        "prompt_version": "ip-office-relevance-v1.1",
                     },
                 },
             ]
-            write_json(
-                article_path,
-                {
-                    "schema_version": 2,
-                    "date": "2026-07-14",
-                    "articles": articles,
-                },
-            )
-
+            write_json(article_path, {"schema_version": 2, "date": "2026-07-14", "articles": articles})
             manifest = build_indexes(data_dir)
             self.assertEqual(manifest["relevance_counts"]["critical"], 1)
             self.assertEqual(manifest["relevance_counts"]["unrelated"], 1)
             self.assertEqual(manifest["classified_count"], 2)
-
             month_index = read_json(data_dir / "2026" / "07" / "index.json")
             self.assertEqual(month_index["relevance_counts"]["critical"], 1)
             self.assertEqual(month_index["articles"][0]["ip_relevance"]["level"], "critical")

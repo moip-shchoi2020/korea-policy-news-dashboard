@@ -1,4 +1,4 @@
-name: Telegram 발송 시각 변경
+name: Telegram 발송 시각 수정본 생성
 
 on:
   push:
@@ -7,14 +7,17 @@ on:
       - ".github/workflows/update-telegram-schedule.yml"
 
 permissions:
-  contents: write
+  contents: read
+
+actions:
+  read: true
 
 concurrency:
-  group: update-telegram-schedule
+  group: update-telegram-schedule-artifact
   cancel-in-progress: false
 
 jobs:
-  update:
+  generate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -22,9 +25,9 @@ jobs:
         uses: actions/checkout@v6
         with:
           ref: main
-          fetch-depth: 0
+          fetch-depth: 1
 
-      - name: Telegram 발송 시각 수정
+      - name: Telegram 발송 시각 수정본 생성
         shell: bash
         run: |
           set -euo pipefail
@@ -89,9 +92,7 @@ jobs:
               '"17 11 * * *") label="11:17 대시보드 갱신 + Telegram" ;;',
               '"17 16 * * *") label="16:17 대시보드 갱신 + Telegram" ;;',
               '"17 19 * * *") label="19:17 대시보드 갱신 + Telegram" ;;',
-              "github.event.schedule == '17 11 * * *'",
-              "github.event.schedule == '17 16 * * *'",
-              "github.event.schedule == '17 19 * * *'",
+              "            (github.event.schedule == '17 11 * * *' || github.event.schedule == '17 16 * * *' || github.event.schedule == '17 19 * * *')",
               "'11시 브리핑'",
               "'16시 브리핑'",
               "'19시 브리핑'",
@@ -103,15 +104,13 @@ jobs:
           path.write_text(text, encoding='utf-8')
           PY
 
-      - name: 일회성 워크플로 정리 및 반영
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -f .github/workflows/update-telegram-schedule.yml
-          git config user.name "policy-dashboard-bot"
-          git config user.email "policy-dashboard-bot@users.noreply.github.com"
-          git add .github/workflows/collect-and-deploy.yml .github/workflows/update-telegram-schedule.yml
-          git commit -m "fix: Telegram 정기 발송을 11·16·19시로 변경"
-          git fetch origin main
-          git rebase origin/main
-          git push origin HEAD:main
+          echo "수정된 예약·발송 조건:"
+          grep -nE '17 (8|11|16|19) \* \* \*|TELEGRAM_REPORT_TITLE' .github/workflows/collect-and-deploy.yml
+
+      - name: 수정본 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: collect-and-deploy-updated
+          path: .github/workflows/collect-and-deploy.yml
+          if-no-files-found: error
+          retention-days: 1

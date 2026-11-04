@@ -1,0 +1,100 @@
+name: Telegram 발송 시각 변경
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/update-telegram-schedule.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-telegram-schedule
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 저장소 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Telegram 발송 시각 수정
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('.github/workflows/collect-and-deploy.yml')
+          text = path.read_text(encoding='utf-8')
+
+          replacements = [
+              (
+                  '    # 한국시간 매일 08:17, 11:17, 16:17, 19:17 실행\n    # 정각 직후 혼잡을 피하기 위해 17분으로 분산한다.',
+                  '    # 한국시간 매일 08:17, 11:17, 16:17, 19:17 실행\n    # Telegram 브리핑은 11:17, 16:17, 19:17 실행에서 발송한다.\n    # 정각 직후 혼잡을 피하기 위해 17분으로 분산한다.',
+              ),
+              (
+                  '            "17 8 * * *")  label="08:17 대시보드 갱신 + Telegram" ;;',
+                  '            "17 8 * * *")  label="08:17 대시보드 갱신" ;;',
+              ),
+              (
+                  '            "17 11 * * *") label="11:17 대시보드 갱신" ;;',
+                  '            "17 11 * * *") label="11:17 대시보드 갱신 + Telegram" ;;',
+              ),
+              (
+                  '            "17 19 * * *") label="19:17 대시보드 갱신" ;;',
+                  '            "17 19 * * *") label="19:17 대시보드 갱신 + Telegram" ;;',
+              ),
+              (
+                  "            (github.event.schedule == '17 8 * * *' || github.event.schedule == '17 16 * * *')",
+                  "            (github.event.schedule == '17 11 * * *' || github.event.schedule == '17 16 * * *' || github.event.schedule == '17 19 * * *')",
+              ),
+              (
+                  "          TELEGRAM_REPORT_TITLE: ${{ github.event.schedule == '17 8 * * *' && '08시 브리핑' || github.event.schedule == '17 16 * * *' && '16시 브리핑' || '수동 시험 발송' }}",
+                  "          TELEGRAM_REPORT_TITLE: ${{ github.event.schedule == '17 11 * * *' && '11시 브리핑' || github.event.schedule == '17 16 * * *' && '16시 브리핑' || github.event.schedule == '17 19 * * *' && '19시 브리핑' || '수동 시험 발송' }}",
+              ),
+          ]
+
+          for old, new in replacements:
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'교체 대상이 정확히 1개가 아닙니다({count}개): {old}')
+              text = text.replace(old, new, 1)
+
+          required = [
+              '"17 8 * * *")  label="08:17 대시보드 갱신" ;;',
+              '"17 11 * * *") label="11:17 대시보드 갱신 + Telegram" ;;',
+              '"17 16 * * *") label="16:17 대시보드 갱신 + Telegram" ;;',
+              '"17 19 * * *") label="19:17 대시보드 갱신 + Telegram" ;;',
+              "github.event.schedule == '17 11 * * *'",
+              "github.event.schedule == '17 16 * * *'",
+              "github.event.schedule == '17 19 * * *'",
+              "'11시 브리핑'",
+              "'16시 브리핑'",
+              "'19시 브리핑'",
+          ]
+          for item in required:
+              if item not in text:
+                  raise SystemExit(f'수정 검증 실패: {item}')
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: 일회성 워크플로 정리 및 반영
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/update-telegram-schedule.yml
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+          git add .github/workflows/collect-and-deploy.yml .github/workflows/update-telegram-schedule.yml
+          git commit -m "fix: Telegram 정기 발송을 11·16·19시로 변경"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main

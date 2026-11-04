@@ -2834,21 +2834,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "unrelated",
-        "label": "관계없음",
-        "score": 1,
-        "confidence": 0.95,
-        "reason": "국가데이터처의 소비자물가지수 개편 및 품목 조정에 관한 자료로, 지식재산처의 업무나 AI·정보시스템 구축·보안 등과 직접적 관련이 없는 통계 정책 사안임.",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.9,
+        "reason": "국가 통계 기준 개편으로 AI 활용 등 디지털 환경 변화를 반영하나, 지식재산처의 직접적인 업무나 정보시스템 구축과 관련된 구체적 조치는 포함되어 있지 않음.",
         "signals": [
           "소비자물가지수 개편",
-          "대표품목 선정",
-          "국가데이터처"
+          "AI 활용",
+          "국가 통계"
         ],
-        "recommended_action": "제외",
+        "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-04T02:57:52+09:00",
+        "classified_at": "2026-11-04T12:04:08+09:00",
         "source_hash": "509f454dc164eb391a8ac1f33d87c0b235b25fad29a76cb4b803922e73d2fdfe"
       }
     },
@@ -4575,10 +4575,10 @@
   "article_count": 122,
   "modified_count": 0,
   "classification_prompt_version": "ip-office-relevance-v1.1",
-  "classification_updated_at": "2026-11-04T02:57:35+09:00",
+  "classification_updated_at": "2026-11-04T12:04:08+09:00",
   "relevance_counts": {
     "unrelated": 111,
-    "normal": 8,
-    "important": 3
+    "normal": 9,
+    "important": 2
   }
 }

@@ -19,6 +19,7 @@ on:
       - ".github/workflows/collect-and-deploy.yml"
   schedule:
     # 한국시간 매일 08:17, 11:17, 16:17, 19:17 실행
+    # Telegram 브리핑은 11:17, 16:17, 19:17 실행에서 발송한다.
     # 정각 직후 혼잡을 피하기 위해 17분으로 분산한다.
     - cron: "17 8 * * *"
       timezone: "Asia/Seoul"
@@ -97,10 +98,10 @@ jobs:
           set -euo pipefail
           label="수동 또는 코드 변경 실행"
           case "$SCHEDULE_EXPRESSION" in
-            "17 8 * * *")  label="08:17 대시보드 갱신 + Telegram" ;;
-            "17 11 * * *") label="11:17 대시보드 갱신" ;;
+            "17 8 * * *")  label="08:17 대시보드 갱신" ;;
+            "17 11 * * *") label="11:17 대시보드 갱신 + Telegram" ;;
             "17 16 * * *") label="16:17 대시보드 갱신 + Telegram" ;;
-            "17 19 * * *") label="19:17 대시보드 갱신" ;;
+            "17 19 * * *") label="19:17 대시보드 갱신 + Telegram" ;;
           esac
           echo "GitHub event: $GITHUB_EVENT_NAME"
           echo "예정 작업: $label"
@@ -464,7 +465,7 @@ jobs:
         (
           (
             github.event_name == 'schedule' &&
-            (github.event.schedule == '17 8 * * *' || github.event.schedule == '17 16 * * *')
+            (github.event.schedule == '17 11 * * *' || github.event.schedule == '17 16 * * *' || github.event.schedule == '17 19 * * *')
           ) ||
           (github.event_name == 'workflow_dispatch' && inputs.send_telegram)
         )
@@ -516,6 +517,6 @@ jobs:
           PIPELINE_BUILD_RESULT: ${{ needs.build.result }}
           PIPELINE_DEPLOY_RESULT: ${{ needs.deploy.result }}
           TRIGGER_SCHEDULE: ${{ github.event.schedule }}
-          TELEGRAM_REPORT_TITLE: ${{ github.event.schedule == '17 8 * * *' && '08시 브리핑' || github.event.schedule == '17 16 * * *' && '16시 브리핑' || '수동 시험 발송' }}
+          TELEGRAM_REPORT_TITLE: ${{ github.event.schedule == '17 11 * * *' && '11시 브리핑' || github.event.schedule == '17 16 * * *' && '16시 브리핑' || github.event.schedule == '17 19 * * *' && '19시 브리핑' || '수동 시험 발송' }}
           PYTHONUNBUFFERED: "1"
         run: python -u -m collector.send_telegram --require-config

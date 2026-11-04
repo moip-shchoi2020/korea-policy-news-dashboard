@@ -34,6 +34,26 @@ jobs:
           path = Path('.github/workflows/collect-and-deploy.yml')
           text = path.read_text(encoding='utf-8')
 
+          expression_open = '$' + '{{'
+          expression_close = '}}'
+          old_title = (
+              '          TELEGRAM_REPORT_TITLE: '
+              + expression_open
+              + " github.event.schedule == '17 8 * * *' && '08시 브리핑' || "
+                "github.event.schedule == '17 16 * * *' && '16시 브리핑' || "
+                "'수동 시험 발송' "
+              + expression_close
+          )
+          new_title = (
+              '          TELEGRAM_REPORT_TITLE: '
+              + expression_open
+              + " github.event.schedule == '17 11 * * *' && '11시 브리핑' || "
+                "github.event.schedule == '17 16 * * *' && '16시 브리핑' || "
+                "github.event.schedule == '17 19 * * *' && '19시 브리핑' || "
+                "'수동 시험 발송' "
+              + expression_close
+          )
+
           replacements = [
               (
                   '    # 한국시간 매일 08:17, 11:17, 16:17, 19:17 실행\n    # 정각 직후 혼잡을 피하기 위해 17분으로 분산한다.',
@@ -55,10 +75,7 @@ jobs:
                   "            (github.event.schedule == '17 8 * * *' || github.event.schedule == '17 16 * * *')",
                   "            (github.event.schedule == '17 11 * * *' || github.event.schedule == '17 16 * * *' || github.event.schedule == '17 19 * * *')",
               ),
-              (
-                  "          TELEGRAM_REPORT_TITLE: ${{ github.event.schedule == '17 8 * * *' && '08시 브리핑' || github.event.schedule == '17 16 * * *' && '16시 브리핑' || '수동 시험 발송' }}",
-                  "          TELEGRAM_REPORT_TITLE: ${{ github.event.schedule == '17 11 * * *' && '11시 브리핑' || github.event.schedule == '17 16 * * *' && '16시 브리핑' || github.event.schedule == '17 19 * * *' && '19시 브리핑' || '수동 시험 발송' }}",
-              ),
+              (old_title, new_title),
           ]
 
           for old, new in replacements:

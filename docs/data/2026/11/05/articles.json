@@ -27,18 +27,18 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.95,
-        "reason": "국가공무원 공개경쟁채용시험 및 PSAT 일정 발표에 관한 내용으로, 지식재산처의 법령, AI, 정보시스템, 보안 등 지식재산처 정보화 정책과 무관합니다.",
+        "confidence": 1.0,
+        "reason": "국가공무원 채용 시험 일정 발표로, 지식재산처의 AI·정보화 정책 및 시스템과는 무관한 인사 행정 관련 보도자료입니다.",
         "signals": [
-          "공직적격성평가",
-          "국가공무원 시험 일정",
-          "인사혁신처"
+          "공무원 시험",
+          "채용 일정",
+          "인사 행정"
         ],
         "recommended_action": "제외",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-05T00:29:42+09:00",
+        "classified_at": "2026-11-05T03:03:27+09:00",
         "source_hash": "65d76dfa24a4629738f5b7c663e1421d79b7b5b2ea16f6d5f3837e4efa32e30a"
       }
     }
@@ -47,8 +47,8 @@
   "article_count": 1,
   "modified_count": 0,
   "classification_prompt_version": "ip-office-relevance-v1.1",
-  "classification_updated_at": "2026-11-05T00:29:14+09:00",
+  "classification_updated_at": "2026-11-05T03:03:27+09:00",
   "relevance_counts": {
-    "normal": 1
+    "unrelated": 1
   }
 }

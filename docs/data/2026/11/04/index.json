@@ -61,18 +61,18 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.95,
-        "reason": "본문에서 언급된 AI는 인공지능이 아니라 고병원성 조류인플루엔자(AI) 방역에 관한 국무총리 지시 사항으로, 지식재산처의 AI·정보화 정책과 관련이 없습니다.",
+        "confidence": 1.0,
+        "reason": "조류인플루엔자(AI) 방역에 관한 긴급 지시로, 여기서 언급된 AI는 인공지능(Artificial Intelligence)이 아닌 조류인플루엔자(Avian Influenza)를 의미합니다.",
         "signals": [
           "조류인플루엔자",
-          "AI 방역",
-          "국무총리 긴급지시"
+          "방역",
+          "긴급지시"
         ],
         "recommended_action": "제외",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-05T00:29:42+09:00"
+        "classified_at": "2026-11-05T03:03:27+09:00"
       }
     },
     {
@@ -2664,17 +2664,17 @@
         "label": "보통",
         "score": 2,
         "confidence": 0.9,
-        "reason": "과기정통부와 AMD 간의 인공지능 반도체 협력 운영위원회 개최 및 AI 행사 개최 소식으로, 지식재산처에 직접 적용되는 조치가 아닌 기술 협력 및 동향 소개입니다.",
+        "reason": "과기정통부와 AMD 간의 AI 반도체 협력 및 행사 개최에 관한 내용으로, 지식재산처의 정보화 사업과 직접적인 연관이 없는 기술 동향 공유 수준입니다.",
         "signals": [
-          "인공지능 반도체 협력",
-          "업무협약 운영위원회",
-          "Advancing AI World Tour"
+          "인공지능 반도체",
+          "업무협약",
+          "기술 협력"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-05T00:29:42+09:00"
+        "classified_at": "2026-11-05T03:03:27+09:00"
       }
     },
     {

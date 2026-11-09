@@ -204,6 +204,55 @@ class RelevanceRuleTests(unittest.TestCase):
         )
         self.assertEqual(result["level"], "normal")
 
+
+def test_briefing_title_with_targeted_build_is_capped_at_normal(self) -> None:
+    article = self.article(
+        "차세대 지방행정공통시스템 구축 통합사업 설명회 개최",
+        "사업 범위와 추진 일정을 설명한다.",
+        "행정안전부",
+    )
+    evidence = classification_evidence(article, self.policy)
+    result, needs_model = rule_classify(article, self.policy)
+    self.assertTrue(evidence["condition_b"])
+    self.assertTrue(evidence["event_capped_normal"])
+    self.assertEqual(result["level"], "normal")
+    self.assertTrue(needs_model)
+
+def test_academic_congress_without_actual_action_is_unrelated(self) -> None:
+    result, needs_model = rule_classify(
+        self.article(
+            "AI 활용 해양 국제범죄 대응 학술의회 개최",
+            "인공지능 활용사례를 공유하고 국제협력 방향을 논의한다.",
+            "해양경찰청",
+        ),
+        self.policy,
+    )
+    self.assertEqual(result["level"], "unrelated")
+    self.assertFalse(needs_model)
+
+def test_digital_transition_center_opening_is_important(self) -> None:
+    article = self.article(
+        "해양정보 디지털 전환 인프라센터 대한민국에 문 연다",
+        "디지털 전환 인프라센터가 대한민국에 문을 연다.",
+        "해양수산부",
+    )
+    evidence = classification_evidence(article, self.policy)
+    result, needs_model = rule_classify(article, self.policy)
+    self.assertTrue(evidence["condition_b"])
+    self.assertEqual(result["level"], "important")
+    self.assertTrue(needs_model)
+
+def test_ai_infrastructure_link_without_action_is_not_important(self) -> None:
+    article = self.article(
+        "국산 NPU, 엔비디아 시스템과 연계해 글로벌 AI 인프라 시장 진출 길 연다",
+        "관련 보도자료의 자세한 내용은 첨부파일을 참고한다.",
+        "과학기술정보통신부",
+    )
+    evidence = classification_evidence(article, self.policy)
+    result, _ = rule_classify(article, self.policy)
+    self.assertFalse(evidence["condition_b"])
+    self.assertNotIn(result["level"], {"critical", "important"})
+
     def test_model_critical_without_a_is_demoted_to_important(self) -> None:
         article = self.article(
             "AI 민원시스템 구축 추진",

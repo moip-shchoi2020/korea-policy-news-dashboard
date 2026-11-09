@@ -109,90 +109,100 @@ class RelevanceRuleTests(unittest.TestCase):
         self.assertEqual(result["level"], "normal")
         self.assertTrue(needs_model)
 
+    def test_unrelated_action_does_not_satisfy_b(self) -> None:
+        article = self.article(
+            "경기남부 민간공항 개발계획 수립 및 실시설계 착수",
+            "공항 개발 사업 착수와 실시설계를 추진한다. 이용객 안내 시스템 연계는 장기적으로 검토한다.",
+            "국토교통부",
+        )
+        evidence = classification_evidence(article, self.policy)
+        result, _ = rule_classify(article, self.policy)
+        self.assertFalse(evidence["condition_b"])
+        self.assertNotIn(result["level"], {"critical", "important"})
 
-def test_unrelated_action_does_not_satisfy_b(self) -> None:
-    article = self.article(
-        "경기남부 민간공항 개발계획 수립 및 실시설계 착수",
-        "공항 개발 사업 착수와 실시설계를 추진한다. 이용객 안내 시스템 연계는 장기적으로 검토한다.",
-        "국토교통부",
-    )
-    evidence = classification_evidence(article, self.policy)
-    result, _ = rule_classify(article, self.policy)
-    self.assertFalse(evidence["condition_b"])
-    self.assertNotIn(result["level"], {"critical", "important"})
+    def test_generic_management_system_is_not_targeted_b(self) -> None:
+        article = self.article(
+            "산림치유프로그램 인증제로 품질관리 본격화",
+            "ISO 13485 품질경영시스템 인증제를 시행한다.",
+            "산림청",
+        )
+        evidence = classification_evidence(article, self.policy)
+        result, _ = rule_classify(article, self.policy)
+        self.assertFalse(evidence["condition_b"])
+        self.assertNotIn(result["level"], {"critical", "important"})
 
-def test_generic_management_system_is_not_targeted_b(self) -> None:
-    article = self.article(
-        "산림치유프로그램 인증제로 품질관리 본격화",
-        "ISO 13485 품질경영시스템 인증제를 시행한다.",
-        "산림청",
-    )
-    evidence = classification_evidence(article, self.policy)
-    result, _ = rule_classify(article, self.policy)
-    self.assertFalse(evidence["condition_b"])
-    self.assertNotIn(result["level"], {"critical", "important"})
+    def test_general_safety_inspection_is_not_targeted_b(self) -> None:
+        article = self.article(
+            "5천여 개 사업장 안전분야 이행실태 불시 점검",
+            "건설현장과 제조업 사업장의 안전관리 이행실태를 점검 실시한다. 점검 결과는 데이터로 관리한다.",
+            "고용노동부",
+        )
+        evidence = classification_evidence(article, self.policy)
+        result, _ = rule_classify(article, self.policy)
+        self.assertFalse(evidence["condition_b"])
+        self.assertNotIn(result["level"], {"critical", "important"})
 
-def test_targeted_security_action_is_important(self) -> None:
-    article = self.article(
-        "공공 정보시스템 보안 취약점 긴급 점검",
-        "공공 정보시스템의 보안 취약점을 점검 실시하고 보안 패치를 배포한다.",
-        "행정안전부",
-    )
-    evidence = classification_evidence(article, self.policy)
-    result, needs_model = rule_classify(article, self.policy)
-    self.assertTrue(evidence["condition_b"])
-    self.assertEqual(result["level"], "important")
-    self.assertTrue(needs_model)
+    def test_targeted_security_action_is_important(self) -> None:
+        article = self.article(
+            "공공 정보시스템 보안 취약점 긴급 점검",
+            "공공 정보시스템의 보안 취약점을 점검 실시하고 보안 패치를 배포한다.",
+            "행정안전부",
+        )
+        evidence = classification_evidence(article, self.policy)
+        result, needs_model = rule_classify(article, self.policy)
+        self.assertTrue(evidence["condition_b"])
+        self.assertEqual(result["level"], "important")
+        self.assertTrue(needs_model)
 
-def test_ai_festival_without_actual_action_is_unrelated(self) -> None:
-    result, needs_model = rule_classify(
-        self.article(
-            "AI 콘텐츠 페스티벌 개최",
-            "인공지능 콘텐츠 전시와 체험, 전문가 강연을 열고 미래 활용방안을 논의한다.",
-        ),
-        self.policy,
-    )
-    self.assertEqual(result["level"], "unrelated")
-    self.assertFalse(needs_model)
+    def test_ai_festival_without_actual_action_is_unrelated(self) -> None:
+        result, needs_model = rule_classify(
+            self.article(
+                "AI 콘텐츠 페스티벌 개최",
+                "인공지능 콘텐츠 전시와 체험, 전문가 강연을 열고 미래 활용방안을 논의한다.",
+            ),
+            self.policy,
+        )
+        self.assertEqual(result["level"], "unrelated")
+        self.assertFalse(needs_model)
 
-def test_project_briefing_without_override_is_capped_at_normal(self) -> None:
-    article = self.article(
-        "차세대 지방행정공통시스템 구축 사업설명회 개최",
-        "AI 기반 공통 정보시스템 구축 추진 계획과 사업 범위를 설명한다.",
-        "행정안전부",
-    )
-    evidence = classification_evidence(article, self.policy)
-    result, needs_model = rule_classify(article, self.policy)
-    self.assertTrue(evidence["condition_b"])
-    self.assertTrue(evidence["event_capped_normal"])
-    self.assertEqual(result["level"], "normal")
-    self.assertTrue(needs_model)
+    def test_project_briefing_without_override_is_capped_at_normal(self) -> None:
+        article = self.article(
+            "차세대 지방행정공통시스템 구축 사업설명회 개최",
+            "AI 기반 공통 정보시스템 구축 추진 계획과 사업 범위를 설명한다.",
+            "행정안전부",
+        )
+        evidence = classification_evidence(article, self.policy)
+        result, needs_model = rule_classify(article, self.policy)
+        self.assertTrue(evidence["condition_b"])
+        self.assertTrue(evidence["event_capped_normal"])
+        self.assertEqual(result["level"], "normal")
+        self.assertTrue(needs_model)
 
-def test_event_with_actual_ai_service_launch_can_be_important(self) -> None:
-    article = self.article(
-        "행정 AI 플랫폼 개통 설명회",
-        "행정기관용 생성형 AI 플랫폼을 개통하고 서비스 운영을 개시한다.",
-        "행정안전부",
-    )
-    evidence = classification_evidence(article, self.policy)
-    result, needs_model = rule_classify(article, self.policy)
-    self.assertTrue(evidence["condition_b"])
-    self.assertTrue(evidence["event_override_b"])
-    self.assertEqual(result["level"], "important")
-    self.assertTrue(needs_model)
+    def test_event_with_actual_ai_service_launch_can_be_important(self) -> None:
+        article = self.article(
+            "행정 AI 플랫폼 개통 설명회",
+            "행정기관용 생성형 AI 플랫폼을 개통하고 서비스 운영을 개시한다.",
+            "행정안전부",
+        )
+        evidence = classification_evidence(article, self.policy)
+        result, needs_model = rule_classify(article, self.policy)
+        self.assertTrue(evidence["condition_b"])
+        self.assertTrue(evidence["event_override_b"])
+        self.assertEqual(result["level"], "important")
+        self.assertTrue(needs_model)
 
-def test_model_event_without_override_is_demoted_to_normal(self) -> None:
-    article = self.article(
-        "차세대 공통시스템 구축 사업설명회",
-        "AI 기반 공통 정보시스템 구축을 추진하며 사업 계획을 설명한다.",
-        "행정안전부",
-    )
-    result = constrain_model_result(
-        article,
-        {"level": "important", "confidence": 0.92, "reason": "구축 사업", "signals": ["AI"]},
-        self.policy,
-    )
-    self.assertEqual(result["level"], "normal")
+    def test_model_event_without_override_is_demoted_to_normal(self) -> None:
+        article = self.article(
+            "차세대 공통시스템 구축 사업설명회",
+            "AI 기반 공통 정보시스템 구축을 추진하며 사업 계획을 설명한다.",
+            "행정안전부",
+        )
+        result = constrain_model_result(
+            article,
+            {"level": "important", "confidence": 0.92, "reason": "구축 사업", "signals": ["AI"]},
+            self.policy,
+        )
+        self.assertEqual(result["level"], "normal")
 
     def test_model_critical_without_a_is_demoted_to_important(self) -> None:
         article = self.article(

@@ -1,0 +1,107 @@
+name: v1.2 회귀테스트 및 오늘 자료 진단
+
+on:
+  push:
+    branches:
+      - fix/target-linked-b-event-cap-v12
+    paths:
+      - .github/workflows/verify-v12.yml
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: fix/target-linked-b-event-cap-v12
+          fetch-depth: 0
+
+      - name: Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: 의존성 설치
+        run: pip install -r requirements.txt
+
+      - name: 전체 테스트 및 문법 검사
+        run: |
+          python -m unittest discover -s tests -v
+          python -m py_compile collector/*.py
+          node --check docs/assets/app.js
+
+      - name: 오늘 중요 자료에 v1.2 강제조건 적용 진단
+        shell: bash
+        run: |
+          python - <<'PY'
+          from collections import Counter
+          from pathlib import Path
+          import json
+
+          from collector.classify_relevance import (
+              classification_evidence,
+              constrain_model_result,
+              load_policy,
+              rule_classify,
+          )
+
+          policy = load_policy(Path('collector/relevance_policy.json'))
+          path = Path('docs/data/2026/11/09/articles.json')
+          payload = json.loads(path.read_text(encoding='utf-8'))
+          old_counts = Counter()
+          guarded_counts = Counter()
+          old_priority = []
+
+          for article in payload.get('articles', []):
+              current = article.get('ip_relevance', {})
+              old_level = current.get('level', 'unclassified')
+              old_counts[old_level] += 1
+              guarded = constrain_model_result(
+                  article,
+                  {
+                      'level': old_level if old_level in {'critical', 'important', 'normal', 'unrelated'} else 'unrelated',
+                      'confidence': current.get('confidence', 0.8),
+                      'reason': current.get('reason', ''),
+                      'signals': current.get('signals', []),
+                  },
+                  policy,
+              )
+              guarded_counts[guarded['level']] += 1
+              if old_level in {'critical', 'important'}:
+                  evidence = classification_evidence(article, policy)
+                  rule, _ = rule_classify(article, policy)
+                  old_priority.append({
+                      'title': article.get('title'),
+                      'old': old_level,
+                      'guarded': guarded['level'],
+                      'rule': rule['level'],
+                      'condition_a': evidence['condition_a'],
+                      'condition_b': evidence['condition_b'],
+                      'event_capped_normal': evidence['event_capped_normal'],
+                      'event_discussion_only': evidence['event_discussion_only'],
+                      'targets': evidence['targeted_action_targets'][:4],
+                      'actions': evidence['targeted_actions'][:4],
+                  })
+
+          print('정책 버전:', policy['prompt_version'])
+          print('기존 등급:', dict(old_counts))
+          print('기존 AI 결과에 v1.2 강제조건 적용:', dict(guarded_counts))
+          print('기존 중요 이상 개별 진단:')
+          for item in old_priority:
+              print(json.dumps(item, ensure_ascii=False))
+          PY
+
+      - name: 임시 워크플로 정리
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+          git rm .github/workflows/verify-v12.yml
+          git commit -m "chore: v1.2 검증 워크플로 정리"
+          git push origin HEAD:fix/target-linked-b-event-cap-v12

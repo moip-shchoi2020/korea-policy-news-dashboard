@@ -1,0 +1,660 @@
+name: v1.2 대상연결 B조건 패치
+
+on:
+  push:
+    branches:
+      - fix/target-linked-b-event-cap-v12
+    paths:
+      - .github/workflows/apply-v12-patch.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 가져오기
+        uses: actions/checkout@v6
+        with:
+          ref: fix/target-linked-b-event-cap-v12
+          fetch-depth: 0
+
+      - name: Python 설치
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: 의존성 설치
+        run: pip install -r requirements.txt
+
+      - name: v1.2 기준 적용
+        shell: bash
+        run: |
+          python - <<'PY'
+          from __future__ import annotations
+
+          import json
+          from pathlib import Path
+          from textwrap import dedent
+
+          classify_path = Path("collector/classify_relevance.py")
+          text = classify_path.read_text(encoding="utf-8")
+
+          helpers = dedent('''
+          def _iter_term_spans(text: str, terms: Iterable[str]) -> list[tuple[int, int, str]]:
+              """문자열에서 용어별 위치를 반환합니다."""
+
+              spans: list[tuple[int, int, str]] = []
+              for term in terms:
+                  original = str(term)
+                  normalized = normalize_for_match(original)
+                  if not normalized:
+                      continue
+                  if re.fullmatch(r"[a-z0-9+#._ -]+", normalized, flags=re.IGNORECASE):
+                      pattern = rf"(?<![a-z0-9]){re.escape(normalized)}(?![a-z0-9])"
+                      spans.extend(
+                          (match.start(), match.end(), original)
+                          for match in re.finditer(pattern, text, flags=re.IGNORECASE)
+                      )
+                      continue
+
+                  start = 0
+                  while True:
+                      index = text.find(normalized, start)
+                      if index < 0:
+                          break
+                      spans.append((index, index + len(normalized), original))
+                      start = index + max(1, len(normalized))
+              return sorted(spans, key=lambda item: (item[0], item[1], item[2]))
+
+
+          def linked_term_evidence(
+              text: str,
+              target_terms: Iterable[str],
+              action_terms: Iterable[str],
+              *,
+              max_distance: int,
+          ) -> tuple[list[str], list[str]]:
+              """AI·정보화·보안 대상과 행동어가 같은 문맥에 연결됐는지 확인합니다.
+
+              문장 경계를 넘지 않고 두 표현 사이가 ``max_distance``자 이내인 경우만
+              연결된 근거로 인정합니다. 문서 다른 부분에 각각 존재하는 것만으로는
+              B 조건을 충족하지 않습니다.
+              """
+
+              normalized_text = normalize_for_match(text)
+              targets = _iter_term_spans(normalized_text, target_terms)
+              actions = _iter_term_spans(normalized_text, action_terms)
+              linked_targets: list[str] = []
+              linked_actions: list[str] = []
+
+              for target_start, target_end, target in targets:
+                  for action_start, action_end, action in actions:
+                      if target_end <= action_start:
+                          gap = action_start - target_end
+                          bridge = normalized_text[target_end:action_start]
+                      elif action_end <= target_start:
+                          gap = target_start - action_end
+                          bridge = normalized_text[action_end:target_start]
+                      else:
+                          gap = 0
+                          bridge = ""
+
+                      if gap > max_distance:
+                          continue
+                      if re.search(r"[.!?。！？;]", bridge):
+                          continue
+                      linked_targets.append(target)
+                      linked_actions.append(action)
+
+              return (
+                  list(dict.fromkeys(linked_targets)),
+                  list(dict.fromkeys(linked_actions)),
+              )
+          ''').strip() + "\n\n\n"
+
+          marker = "def make_rule_record("
+          if "def linked_term_evidence(" not in text:
+              index = text.index(marker)
+              text = text[:index] + helpers + text[index:]
+
+          new_evidence = dedent('''
+          def classification_evidence(
+              article: dict[str, Any], policy: dict[str, Any]
+          ) -> dict[str, Any]:
+              """A/B 조건과 강화된 행사 상한을 판단하기 위한 근거를 계산합니다.
+
+              A: 지식재산처 직접 연결. 지식재산·특허행정 직접 언급 또는
+                 전 부처 준수 의무·공통 기준이 명시된 경우입니다.
+              B: AI·정보화·보안 대상에 직접 연결된 구체적 조치입니다.
+                 행동어가 문서 다른 부분에 따로 존재하는 것만으로는 인정하지 않습니다.
+              """
+
+              title = normalize_for_match(article.get("title"))
+              summary = normalize_for_match(article.get("summary"))
+              ministry = normalize_for_match(article.get("ministry"))
+              content = normalize_for_match(article.get("content_text"))
+              text = " ".join([title, summary, ministry, content])
+              title_summary = " ".join([title, summary])
+
+              direct_ip = contains_any(text, policy.get("direct_ip_terms", []))
+              ai_it = contains_any(text, policy.get("ai_it_terms", []))
+              broad = contains_any(text, policy.get("government_wide_terms", []))
+              foundational = contains_any(text, policy.get("foundational_regulation_terms", []))
+              regulatory = contains_any(text, policy.get("regulatory_terms", []))
+              incident = contains_any(text, policy.get("security_incident_terms", []))
+              mandatory = contains_any(text, policy.get("mandatory_application_terms", []))
+              strong = contains_any(text, policy.get("strong_action_terms", []))
+              weak = contains_any(text, policy.get("weak_action_terms", []))
+              event = contains_any(title_summary, policy.get("event_terms", []))
+              discussion = contains_any(text, policy.get("discussion_terms", []))
+              case_reference = contains_any(text, policy.get("case_reference_terms", []))
+              priority_ministry = contains_any(ministry, policy.get("priority_ministries", []))
+
+              action_targets = policy.get("action_target_terms", policy.get("ai_it_terms", []))
+              body_distance = int(policy.get("action_link_max_chars", 140))
+              title_distance = int(policy.get("title_summary_link_max_chars", 260))
+              title_targets, title_actions = linked_term_evidence(
+                  title_summary,
+                  action_targets,
+                  policy.get("strong_action_terms", []),
+                  max_distance=title_distance,
+              )
+              body_targets, body_actions = linked_term_evidence(
+                  content,
+                  action_targets,
+                  policy.get("strong_action_terms", []),
+                  max_distance=body_distance,
+              )
+              targeted_action_targets = list(dict.fromkeys(title_targets + body_targets))
+              targeted_actions = list(dict.fromkeys(title_actions + body_actions))
+
+              override_title_targets, override_title_actions = linked_term_evidence(
+                  title_summary,
+                  action_targets,
+                  policy.get("event_override_action_terms", []),
+                  max_distance=title_distance,
+              )
+              override_body_targets, override_body_actions = linked_term_evidence(
+                  content,
+                  action_targets,
+                  policy.get("event_override_action_terms", []),
+                  max_distance=body_distance,
+              )
+              event_override_targets = list(
+                  dict.fromkeys(override_title_targets + override_body_targets)
+              )
+              event_override_actions = list(
+                  dict.fromkeys(override_title_actions + override_body_actions)
+              )
+
+              condition_a = bool(ai_it) and (bool(direct_ip) or bool(broad and mandatory))
+              condition_b = bool(targeted_action_targets) and bool(targeted_actions)
+              event_override_b = bool(event_override_targets) and bool(event_override_actions)
+
+              # 행사·설명회·포럼 형식은 실제 개통·발주·공모·예산확정·시행 등
+              # 예외조치가 확인되지 않으면 중요 이상으로 올리지 않습니다.
+              event_capped_normal = (
+                  bool(ai_it)
+                  and bool(event)
+                  and not event_override_b
+                  and bool(condition_b or case_reference)
+                  and not bool(discussion and not condition_b)
+              )
+              event_discussion_only = bool(ai_it) and (
+                  (bool(event) and not event_override_b and not event_capped_normal)
+                  or (bool(discussion) and not condition_b and not case_reference)
+              )
+              case_reference_only = (
+                  bool(ai_it)
+                  and bool(case_reference)
+                  and not condition_b
+                  and not event_discussion_only
+                  and not event_capped_normal
+              )
+
+              signals = (
+                  direct_ip
+                  + ai_it
+                  + targeted_action_targets
+                  + targeted_actions
+                  + event_override_actions
+                  + broad
+                  + foundational
+                  + regulatory
+                  + incident
+                  + mandatory
+                  + strong
+                  + weak
+                  + event
+                  + discussion
+                  + case_reference
+              )
+              return {
+                  "direct_ip": direct_ip,
+                  "ai_it": ai_it,
+                  "broad": broad,
+                  "foundational": foundational,
+                  "regulatory": regulatory,
+                  "incident": incident,
+                  "mandatory": mandatory,
+                  "strong": strong,
+                  "weak": weak,
+                  "event": event,
+                  "discussion": discussion,
+                  "case_reference": case_reference,
+                  "priority_ministry": priority_ministry,
+                  "targeted_action_targets": targeted_action_targets,
+                  "targeted_actions": targeted_actions,
+                  "event_override_targets": event_override_targets,
+                  "event_override_actions": event_override_actions,
+                  "condition_a": condition_a,
+                  "condition_b": condition_b,
+                  "event_override_b": event_override_b,
+                  "event_capped_normal": event_capped_normal,
+                  "event_discussion_only": event_discussion_only,
+                  "case_reference_only": case_reference_only,
+                  "signals": signals,
+              }
+          ''').strip() + "\n\n\n"
+          start = text.index("def classification_evidence(")
+          end = text.index("def _guard_reason", start)
+          text = text[:start] + new_evidence + text[end:]
+
+          new_guard = dedent('''
+          def _guard_reason(target_level: str, evidence: dict[str, Any]) -> str:
+              if evidence["event_discussion_only"]:
+                  return "실제 개통·발주·공모·예산확정·시행 없이 회의·행사·논의 중심이므로 관계없음으로 조정했습니다."
+              if evidence["event_capped_normal"]:
+                  return "행사·설명회 형식이며 실제 개통·발주·공모·예산확정·시행 등 예외조치가 없어 보통으로 제한했습니다."
+              if target_level == "important":
+                  return "AI·정보화·보안 대상에 직접 연결된 구체적 조치(B)는 확인되지만 지식재산처 직접 연결(A)이 없어 중요으로 조정했습니다."
+              if target_level == "normal":
+                  if evidence["strong"] and not evidence["condition_b"]:
+                      return "강한 행동어는 있으나 그 대상이 AI·정보화·보안으로 직접 연결되지 않아 보통으로 조정했습니다."
+                  return "AI·정보화·보안 대상에 직접 연결된 구체적 조치(B)가 확인되지 않아 보통으로 조정했습니다."
+              return "AI·정보화 관련성과 대상에 연결된 구체적 조치가 확인되지 않아 관계없음으로 조정했습니다."
+          ''').strip() + "\n\n\n"
+          start = text.index("def _guard_reason")
+          end = text.index("def constrain_model_result", start)
+          text = text[:start] + new_guard + text[end:]
+
+          new_constrain = dedent('''
+          def constrain_model_result(
+              article: dict[str, Any],
+              model_result: dict[str, Any],
+              policy: dict[str, Any],
+          ) -> dict[str, Any]:
+              """모델 결과가 대상연결 B 조건과 강화된 행사 상한을 넘지 못하게 강제합니다."""
+
+              result = dict(model_result)
+              original_level = str(result.get("level") or "unrelated")
+              if original_level not in VALID_LEVELS:
+                  original_level = "unrelated"
+              target_level = original_level
+              evidence = classification_evidence(article, policy)
+
+              if evidence["event_discussion_only"]:
+                  target_level = "unrelated"
+              elif evidence["event_capped_normal"] and original_level in {"critical", "important"}:
+                  target_level = "normal"
+              elif evidence["case_reference_only"] and original_level in {"critical", "important"}:
+                  target_level = "normal"
+              elif original_level == "critical" and not (
+                  evidence["condition_a"] and evidence["condition_b"]
+              ):
+                  if evidence["condition_b"]:
+                      target_level = "important"
+                  elif evidence["ai_it"]:
+                      target_level = "normal"
+                  else:
+                      target_level = "unrelated"
+              elif original_level == "important" and not evidence["condition_b"]:
+                  target_level = "normal" if evidence["ai_it"] else "unrelated"
+
+              if target_level != original_level:
+                  original_reason = normalize_plain_text(str(result.get("reason") or ""))
+                  reason = _guard_reason(target_level, evidence)
+                  if original_reason:
+                      reason = f"{reason} 원 모델 근거: {original_reason}"
+                  result["reason"] = reason[:220]
+                  try:
+                      result["confidence"] = min(float(result.get("confidence", 0.8)), 0.9)
+                  except (TypeError, ValueError):
+                      result["confidence"] = 0.8
+              result["level"] = target_level
+              return result
+          ''').strip() + "\n\n\n"
+          start = text.index("def constrain_model_result(")
+          end = text.index("def rule_classify", start)
+          text = text[:start] + new_constrain + text[end:]
+
+          new_rule = dedent('''
+          def rule_classify(article: dict[str, Any], policy: dict[str, Any]) -> tuple[dict[str, Any], bool]:
+              """대상연결 B 조건과 강화된 행사 상한에 따른 규칙 사전판정을 반환합니다."""
+
+              evidence = classification_evidence(article, policy)
+              signals = evidence["signals"]
+
+              if evidence["event_discussion_only"]:
+                  return (
+                      make_rule_record(
+                          "unrelated",
+                          "실제 개통·발주·공모·예산확정·시행 없이 회의·포럼·페스티벌·논의·미래상 소개에 그치는 자료입니다.",
+                          signals,
+                          0.94,
+                      ),
+                      False,
+                  )
+
+              if evidence["event_capped_normal"]:
+                  return (
+                      make_rule_record(
+                          "normal",
+                          "AI·정보화 관련 사업을 다루지만 행사·설명회 형식이며 실제 개통·발주·공모·예산확정·시행은 확인되지 않아 보통으로 제한합니다.",
+                          signals,
+                          0.88,
+                      ),
+                      True,
+                  )
+
+              if evidence["condition_a"] and evidence["condition_b"]:
+                  return (
+                      make_rule_record(
+                          "critical",
+                          "지식재산처 직접 연결(A)과 AI·정보화·보안 대상에 직접 연결된 구체적 실행조치(B)를 모두 충족해 즉시 검토가 필요합니다.",
+                          signals,
+                          0.94,
+                      ),
+                      True,
+                  )
+
+              if evidence["condition_b"]:
+                  return (
+                      make_rule_record(
+                          "important",
+                          "AI·정보화·보안 대상에 직접 연결된 구체적 시행·도입·구축·대응조치(B)가 확인되어 동향 추적이 필요합니다.",
+                          signals,
+                          0.88,
+                      ),
+                      True,
+                  )
+
+              if evidence["case_reference_only"]:
+                  return (
+                      make_rule_record(
+                          "normal",
+                          "구체적 조치 없이 사례·체계·기술동향을 소개하는 자료로 참고 가치가 있습니다.",
+                          signals,
+                          0.84,
+                      ),
+                      True,
+                  )
+
+              if evidence["ai_it"]:
+                  reason = (
+                      "강한 행동어가 있으나 그 대상이 AI·정보화·보안으로 직접 연결되지 않았습니다."
+                      if evidence["strong"]
+                      else "AI·정보화 관련성은 있으나 대상에 직접 연결된 구체적 시행·도입·의무 조치(B)는 확인되지 않았습니다."
+                  )
+                  return (
+                      make_rule_record(
+                          "normal",
+                          reason,
+                          signals,
+                          0.8,
+                      ),
+                      True,
+                  )
+
+              return (
+                  make_rule_record(
+                      "unrelated",
+                      "AI·정보화·보안 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
+                      signals,
+                      0.91,
+                  ),
+                  False,
+              )
+          ''').strip() + "\n\n"
+          start = text.index("def rule_classify(")
+          end = text.index("def classification_is_current", start)
+          text = text[:start] + new_rule + text[end:]
+
+          new_prompt = dedent('''
+          def build_system_prompt(policy: dict[str, Any]) -> str:
+              level_lines = []
+              for level in policy.get("levels", []):
+                  examples = "; ".join(level.get("examples", []))
+                  level_lines.append(
+                      f"- {level['key']} / {level['label']}: {level['definition']} 예: {examples}"
+                  )
+              return "\\n".join(
+                  [
+                      "당신은 대한민국 지식재산처의 AI·정보화 정책 모니터링 담당 분석가입니다.",
+                      "정부 보도자료가 지식재산처의 법령, 업무, 정보시스템, 데이터, 보안, AI 사업에 미칠 영향을 판정하십시오.",
+                      "다음 네 단계 중 반드시 하나만 선택하십시오.",
+                      *level_lines,
+                      "판정 원칙:",
+                      "1. 제목의 단어만 보지 말고 기관·요약·본문 발췌의 실질적 조치와 적용 범위를 함께 판단합니다.",
+                      "2. A는 지식재산처 직접 연결입니다. 지식재산·특허행정 직접 언급 또는 전 부처 준수 의무·공통기준의 명시가 필요합니다.",
+                      "3. B는 AI·정보화·보안 대상에 직접 연결된 구체적 조치입니다. 실행 동사의 직접 대상이 AI 모델·정보시스템·데이터 플랫폼·클라우드·소프트웨어·정보보호·보안사고 등이어야 합니다.",
+                      "4. AI·정보화 용어와 착수·점검·지원 같은 행동어가 문서의 서로 다른 부분에 따로 존재하는 것만으로는 B가 아닙니다. 같은 문장 또는 가까운 문맥에서 대상과 행동이 연결되어야 합니다.",
+                      "5. 공항 개발 착수, 건설현장 안전점검, 외국인 사업장 점검 등 AI·정보화·보안이 아닌 대상에 대한 행동은 B로 인정하지 않습니다.",
+                      "6. 품질경영시스템·안전관리시스템 등 일반 관리체계의 '시스템'은 정보시스템으로 해석하지 않습니다.",
+                      "7. critical은 A와 B를 모두 충족할 때만 선택합니다.",
+                      "8. important는 대상연결 B를 충족하면 선택할 수 있으며 A는 필수조건이 아닙니다. B가 없으면 critical 또는 important를 선택하지 않습니다.",
+                      "9. 회의·포럼·학술대회·페스티벌·박람회·설명회 등 행사 형식은 실제 시스템 개통, 사업 발주·공모, 예산 확정, 법령·지침 시행, 서비스 운영 개시, 신규 플랫폼 도입이 명확할 때만 important 이상이 가능합니다.",
+                      "10. 행사가 단순 사례 발표·체험·강연·활용방안 논의·미래상 소개에 그치면 unrelated로, 독립적인 참고사례가 있더라도 최대 normal로 판정합니다.",
+                      "11. 행정안전부·과학기술정보통신부 등 우선기관 자료라는 이유만으로 등급을 높이지 않습니다.",
+                      "12. 제정·개정·시행·도입·구축·착수 등 강한 조치와 논의·모색·소개·공유·전망 등 약한 표현을 구분합니다.",
+                      "13. 추측을 최소화하고 원문에서 확인 가능한 대상과 구체적 행동을 판정 이유에 명시합니다.",
+                      "출력은 요청된 JSON 스키마만 따릅니다.",
+                  ]
+              )
+          ''').strip() + "\n\n"
+          start = text.index("def build_system_prompt(")
+          end = text.index("def response_schema", start)
+          text = text[:start] + new_prompt + text[end:]
+
+          classify_path.write_text(text, encoding="utf-8")
+
+          policy_path = Path("collector/relevance_policy.json")
+          policy = json.loads(policy_path.read_text(encoding="utf-8"))
+          policy["prompt_version"] = "ip-office-relevance-v1.2"
+          policy["description"] = (
+              "정부 보도자료가 지식재산처의 AI·정보화·시스템·보안 업무에 미치는 영향을 "
+              "A(직접 연결)와 대상연결 B(구체적 조치), 강화된 행사 상한으로 분류한다."
+          )
+          policy["levels"][0]["definition"] = (
+              "A(지식재산처 직접 연결)와 AI·정보화·보안 대상에 직접 연결된 B(구체적 시행·도입·의무 조치)를 모두 충족하는 사안"
+          )
+          policy["levels"][1]["definition"] = (
+              "AI·정보화·보안 대상에 직접 연결된 B(구체적 시행·도입·구축·사업 조치)를 충족하는 사안. A는 필수조건이 아니다."
+          )
+          policy["levels"][2]["definition"] = (
+              "AI·정보화 관련성은 있으나 대상연결 B가 없거나, 실제 개통·발주·공모·예산확정·시행이 없는 행사·설명회 자료"
+          )
+          policy["levels"][3]["definition"] = (
+              "AI·정보화 관련성이 없거나, 대상연결 B 없이 회의·포럼·학술대회·페스티벌·논의·미래상 소개에 그치는 사안"
+          )
+
+          policy["ai_it_terms"] = list(dict.fromkeys(policy["ai_it_terms"] + [
+              "LLM", "대규모 언어모델", "파운데이션 모델", "AI 에이전트",
+              "머신러닝", "딥러닝", "전산시스템", "전산망", "보안",
+              "사이버 공격", "제로트러스트", "보안 패치", "NPU", "데이터베이스"
+          ]))
+          policy["event_terms"] = list(dict.fromkeys(policy["event_terms"] + [
+              "콘퍼런스", "학술대회", "페스티벌", "축제", "체험행사", "개막식"
+          ]))
+          policy["strong_action_terms"] = list(dict.fromkeys(policy["strong_action_terms"] + [
+              "도입 완료", "전면 도입", "운영한다", "가동한다", "배포한다",
+              "선정", "지정", "지원 사업 추진", "지원 본격화", "가이드라인 마련",
+              "지침 마련", "기준 마련", "원칙 마련", "권고안 마련", "보호 원칙 제시"
+          ]))
+          policy["action_target_terms"] = [
+              "AI", "인공지능", "생성형 AI", "생성형AI", "초거대 AI", "초거대AI",
+              "LLM", "대규모 언어모델", "파운데이션 모델", "AI 에이전트",
+              "머신러닝", "딥러닝", "AI 전환", "인공지능 전환", "AX",
+              "정보화", "정보시스템", "행정시스템", "업무시스템", "전산시스템",
+              "공통시스템", "클라우드", "소프트웨어", "업무자동화", "RPA",
+              "디지털 전환", "디지털정부", "전자정부", "챗봇", "알고리즘",
+              "공공데이터", "데이터베이스", "데이터 플랫폼", "디지털 플랫폼",
+              "공통 플랫폼", "공통플랫폼", "행정망", "공공망", "전산망",
+              "데이터센터", "GPU", "NPU", "보안", "정보보호", "사이버보안",
+              "개인정보보호", "개인정보 보호", "보안사고", "침해사고", "해킹",
+              "랜섬웨어", "악성코드", "사이버 공격", "개인정보 유출", "데이터 유출",
+              "정보 유출", "취약점", "공급망 공격", "제로트러스트", "계정 탈취",
+              "보안 점검", "보안 패치", "시스템 장애", "전산 장애", "서비스 장애"
+          ]
+          policy["event_override_action_terms"] = [
+              "공포", "시행한다", "시행 예정", "시행에 들어간", "입법예고", "행정예고",
+              "의무화", "준수 의무", "적용 의무", "도입한다", "도입 완료", "전면 도입",
+              "구축 착수", "개통", "운영 개시", "서비스 개시", "사업 착수", "실증 착수",
+              "예산 확정", "발주", "입찰", "계약 체결", "공모", "선정", "지정",
+              "복구", "대응 조치", "대응대책 시행"
+          ]
+          policy["action_link_max_chars"] = 140
+          policy["title_summary_link_max_chars"] = 260
+          policy_path.write_text(
+              json.dumps(policy, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+
+          test_path = Path("tests/test_relevance.py")
+          tests = test_path.read_text(encoding="utf-8")
+          tests = tests.replace(
+              "from collector.classify_relevance import constrain_model_result, load_policy, rule_classify",
+              "from collector.classify_relevance import (\n    classification_evidence,\n    constrain_model_result,\n    load_policy,\n    rule_classify,\n)",
+          )
+          extra_tests = dedent('''
+              def test_unrelated_action_does_not_satisfy_b(self) -> None:
+                  article = self.article(
+                      "경기남부 민간공항 개발계획 수립 및 실시설계 착수",
+                      "공항 개발 사업 착수와 실시설계를 추진한다. 이용객 안내 시스템 연계는 장기적으로 검토한다.",
+                      "국토교통부",
+                  )
+                  evidence = classification_evidence(article, self.policy)
+                  result, _ = rule_classify(article, self.policy)
+                  self.assertFalse(evidence["condition_b"])
+                  self.assertNotIn(result["level"], {"critical", "important"})
+
+              def test_generic_management_system_is_not_targeted_b(self) -> None:
+                  article = self.article(
+                      "산림치유프로그램 인증제로 품질관리 본격화",
+                      "ISO 13485 품질경영시스템 인증제를 시행한다.",
+                      "산림청",
+                  )
+                  evidence = classification_evidence(article, self.policy)
+                  result, _ = rule_classify(article, self.policy)
+                  self.assertFalse(evidence["condition_b"])
+                  self.assertNotIn(result["level"], {"critical", "important"})
+
+              def test_targeted_security_action_is_important(self) -> None:
+                  article = self.article(
+                      "공공 정보시스템 보안 취약점 긴급 점검",
+                      "공공 정보시스템의 보안 취약점을 점검 실시하고 보안 패치를 배포한다.",
+                      "행정안전부",
+                  )
+                  evidence = classification_evidence(article, self.policy)
+                  result, needs_model = rule_classify(article, self.policy)
+                  self.assertTrue(evidence["condition_b"])
+                  self.assertEqual(result["level"], "important")
+                  self.assertTrue(needs_model)
+
+              def test_ai_festival_without_actual_action_is_unrelated(self) -> None:
+                  result, needs_model = rule_classify(
+                      self.article(
+                          "AI 콘텐츠 페스티벌 개최",
+                          "인공지능 콘텐츠 전시와 체험, 전문가 강연을 열고 미래 활용방안을 논의한다.",
+                      ),
+                      self.policy,
+                  )
+                  self.assertEqual(result["level"], "unrelated")
+                  self.assertFalse(needs_model)
+
+              def test_project_briefing_without_override_is_capped_at_normal(self) -> None:
+                  article = self.article(
+                      "차세대 지방행정공통시스템 구축 사업설명회 개최",
+                      "AI 기반 공통 정보시스템 구축 추진 계획과 사업 범위를 설명한다.",
+                      "행정안전부",
+                  )
+                  evidence = classification_evidence(article, self.policy)
+                  result, needs_model = rule_classify(article, self.policy)
+                  self.assertTrue(evidence["condition_b"])
+                  self.assertTrue(evidence["event_capped_normal"])
+                  self.assertEqual(result["level"], "normal")
+                  self.assertTrue(needs_model)
+
+              def test_event_with_actual_ai_service_launch_can_be_important(self) -> None:
+                  article = self.article(
+                      "행정 AI 플랫폼 개통 설명회",
+                      "행정기관용 생성형 AI 플랫폼을 개통하고 서비스 운영을 개시한다.",
+                      "행정안전부",
+                  )
+                  evidence = classification_evidence(article, self.policy)
+                  result, needs_model = rule_classify(article, self.policy)
+                  self.assertTrue(evidence["condition_b"])
+                  self.assertTrue(evidence["event_override_b"])
+                  self.assertEqual(result["level"], "important")
+                  self.assertTrue(needs_model)
+
+              def test_model_event_without_override_is_demoted_to_normal(self) -> None:
+                  article = self.article(
+                      "차세대 공통시스템 구축 사업설명회",
+                      "AI 기반 공통 정보시스템 구축을 추진하며 사업 계획을 설명한다.",
+                      "행정안전부",
+                  )
+                  result = constrain_model_result(
+                      article,
+                      {"level": "important", "confidence": 0.92, "reason": "구축 사업", "signals": ["AI"]},
+                      self.policy,
+                  )
+                  self.assertEqual(result["level"], "normal")
+
+          ''')
+          marker = "    def test_model_critical_without_a_is_demoted_to_important"
+          if "def test_unrelated_action_does_not_satisfy_b" not in tests:
+              tests = tests.replace(marker, extra_tests + marker)
+          tests = tests.replace("ip-office-relevance-v1.1", "ip-office-relevance-v1.2")
+          test_path.write_text(tests, encoding="utf-8")
+
+          index_path = Path("docs/index.html")
+          index = index_path.read_text(encoding="utf-8")
+          index = index.replace(
+              '<p><strong class="policy-level relevance-critical">매우 중요</strong> 지식재산처에 직접·즉시 영향. AI 관련 법·정부 공통 규정 개정, 전 부처 즉시 적용 기준, AI·정보시스템 보안사고 등.</p>',
+              '<p><strong class="policy-level relevance-critical">매우 중요</strong> 지식재산처 직접 연결(A)과 AI·정보화·보안 대상에 직접 연결된 구체적 조치(B)를 모두 충족하는 경우.</p>',
+          )
+          index = index.replace(
+              '<p><strong class="policy-level relevance-important">중요</strong> 당장은 아니지만 향후 영향 가능성이 큼. 행안부·과기정통부의 전 부처 AI 실험·공통플랫폼·행정효율화 사업 등.</p>',
+              '<p><strong class="policy-level relevance-important">중요</strong> AI·정보시스템·클라우드·데이터 플랫폼·정보보안 자체에 도입·구축·개통·발주·점검·복구 등 구체적 조치(B)가 있는 경우.</p>',
+          )
+          index = index.replace(
+              '<p><strong class="policy-level relevance-normal">보통</strong> 개별 기관의 일반적인 AI·정보화·시스템 구축·개선 사업으로 사례 참고 가치가 있는 경우.</p>',
+              '<p><strong class="policy-level relevance-normal">보통</strong> 관련성은 있으나 대상연결 B가 없거나, 실제 개통·발주·공모·예산확정·시행 없이 행사·설명회 형식으로 계획을 알리는 경우.</p>',
+          )
+          index = index.replace(
+              '<p><strong class="policy-level relevance-unrelated">관계없음</strong> 실질적인 제도·사업·조치 없이 공청회·간담회·설명회 등 행사 사실만 알리는 경우.</p>',
+              '<p><strong class="policy-level relevance-unrelated">관계없음</strong> AI·정보화·보안이 아닌 대상에 대한 착수·점검이거나, 포럼·학술대회·페스티벌·논의·미래상 소개에 그치는 경우.</p>',
+          )
+          index_path.write_text(index, encoding="utf-8")
+          PY
+
+      - name: 테스트 및 문법 검사
+        run: |
+          python -m unittest discover -s tests -v
+          python -m py_compile collector/*.py
+          node --check docs/assets/app.js
+
+      - name: 변경사항 저장 및 임시 워크플로 정리
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "policy-dashboard-bot"
+          git config user.email "policy-dashboard-bot@users.noreply.github.com"
+          git rm .github/workflows/apply-v12-patch.yml
+          git add collector/classify_relevance.py collector/relevance_policy.json tests/test_relevance.py docs/index.html
+          git commit -m "fix: B조건 대상연결 및 행사 상한 강화"
+          git push origin HEAD:fix/target-linked-b-event-cap-v12

@@ -29,6 +29,43 @@ jobs:
       - name: 의존성 설치
         run: pip install -r requirements.txt
 
+      - name: 한국어 행동어 변형 보강
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+
+          path = Path('collector/relevance_policy.json')
+          policy = json.loads(path.read_text(encoding='utf-8'))
+
+          strong_variants = [
+              '도입을 추진', '구축을 추진', '구축에 착수', '개통한다',
+              '운영을 개시', '서비스를 개시', '사업에 착수', '실증에 착수',
+              '점검을 실시', '복구한다', '대응 조치를 시행', '대응대책을 시행',
+              '가이드라인을 마련', '지침을 마련', '기준을 마련', '원칙을 마련',
+              '권고안을 마련', '보호 원칙을 제시', '선정한다', '지정한다',
+              '지원 사업을 추진', '지원을 본격화', '배포', '가동'
+          ]
+          override_variants = [
+              '도입을 완료', '전면 도입한다', '구축에 착수', '개통한다',
+              '운영을 개시', '서비스를 개시', '사업에 착수', '실증에 착수',
+              '예산을 확정', '발주한다', '입찰한다', '계약을 체결',
+              '공모한다', '선정한다', '지정한다', '복구한다',
+              '대응 조치를 시행', '대응대책을 시행'
+          ]
+          policy['strong_action_terms'] = list(
+              dict.fromkeys(policy.get('strong_action_terms', []) + strong_variants)
+          )
+          policy['event_override_action_terms'] = list(
+              dict.fromkeys(policy.get('event_override_action_terms', []) + override_variants)
+          )
+          path.write_text(
+              json.dumps(policy, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          PY
+
       - name: 전체 테스트 및 문법 검사
         run: |
           python -m unittest discover -s tests -v
@@ -96,12 +133,13 @@ jobs:
               print(json.dumps(item, ensure_ascii=False))
           PY
 
-      - name: 임시 워크플로 정리
+      - name: 변경사항 저장 및 임시 워크플로 정리
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "policy-dashboard-bot"
           git config user.email "policy-dashboard-bot@users.noreply.github.com"
           git rm .github/workflows/verify-v12.yml
-          git commit -m "chore: v1.2 검증 워크플로 정리"
+          git add collector/relevance_policy.json
+          git commit -m "fix: 한국어 대상연결 행동어 변형 보강"
           git push origin HEAD:fix/target-linked-b-event-cap-v12

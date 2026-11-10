@@ -1332,21 +1332,20 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "unrelated",
-        "label": "관계없음",
-        "score": 1,
-        "confidence": 0.95,
-        "reason": "국토교통부의 공간정보산업 보도자료로, 지식재산처와 직접 관련이 없고 구체적인 AI 시스템 구축이나 발주 조치가 누락되어 있음",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.9,
+        "reason": "공간정보산업의 AI 활용 및 신성장 동력 창출을 언급하고 있으나, 구체적인 정보시스템 구축이나 사업 발주 등 직접적인 조치가 명시되지 않음.",
         "signals": [
-          "공간정보산업",
           "AI 공간분석",
-          "첨부파일 참고"
+          "공간정보산업"
         ],
-        "recommended_action": "제외",
+        "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.2",
-        "classified_at": "2026-11-10T05:48:53+09:00",
+        "classified_at": "2026-11-10T18:59:25+09:00",
         "source_hash": "ce44435fe92862dc3f7fc43e8c902d6ecde0edf62695b752f907d36a5558466f"
       }
     },
@@ -3214,7 +3213,7 @@
   "article_count": 85,
   "modified_count": 1,
   "classification_prompt_version": "ip-office-relevance-v1.2",
-  "classification_updated_at": "2026-11-10T05:48:44+09:00",
+  "classification_updated_at": "2026-11-10T19:01:34+09:00",
   "relevance_counts": {
     "unrelated": 77,
     "normal": 5,

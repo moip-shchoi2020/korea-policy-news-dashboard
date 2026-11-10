@@ -1118,17 +1118,14 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.98,
-        "reason": "국가데이터처의 임금근로 일자리동향 통계 발표 자료로, AI 및 정보화 정책과 관련성이 없음",
-        "signals": [
-          "임금근로 일자리동향",
-          "일자리 증감"
-        ],
+        "confidence": 1.0,
+        "reason": "일자리 동향 통계 자료로 AI, 정보화, 보안 관련 조치가 포함되어 있지 않음.",
+        "signals": [],
         "recommended_action": "제외",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.2",
-        "classified_at": "2026-11-10T05:48:53+09:00",
+        "classified_at": "2026-11-10T18:59:25+09:00",
         "source_hash": "902b21c1e72d2bc7ccfd395711828ef7375e7bfd36853baf3de591295204d427"
       }
     },
@@ -3178,10 +3175,10 @@
   "article_count": 84,
   "modified_count": 0,
   "classification_prompt_version": "ip-office-relevance-v1.2",
-  "classification_updated_at": "2026-11-10T05:48:44+09:00",
+  "classification_updated_at": "2026-11-10T19:01:34+09:00",
   "relevance_counts": {
-    "unrelated": 75,
-    "normal": 6,
+    "unrelated": 76,
+    "normal": 5,
     "important": 3
   }
 }

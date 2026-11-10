@@ -7,8 +7,8 @@
   "relevance_counts": {
     "critical": 0,
     "important": 0,
-    "normal": 1,
-    "unrelated": 5,
+    "normal": 0,
+    "unrelated": 6,
     "unclassified": 0
   },
   "classified_count": 6,
@@ -31,7 +31,7 @@
         "label": "관계없음",
         "score": 1,
         "confidence": 0.91,
-        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
+        "reason": "AI·정보화·보안 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
           "범정부",
           "협의회",
@@ -40,8 +40,8 @@
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:16:42+09:00"
+        "prompt_version": "ip-office-relevance-v1.2",
+        "classified_at": "2026-11-11T02:54:04+09:00"
       }
     },
     {
@@ -62,13 +62,15 @@
         "label": "관계없음",
         "score": 1,
         "confidence": 0.91,
-        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
-        "signals": [],
+        "reason": "AI·정보화·보안 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
+        "signals": [
+          "가동"
+        ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:16:42+09:00"
+        "prompt_version": "ip-office-relevance-v1.2",
+        "classified_at": "2026-11-11T02:54:04+09:00"
       }
     },
     {
@@ -89,15 +91,16 @@
         "label": "관계없음",
         "score": 1,
         "confidence": 0.91,
-        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
+        "reason": "AI·정보화·보안 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [
-          "방문"
+          "방문",
+          "축제"
         ],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:16:42+09:00"
+        "prompt_version": "ip-office-relevance-v1.2",
+        "classified_at": "2026-11-11T02:54:04+09:00"
       }
     },
     {
@@ -114,19 +117,19 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156786340",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.9,
-        "reason": "전 국민 대상 AI 경진대회 개최라는 행사성 내용으로, 지식재산처의 정보화 정책에 직접적인 영향은 없음.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 1.0,
+        "reason": "인공지능 경진대회 개최 행사로, 단순 체험 및 홍보성 성격임.",
         "signals": [
           "인공지능 경진대회"
         ],
-        "recommended_action": "참고",
+        "recommended_action": "제외",
         "method": "gemini-api",
         "model": "google/gemini-3.1-flash-lite",
-        "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:17:26+09:00"
+        "prompt_version": "ip-office-relevance-v1.2",
+        "classified_at": "2026-11-11T02:55:13+09:00"
       }
     },
     {
@@ -147,13 +150,13 @@
         "label": "관계없음",
         "score": 1,
         "confidence": 0.91,
-        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
+        "reason": "AI·정보화·보안 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:16:42+09:00"
+        "prompt_version": "ip-office-relevance-v1.2",
+        "classified_at": "2026-11-11T02:54:04+09:00"
       }
     },
     {
@@ -174,13 +177,13 @@
         "label": "관계없음",
         "score": 1,
         "confidence": 0.91,
-        "reason": "AI·정보화·시스템 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
+        "reason": "AI·정보화·보안 또는 지식재산처 업무와 연결되는 실질적 신호가 확인되지 않았습니다.",
         "signals": [],
         "recommended_action": "제외",
         "method": "rules",
         "model": null,
-        "prompt_version": "ip-office-relevance-v1.1",
-        "classified_at": "2026-11-03T17:16:42+09:00"
+        "prompt_version": "ip-office-relevance-v1.2",
+        "classified_at": "2026-11-11T02:54:04+09:00"
       }
     }
   ]

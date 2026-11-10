@@ -3796,18 +3796,19 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.9,
-        "reason": "조달청의 혁신제품 발굴체계 개편 및 AI·로봇 분야 전문기관 스카우터 확대 내용으로, 기관 단위의 신산업 도입 성격이나 구체적인 정보화 사업 발주·구축 단계는 아닙니다.",
+        "confidence": 0.8,
+        "reason": "혁신제품 발굴 체계 개편 및 전문기관 협력에 관한 내용으로, AI·로봇 등 신산업 분야가 포함되어 있으나 지식재산처의 직접적인 정보화 사업이나 시스템 구축과는 거리가 있음.",
         "signals": [
-          "혁신제품 발굴",
-          "AI·로봇 신산업",
-          "스카우터 확대"
+          "혁신제품",
+          "AI",
+          "로봇",
+          "발굴체계"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.2",
-        "classified_at": "2026-11-10T19:01:43+09:00",
+        "classified_at": "2026-11-11T00:36:38+09:00",
         "source_hash": "adc05b63f0d7e5d0a38370f23df57607b33ca2f7f92fd01ac9c36d2b6a0dda20"
       }
     },
@@ -5052,18 +5053,14 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.99,
-        "reason": "조세지출예산서 국회 제출 관련 보도자료로 AI·정보화·보안과 전혀 관련이 없습니다.",
-        "signals": [
-          "조세지출예산서",
-          "예산안 국회 제출",
-          "재정경제부"
-        ],
+        "confidence": 0.95,
+        "reason": "조세지출예산서 제출에 관한 행정 자료로, AI·정보화·보안과 관련된 구체적인 조치가 없음.",
+        "signals": [],
         "recommended_action": "제외",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.2",
-        "classified_at": "2026-11-10T19:01:43+09:00",
+        "classified_at": "2026-11-11T00:36:38+09:00",
         "source_hash": "9b3294a714d6ac4dd08d33c587fea50d0ab0e4e799e388e8968dcdb093e2926e"
       }
     },
@@ -5482,9 +5479,9 @@
   "article_count": 147,
   "modified_count": 0,
   "classification_prompt_version": "ip-office-relevance-v1.2",
-  "classification_updated_at": "2026-11-10T19:01:34+09:00",
+  "classification_updated_at": "2026-11-11T00:44:27+09:00",
   "relevance_counts": {
-    "unrelated": 130,
-    "normal": 17
+    "unrelated": 131,
+    "normal": 16
   }
 }

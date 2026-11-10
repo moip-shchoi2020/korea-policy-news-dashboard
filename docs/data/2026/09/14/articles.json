@@ -3539,18 +3539,16 @@
         "level": "unrelated",
         "label": "관계없음",
         "score": 1,
-        "confidence": 0.95,
-        "reason": "군인 자녀 교육·문화 격차 해소를 위한 사회공헌 AI 캠프 개최 행사로, 실질적인 정보화 사업이나 시스템 구축 조치가 아니어 unrelated로 판정합니다.",
+        "confidence": 0.9,
+        "reason": "군인 자녀 대상 AI 교육 캠프 개최 행사로, 단순 교육 프로그램 운영에 해당함.",
         "signals": [
-          "사회공헌 프로그램",
-          "AI Plus 캠프",
-          "군인 자녀 교육"
+          "AI 캠프"
         ],
         "recommended_action": "제외",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.2",
-        "classified_at": "2026-11-10T19:01:43+09:00",
+        "classified_at": "2026-11-11T00:36:38+09:00",
         "source_hash": "d1c47c0a8de3757354371e8259992b27185cbda3eed44cfba688ce0536d0771b"
       }
     },
@@ -4534,10 +4532,10 @@
   "article_count": 121,
   "modified_count": 0,
   "classification_prompt_version": "ip-office-relevance-v1.2",
-  "classification_updated_at": "2026-11-10T19:01:34+09:00",
+  "classification_updated_at": "2026-11-11T00:44:27+09:00",
   "relevance_counts": {
-    "unrelated": 117,
-    "normal": 2,
+    "unrelated": 118,
+    "normal": 1,
     "important": 2
   }
 }

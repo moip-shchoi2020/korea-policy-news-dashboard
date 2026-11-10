@@ -7,8 +7,8 @@
   "relevance_counts": {
     "critical": 0,
     "important": 2,
-    "normal": 7,
-    "unrelated": 166,
+    "normal": 6,
+    "unrelated": 167,
     "unclassified": 0
   },
   "classified_count": 175,
@@ -2921,21 +2921,19 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156781067",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
-        "confidence": 0.85,
-        "reason": "국가데이터처의 추석 일일물가조사 실시 내용으로, 통계 조사 활동에 해당하며 정보시스템 구축이나 AI·보안 관련 직접적인 IT 조치가 아닙니다.",
+        "level": "unrelated",
+        "label": "관계없음",
+        "score": 1,
+        "confidence": 0.9,
+        "reason": "추석 물가조사 실시 안내로, 데이터 수집은 포함되어 있으나 정보화 사업이나 시스템 구축과는 무관함.",
         "signals": [
-          "추석 일일물가조사",
-          "민생안정대책",
-          "물가 변동 파악"
+          "물가조사"
         ],
-        "recommended_action": "참고",
+        "recommended_action": "제외",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.2",
-        "classified_at": "2026-11-10T19:01:43+09:00"
+        "classified_at": "2026-11-11T00:36:38+09:00"
       }
     },
     {

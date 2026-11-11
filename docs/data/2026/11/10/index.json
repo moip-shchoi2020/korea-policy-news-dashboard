@@ -7,8 +7,8 @@
   "relevance_counts": {
     "critical": 1,
     "important": 1,
-    "normal": 4,
-    "unrelated": 96,
+    "normal": 5,
+    "unrelated": 95,
     "unclassified": 0
   },
   "classified_count": 102,
@@ -119,21 +119,20 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156788653",
       "ip_relevance": {
-        "level": "unrelated",
-        "label": "관계없음",
-        "score": 1,
-        "confidence": 1.0,
-        "reason": "G7+ 마약 밀매 대응 항만 네트워크 출범 회의 참석 및 국제 항만 협력에 관한 내용으로 AI, 정보화, 보안 관련 지식재산처 직접 연결 및 시스템 구축 조치가 없음",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.8,
+        "reason": "국제 항만 협력망 참여 및 보안 경험 공유에 관한 회의 참석으로, 구체적인 정보시스템 구축이나 보안 기술 도입이 명시되지 않음.",
         "signals": [
-          "마약 밀매 대응 항만 네트워크",
-          "출범 회의 참석",
-          "국제 항만 협력"
+          "항만 네트워크",
+          "보안 경험 공유"
         ],
-        "recommended_action": "제외",
+        "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.2",
-        "classified_at": "2026-11-11T11:51:53+09:00"
+        "classified_at": "2026-11-11T18:33:48+09:00"
       }
     },
     {

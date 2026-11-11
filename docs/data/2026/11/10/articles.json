@@ -140,21 +140,20 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "unrelated",
-        "label": "관계없음",
-        "score": 1,
-        "confidence": 1.0,
-        "reason": "G7+ 마약 밀매 대응 항만 네트워크 출범 회의 참석 및 국제 항만 협력에 관한 내용으로 AI, 정보화, 보안 관련 지식재산처 직접 연결 및 시스템 구축 조치가 없음",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.8,
+        "reason": "국제 항만 협력망 참여 및 보안 경험 공유에 관한 회의 참석으로, 구체적인 정보시스템 구축이나 보안 기술 도입이 명시되지 않음.",
         "signals": [
-          "마약 밀매 대응 항만 네트워크",
-          "출범 회의 참석",
-          "국제 항만 협력"
+          "항만 네트워크",
+          "보안 경험 공유"
         ],
-        "recommended_action": "제외",
+        "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.2",
-        "classified_at": "2026-11-11T11:51:53+09:00",
+        "classified_at": "2026-11-11T18:33:48+09:00",
         "source_hash": "d9050f8b46536d03934aed887096311319ccb9f99a621296fa3abba59bb836f7"
       }
     },
@@ -3849,11 +3848,11 @@
   "article_count": 102,
   "modified_count": 12,
   "classification_prompt_version": "ip-office-relevance-v1.2",
-  "classification_updated_at": "2026-11-11T11:51:51+09:00",
+  "classification_updated_at": "2026-11-11T18:33:53+09:00",
   "relevance_counts": {
     "unrelated": 95,
-    "important": 2,
+    "normal": 5,
     "critical": 1,
-    "normal": 4
+    "important": 1
   }
 }

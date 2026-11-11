@@ -6,8 +6,8 @@
   "modified_count": 0,
   "relevance_counts": {
     "critical": 0,
-    "important": 2,
-    "normal": 9,
+    "important": 3,
+    "normal": 8,
     "unrelated": 87,
     "unclassified": 0
   },
@@ -1419,17 +1419,13 @@
         "label": "관계없음",
         "score": 1,
         "confidence": 1.0,
-        "reason": "가축전염병 예방을 위한 특별방역대책점검회의 개최에 관한 내용으로, 지식재산처 및 AI·정보화·보안 대상에 대한 구체적 조치나 연관성이 전혀 없음.",
-        "signals": [
-          "가축전염병",
-          "특별방역대책점검회의",
-          "조류인플루엔자"
-        ],
+        "reason": "가축전염병 방역 대책 회의로 AI·정보화 관련 구체적 조치가 없음.",
+        "signals": [],
         "recommended_action": "제외",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.2",
-        "classified_at": "2026-11-11T02:57:43+09:00"
+        "classified_at": "2026-11-11T11:51:33+09:00"
       }
     },
     {
@@ -2348,21 +2344,20 @@
       "is_modified": false,
       "original_url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156785237",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
+        "level": "important",
+        "label": "중요",
+        "score": 3,
         "confidence": 0.9,
-        "reason": "조달청의 용역분야 입찰동향을 안내하는 자료로 정보화 용역이 포함되어 있으나 개별 시스템 구축이나 사업의 구체적 내용 없이 단순 입찰 예정 건수 안내에 해당함.",
+        "reason": "정보화 용역 입찰 집행 계획을 포함하고 있어 정보화 사업 착수에 해당함.",
         "signals": [
-          "조달청 용역분야 입찰동향",
-          "정보화 용역",
-          "입찰 집행 예정"
+          "정보화",
+          "입찰 집행"
         ],
-        "recommended_action": "참고",
+        "recommended_action": "동향 추적",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.2",
-        "classified_at": "2026-11-11T02:57:43+09:00"
+        "classified_at": "2026-11-11T11:51:33+09:00"
       }
     },
     {

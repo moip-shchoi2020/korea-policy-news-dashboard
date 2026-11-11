@@ -1912,21 +1912,20 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "unrelated",
-        "label": "관계없음",
-        "score": 1,
-        "confidence": 1.0,
-        "reason": "청년 취업 지원을 위한 공공서비스(온라인 직업훈련, 자격시험 할인 등)를 소개하는 홍보성 보도자료로, 지식재산처의 업무나 AI·정보화·보안 사업의 직접적 도입 조치와 무관함.",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.8,
+        "reason": "기존 공공 온라인 직업훈련 플랫폼 소개 및 활용 안내로 기관 단위의 서비스 홍보에 해당함.",
         "signals": [
-          "청년 취업 돕는 공공서비스",
           "온라인 직업훈련 플랫폼",
-          "취업 역량 강화"
+          "AI 활용 역량"
         ],
-        "recommended_action": "제외",
+        "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.2",
-        "classified_at": "2026-11-11T02:57:43+09:00",
+        "classified_at": "2026-11-11T11:51:33+09:00",
         "source_hash": "be7d548c55aee364fe908523e7e556e2ee2c0fee8002c699e73c1fb346ded99c"
       }
     },
@@ -3995,10 +3994,9 @@
   "article_count": 106,
   "modified_count": 0,
   "classification_prompt_version": "ip-office-relevance-v1.2",
-  "classification_updated_at": "2026-11-11T02:57:41+09:00",
+  "classification_updated_at": "2026-11-11T11:51:51+09:00",
   "relevance_counts": {
     "unrelated": 99,
-    "normal": 6,
-    "important": 1
+    "normal": 7
   }
 }

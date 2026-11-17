@@ -20,6 +20,7 @@ on:
   schedule:
     # 한국시간 매일 08:17, 11:17, 16:17, 19:17 실행
     # Telegram 브리핑은 11:17, 16:17, 19:17 실행에서 발송한다.
+    # 19:17 회차는 중요 이상 0건이어도 일일 마감 상태를 발송한다.
     # 정각 직후 혼잡을 피하기 위해 17분으로 분산한다.
     - cron: "17 8 * * *"
       timezone: "Asia/Seoul"
@@ -237,7 +238,6 @@ jobs:
               current += timedelta(days=1)
           print("0건 날짜 보완:", ", ".join(created) if created else "없음")
           PY
-
       - name: AI 공급자 설정 확인
         if: success() && github.event_name != 'push'
         shell: bash
@@ -512,11 +512,12 @@ jobs:
           TELEGRAM_MAX_NORMAL: ${{ vars.TELEGRAM_MAX_NORMAL || '5' }}
           TELEGRAM_MAX_UNCLASSIFIED: ${{ vars.TELEGRAM_MAX_UNCLASSIFIED || '3' }}
           TELEGRAM_MAX_ARTICLES: ${{ vars.TELEGRAM_MAX_ARTICLES || '30' }}
+          TELEGRAM_SKIP_EMPTY: ${{ github.event.schedule == '17 19 * * *' && 'false' || 'true' }}
           DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
           REPORT_DATE: ${{ inputs.end_date }}
           PIPELINE_BUILD_RESULT: ${{ needs.build.result }}
           PIPELINE_DEPLOY_RESULT: ${{ needs.deploy.result }}
           TRIGGER_SCHEDULE: ${{ github.event.schedule }}
-          TELEGRAM_REPORT_TITLE: ${{ github.event.schedule == '17 11 * * *' && '11시 브리핑' || github.event.schedule == '17 16 * * *' && '16시 브리핑' || github.event.schedule == '17 19 * * *' && '19시 브리핑' || '수동 시험 발송' }}
+          TELEGRAM_REPORT_TITLE: ${{ github.event.schedule == '17 11 * * *' && '11시 브리핑' || github.event.schedule == '17 16 * * *' && '16시 브리핑' || github.event.schedule == '17 19 * * *' && '19시 마감 브리핑' || '수동 시험 발송' }}
           PYTHONUNBUFFERED: "1"
         run: python -u -m collector.send_telegram --require-config

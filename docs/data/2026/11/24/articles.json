@@ -436,17 +436,18 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.8,
-        "reason": "AI·정보화 관련성은 있으나 대상에 직접 연결된 구체적 시행·도입·의무 조치(B)는 확인되지 않았습니다.",
+        "confidence": 0.95,
+        "reason": "군인공제회C&C가 병무청에 전자도서관 시스템과 전자자료를 기부하는 약정식 개최 및 2027년 개관 예정 사안으로, 타 기관의 시스템 도입 사례이며 지식재산처와 직접 관련이 없음",
         "signals": [
-          "시스템",
-          "의무"
+          "전자도서관 시스템 기부 약정식",
+          "타 기관 시스템 도입",
+          "지식재산처 미연결"
         ],
         "recommended_action": "참고",
-        "method": "rules-fallback",
-        "model": null,
+        "method": "gemini-api",
+        "model": "google/gemini-3.5-flash-lite",
         "prompt_version": "ip-office-relevance-v1.2",
-        "classified_at": "2026-11-25T03:57:36+09:00",
+        "classified_at": "2026-11-25T05:43:42+09:00",
         "source_hash": "dbef6274ed26ba6bf00b217749af2879a913fcb3b678317f055ea538d4db3298"
       }
     },
@@ -586,23 +587,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "important",
-        "label": "중요",
-        "score": 3,
-        "confidence": 0.88,
-        "reason": "AI·정보화·보안 대상에 직접 연결된 구체적 시행·도입·구축·대응조치(B)가 확인되어 동향 추적이 필요합니다.",
+        "level": "normal",
+        "label": "보통",
+        "score": 2,
+        "confidence": 0.9,
+        "reason": "국가시험 공정성 확보 TF 출범 및 1차 회의 개최로 국가시험 전반의 AI·첨단장비 활용 논의를 다루고 있으나 지식재산처와 직접 연결되지 않고 회의 및 대책 마련 단계임",
         "signals": [
-          "AI",
-          "출범",
-          "참석",
-          "회의 개최",
-          "회의"
+          "국가시험 공정성 확보 TF 회의",
+          "AI·첨단장비 활용 부정행위 논의",
+          "회의 및 대책 마련"
         ],
-        "recommended_action": "동향 추적",
-        "method": "rules-fallback",
-        "model": null,
+        "recommended_action": "참고",
+        "method": "gemini-api",
+        "model": "google/gemini-3.5-flash-lite",
         "prompt_version": "ip-office-relevance-v1.2",
-        "classified_at": "2026-11-25T03:57:36+09:00",
+        "classified_at": "2026-11-25T05:43:42+09:00",
         "source_hash": "cb56efbd6753e1c1e96fda396f09d529670e979059090df1fa5d63a1bb77cf81"
       }
     },

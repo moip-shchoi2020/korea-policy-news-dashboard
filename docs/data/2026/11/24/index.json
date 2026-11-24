@@ -351,17 +351,17 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.95,
-        "reason": "군인공제회C&C가 병무청에 전자도서관 시스템과 전자자료를 기부하는 내용이나, 2027년 개관 예정으로 실제 정보시스템 구축 사업의 직접 발주나 개통 단계가 아닌 기부 약정 단계임.",
+        "confidence": 0.8,
+        "reason": "AI·정보화 관련성은 있으나 대상에 직접 연결된 구체적 시행·도입·의무 조치(B)는 확인되지 않았습니다.",
         "signals": [
-          "전자도서관 시스템 기부 약정",
-          "2027년 개관 예정"
+          "시스템",
+          "의무"
         ],
         "recommended_action": "참고",
-        "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "method": "rules-fallback",
+        "model": null,
         "prompt_version": "ip-office-relevance-v1.2",
-        "classified_at": "2026-11-24T21:40:27+09:00"
+        "classified_at": "2026-11-25T03:57:36+09:00"
       }
     },
     {
@@ -472,17 +472,20 @@
         "level": "important",
         "label": "중요",
         "score": 3,
-        "confidence": 0.9,
-        "reason": "국가시험 전반의 AI·첨단장비 활용 부정행위 근절 및 시험체계 개선을 위한 범정부 TF 출범 및 1차 회의 개최로, AI 활용 및 시스템 개선과 관련된 구체적 정책 추진 조치에 해당함.",
+        "confidence": 0.88,
+        "reason": "AI·정보화·보안 대상에 직접 연결된 구체적 시행·도입·구축·대응조치(B)가 확인되어 동향 추적이 필요합니다.",
         "signals": [
-          "국가시험 공정성 확보 TF 출범",
-          "AI·첨단장비 활용 부정행위 근절"
+          "AI",
+          "출범",
+          "참석",
+          "회의 개최",
+          "회의"
         ],
         "recommended_action": "동향 추적",
-        "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "method": "rules-fallback",
+        "model": null,
         "prompt_version": "ip-office-relevance-v1.2",
-        "classified_at": "2026-11-24T21:40:27+09:00"
+        "classified_at": "2026-11-25T03:57:36+09:00"
       }
     },
     {

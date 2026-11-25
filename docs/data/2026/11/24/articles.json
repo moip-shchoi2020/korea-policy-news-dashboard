@@ -436,18 +436,17 @@
         "level": "normal",
         "label": "보통",
         "score": 2,
-        "confidence": 0.95,
-        "reason": "군인공제회C&C가 병무청에 전자도서관 시스템과 전자자료를 기부하는 약정식 개최 및 2027년 개관 예정 사안으로, 타 기관의 시스템 도입 사례이며 지식재산처와 직접 관련이 없음",
+        "confidence": 0.9,
+        "reason": "병무청의 전자도서관 시스템 구축 사업이나, 지식재산처와 직접적인 관련이 없고 일반적인 정보화 사업에 해당함.",
         "signals": [
-          "전자도서관 시스템 기부 약정식",
-          "타 기관 시스템 도입",
-          "지식재산처 미연결"
+          "전자도서관 시스템",
+          "정보화 사업"
         ],
         "recommended_action": "참고",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.2",
-        "classified_at": "2026-11-25T05:43:42+09:00",
+        "classified_at": "2026-11-25T14:31:35+09:00",
         "source_hash": "dbef6274ed26ba6bf00b217749af2879a913fcb3b678317f055ea538d4db3298"
       }
     },
@@ -587,21 +586,21 @@
       "source_name": "대한민국 정책브리핑",
       "source_method": "pressReleaseList.do HTML",
       "ip_relevance": {
-        "level": "normal",
-        "label": "보통",
-        "score": 2,
+        "level": "important",
+        "label": "중요",
+        "score": 3,
         "confidence": 0.9,
-        "reason": "국가시험 공정성 확보 TF 출범 및 1차 회의 개최로 국가시험 전반의 AI·첨단장비 활용 논의를 다루고 있으나 지식재산처와 직접 연결되지 않고 회의 및 대책 마련 단계임",
+        "reason": "국가시험의 AI 및 첨단장비 활용 부정행위 근절을 위한 범정부 차원의 구체적 대응 체계 마련 및 시험체계 개선 조치임.",
         "signals": [
-          "국가시험 공정성 확보 TF 회의",
-          "AI·첨단장비 활용 부정행위 논의",
-          "회의 및 대책 마련"
+          "AI 활용 부정행위 근절",
+          "시험체계 개선",
+          "국가시험 공정성 확보 TF"
         ],
-        "recommended_action": "참고",
+        "recommended_action": "동향 추적",
         "method": "gemini-api",
-        "model": "google/gemini-3.5-flash-lite",
+        "model": "google/gemini-3.1-flash-lite",
         "prompt_version": "ip-office-relevance-v1.2",
-        "classified_at": "2026-11-25T05:43:42+09:00",
+        "classified_at": "2026-11-25T14:31:35+09:00",
         "source_hash": "cb56efbd6753e1c1e96fda396f09d529670e979059090df1fa5d63a1bb77cf81"
       }
     },
@@ -4804,7 +4803,7 @@
   "article_count": 126,
   "modified_count": 0,
   "classification_prompt_version": "ip-office-relevance-v1.2",
-  "classification_updated_at": "2026-11-25T03:57:36+09:00",
+  "classification_updated_at": "2026-11-25T14:31:45+09:00",
   "relevance_counts": {
     "unrelated": 120,
     "normal": 2,
